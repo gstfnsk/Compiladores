@@ -17,8 +17,6 @@ decimal { return TK_DECIMAL; }
 , { return yytext[0]; }
 [ \n\r\t ] 
 
-== { return TK_EQ; }
-
 . { return TK_ER; }
 
 %%
