@@ -1,0 +1,23 @@
+tipo 
+var
+senao
+decimal
+se
+inteiro
+retorna
+enquanto
+com
+! * / % + - < > [ ] ( ) = , ; & |
+
+<=
+>=
+==
+!=
+->
+
+lucas 
+_lucas
+_lu42
+872
+.23
+234.23
