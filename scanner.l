@@ -22,23 +22,8 @@ retorna { return TK_RETORNA; }
 enquanto { return TK_ENQUANTO; }
 com { return TK_COM; }
 
-! { return yytext[0]; }
-\* { return yytext[0]; }
-\/ { return yytext[0]; }
-\% { return yytext[0]; }
-\+ { return yytext[0]; }
-- { return yytext[0]; }
-\< { return yytext[0]; }
-> { return yytext[0]; }
-\[ { return yytext[0]; }
-] { return yytext[0]; }
-\( { return yytext[0]; }
-\) { return yytext[0]; }
-= { return yytext[0]; }
-, { return yytext[0]; }
-; { return yytext[0]; }
-& { return yytext[0]; }
-\| { return yytext[0]; }
+[!*/%+\-<>\[\]()=,;&|]   { return yytext[0]; }
+
 
 \<= { return TK_OC_LE; }
 >= { return TK_OC_GE; }

@@ -1,3 +1,8 @@
+
+// tipo var 123
+
+var identificador inteiro = 123;
+
 tipo 
 var
 senao
@@ -7,6 +12,7 @@ inteiro
 retorna
 enquanto
 com
+
 ! * / % + - < > [ ] ( ) = , ; & |
 
 <=
@@ -15,9 +21,20 @@ com
 !=
 ->
 
-lucas 
-_lucas
-_lu42
 872
+
+0
 .23
 234.23
+1.2
+
+testando
+_identificadores
+_giu42
+_123
+pa_lavra_
+pa_lavra_9_
+
+@
+.
+Teste 
