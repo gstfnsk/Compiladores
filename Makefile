@@ -2,24 +2,31 @@
 EXEC = e1
 FILE ?= arquivo_teste.txt
 
-# Regras principais
+# Ferramentas
+CC = gcc
+
+# Objetos que compõem o executável
+OBJS = main.o lex.yy.o
+
+.PHONY: all run clean
+
+# Regra principal
 all: $(EXEC)
 
 # Gera o executável a partir dos objetos
-$(EXEC): main.o lex.yy.o
-	@gcc main.o lex.yy.o -o $(EXEC)
+$(EXEC): $(OBJS)
+	@echo "Linkando: $^ -> $@"
+	@$(CC) $(OBJS) -o $@
 
-# Compila main.c
-main.o: main.c
-	@gcc main.c -c
-
-# Compila lex.yy.c (gerado pelo flex)
-lex.yy.o: lex.yy.c
-	@gcc lex.yy.c -c
+# Qualquer .o depende do .c de mesmo nome
+%.o: %.c
+	@echo "Compilando: $<"
+	@$(CC) -c $< -o $@
 
 # Gera lex.yy.c a partir do scanner.l
 lex.yy.c: scanner.l
-	@flex scanner.l
+	@echo "Gerando Flex: $<"
+	@flex $<
 
 # Roda o programa com arquivo parametrizado ou arquivo_teste.txt e retorna true para não mostrar o erro
 run: $(EXEC)
@@ -27,5 +34,6 @@ run: $(EXEC)
 
 # Limpeza dos arquivos
 clean:
+	@echo "CLEAN"
 	@rm -f *.o lex.yy.c $(EXEC)
 
