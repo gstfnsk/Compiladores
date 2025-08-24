@@ -1,8 +1,8 @@
-
-// tipo var 123
-
+// testes
+var z := 3; // comentário no fim da linha
 var identificador inteiro = 123;
 
+// palavras reservadas
 tipo 
 var
 senao
@@ -13,21 +13,25 @@ retorna
 enquanto
 com
 
+// caracteres especiais
 ! * / % + - < > [ ] ( ) = , ; & |
 
+// operadores compostos
 <=
 >=
 ==
 !=
+:=
 ->
 
+// literais
 872
-
 0
 .23
 234.23
 1.2
 
+// identificadores
 testando
 _identificadores
 _giu42
@@ -35,6 +39,7 @@ _123
 pa_lavra_
 pa_lavra_9_
 
+// erros:
 @
 .
 Teste 

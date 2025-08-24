@@ -22,15 +22,14 @@ retorna { return TK_RETORNA; }
 enquanto { return TK_ENQUANTO; }
 com { return TK_COM; }
 
-[!*/%+\-<>\[\]()=,;&|]   { return yytext[0]; }
-
-
 \<= { return TK_OC_LE; }
 >= { return TK_OC_GE; }
 == { return TK_OC_EQ; }
 != { return TK_OC_NE; }
 := { return TK_ATRIB; }
 -> { return TK_SETA; }
+
+[!*/%+\-<>\[\]()=,;&|]   { return yytext[0]; }
 
 [0-9]*\.[0-9]+ { return TK_LI_DECIMAL; }
 [0-9]+ { return TK_LI_INTEIRO; }
