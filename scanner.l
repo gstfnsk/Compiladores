@@ -8,7 +8,10 @@
 %option yylineno
 
 %%
-[ \n\r\t ] 
+
+[ \n\r\t]+ ;
+"//"[^\n]* ;
+
 tipo { return TK_TIPO; }
 var { return TK_VAR; }
 senao { return TK_SENAO; }
@@ -45,6 +48,9 @@ com { return TK_COM; }
 -> { return TK_SETA; }
 
 . { return TK_ER; }
+
+[0-9]*\.[0-9]+ { return TK_LI_DECIMAL; }
+[0-9]+ { return TK_LI_INTEIRO; }
 
 %%
 
