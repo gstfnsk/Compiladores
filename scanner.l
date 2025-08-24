@@ -47,10 +47,12 @@ com { return TK_COM; }
 := { return TK_ATRIB; }
 -> { return TK_SETA; }
 
-. { return TK_ER; }
-
 [0-9]*\.[0-9]+ { return TK_LI_DECIMAL; }
 [0-9]+ { return TK_LI_INTEIRO; }
+
+[a-z_][a-z0-9_]* { return TK_ID; }
+
+. { return TK_ER; }
 
 %%
 
