@@ -1,6 +1,5 @@
 # Nome do executável
-EXEC = e1
-FILE ?= arquivo_teste.txt
+EXEC = etapa1
 
 # Ferramentas
 CC = gcc
@@ -28,9 +27,9 @@ lex.yy.c: scanner.l
 	@echo "Gerando Flex: $<"
 	@flex $<
 
-# Roda o programa com arquivo parametrizado ou arquivo_teste.txt e retorna true para não mostrar o erro
+# Roda o programa (espera arquivo de teste)
 run: $(EXEC)
-	@cat $(FILE) | ./$(EXEC) || true 
+	./$(EXEC)
 
 # Limpeza dos arquivos
 clean:
