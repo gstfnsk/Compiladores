@@ -30,12 +30,12 @@ programa: lista ';';
 programa: %empty;
 lista: elemento;
 lista: lista ',' elemento;
-elemento: declaracao_variavel;
-elemento: declaracao_funcao;
+elemento: declaracao_variavel_sem_inicializacao;
+elemento: definicao_funcao;
 
-declaracao_variavel: TK_INTEIRO;
+declaracao_variavel_sem_inicializacao: TK_VAR TK_ID;
 
-declaracao_funcao: cabecalho corpo;
+definicao_funcao: cabecalho corpo;
 
 cabecalho: TK_ID TK_SETA TK_DECIMAL lista_parametros TK_ATRIB;
 cabecalho: TK_ID TK_SETA TK_DECIMAL TK_COM lista_parametros TK_ATRIB;
@@ -51,8 +51,20 @@ lista_parametros_seq: ',' parametro lista_parametros_seq;
 parametro: TK_ID TK_ATRIB TK_DECIMAL;
 parametro: TK_ID TK_ATRIB TK_INTEIRO;
 
-corpo: bloco_comandos;
-bloco_comandos: TK_INTEIRO;
+corpo: '[' bloco_comandos ']';
+
+comandos_simples: '[' bloco_comandos ']';
+/* comandos_simples: declaracao_variavel;
+comandos_simples: comando_atribuicao;
+comandos_simples: chamada_funcao;
+comandos_simples: comando_retorno;
+comandos_simples: construcoes_fluxo_controle; */
+
+comandos_simples_seq: %empty;
+comandos_simples_seq: comandos_simples comandos_simples_seq;
+
+bloco_comandos: %empty;
+bloco_comandos: comandos_simples comandos_simples_seq; 
 
 %%
 
