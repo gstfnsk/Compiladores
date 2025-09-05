@@ -1,0 +1,13 @@
+# Bison
+parser.tab.c
+parser.tab.h
+
+# Flex
+lex.yy.c
+
+# Objetos
+*.o
+
+# Executável
+etapa2
+
