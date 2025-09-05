@@ -40,6 +40,3 @@ pa_lavra_
 pa_lavra_9_
 
 // erros:
-@
-.
-Teste 
