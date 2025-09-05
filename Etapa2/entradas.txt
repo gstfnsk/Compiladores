@@ -1,10 +1,11 @@
-
-teste 
--> 
-inteiro
- com 
- param 
- := 
- inteiro
- := 
- [];
+programa -> inteiro com ex_parametro := inteiro := [
+    se () [
+        var decl_variavel_com_inic := inteiro com 10
+        var decl_variavel := decimal
+    ]
+    enquanto () [
+        chamada_funcao()
+        retorna := inteiro
+        teste_atrib := 
+    ]
+];
