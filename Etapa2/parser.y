@@ -36,8 +36,11 @@ declaracao_variavel: TK_INTEIRO;
 declaracao_funcao: TK_DECIMAL;
 %%
 
+int get_line_number(void);
+
 void yyerror (char const *mensagem)
 {
-	printf("o erro encontrado foi [%s]\n", mensagem);
+	int line = get_line_number();
+	printf("o erro encontrado foi [%s], na linha [%d] \n", mensagem, line);
 }
 

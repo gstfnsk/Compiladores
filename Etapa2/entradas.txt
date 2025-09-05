@@ -1,1 +1,4 @@
-inteiro, inteiro, inteiro,, decimal;
+inteiro, inteiro, inteiro, decimal;
+
+
+,,
