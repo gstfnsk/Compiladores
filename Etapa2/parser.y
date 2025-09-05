@@ -83,7 +83,8 @@ construcoes_fluxo_controle: TK_SE '('expressao ')' '[' bloco_comandos']' TK_SENA
 construcoes_fluxo_controle: TK_ENQUANTO '('expressao ')' '[' bloco_comandos']';
 
 argumentos: %empty
-/* TODO: implement the rest of the arguments, that depend on expressao*/
+/* TODO: implement the rest: cada argumento é separado do outro por vírgula. 
+Um argumento é uma expressão. */
 
 expressao: %empty;
 /* TODO: implement expressao*/
