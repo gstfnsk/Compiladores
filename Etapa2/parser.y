@@ -30,10 +30,8 @@ programa: lista ';';
 programa: %empty;
 lista: elemento;
 lista: lista ',' elemento;
-elemento: declaracao_variavel_sem_inicializacao;
+elemento: declaracao_variavel;
 elemento: definicao_funcao;
-
-declaracao_variavel_sem_inicializacao: TK_VAR TK_ID;
 
 definicao_funcao: cabecalho corpo;
 
@@ -65,6 +63,16 @@ comandos_simples_seq: comandos_simples comandos_simples_seq;
 
 bloco_comandos: %empty;
 bloco_comandos: comandos_simples comandos_simples_seq; 
+
+declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_DECIMAL;
+declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_INTEIRO;
+
+declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_DECIMAL TK_COM TK_LI_INTEIRO;
+declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_DECIMAL TK_COM TK_LI_DECIMAL;
+
+declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_INTEIRO TK_COM TK_LI_INTEIRO;
+declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_INTEIRO TK_COM TK_LI_DECIMAL;
+
 
 %%
 
