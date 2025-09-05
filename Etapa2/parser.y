@@ -32,8 +32,28 @@ lista: elemento;
 lista: lista ',' elemento;
 elemento: declaracao_variavel;
 elemento: declaracao_funcao;
+
 declaracao_variavel: TK_INTEIRO;
-declaracao_funcao: TK_DECIMAL;
+
+declaracao_funcao: cabecalho corpo;
+
+cabecalho: TK_ID TK_SETA TK_DECIMAL lista_parametros TK_ATRIB;
+cabecalho: TK_ID TK_SETA TK_DECIMAL TK_COM lista_parametros TK_ATRIB;
+cabecalho: TK_ID TK_SETA TK_INTEIRO lista_parametros TK_ATRIB;
+cabecalho: TK_ID TK_SETA TK_INTEIRO TK_COM lista_parametros TK_ATRIB;
+
+lista_parametros: %empty;
+lista_parametros: parametro lista_parametros_seq;
+
+lista_parametros_seq: %empty;
+lista_parametros_seq: ',' parametro lista_parametros_seq;
+
+parametro: TK_ID TK_ATRIB TK_DECIMAL;
+parametro: TK_ID TK_ATRIB TK_INTEIRO;
+
+corpo: bloco_comandos;
+bloco_comandos: TK_INTEIRO;
+
 %%
 
 int get_line_number(void);
