@@ -1,4 +1,10 @@
-inteiro, inteiro, inteiro, decimal;
 
-
-,,
+teste 
+-> 
+inteiro
+ com 
+ param 
+ := 
+ inteiro
+ := 
+ inteiro;
