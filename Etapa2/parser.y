@@ -136,7 +136,7 @@ construcoes_fluxo_controle: TK_ENQUANTO '('expressao ')' '[' bloco_comandos']';
 
 /* Um argumento é uma expressão. */
 argumentos: %empty;
-argumentos: expressao;
+/* argumentos: expressao; */
 
 expressao: %empty;
 /* TODO: implement expressao*/
