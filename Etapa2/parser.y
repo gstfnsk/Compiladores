@@ -63,27 +63,28 @@ parametro: TK_ID TK_ATRIB TK_DECIMAL;
 parametro: TK_ID TK_ATRIB TK_INTEIRO;
 
 /*  O corpo de uma função é um bloco de comandos */
-corpo: '[' bloco_comandos ']';
+corpo: bloco_comandos;
 
 /* Os comandos simples da linguagem podem ser:
 bloco de comandos, declaração de variável, comando de atribuição, 
 chamada de função, comando de retorno, e construções de fluxo de controle. */
-comandos_simples: '[' bloco_comandos ']';
+comandos_simples: bloco_comandos;
 comandos_simples: declaracao_variavel;
 comandos_simples: comando_atribuicao;
 comandos_simples: chamada_funcao;
 comandos_simples: comando_retorno;
 comandos_simples: construcoes_fluxo_controle;
 
-comandos_simples_seq: %empty;
-comandos_simples_seq: comandos_simples comandos_simples_seq;
-
 /* Bloco de Comandos: 
 Definido entre colchetes, e consiste em uma sequência, possivelmente vazia,
 de comandos simples. Um bloco de comandos é considerado como um comando único simples
 e pode ser utilizado em qualquer construção que aceite um comando simples. */
-bloco_comandos: %empty;
-bloco_comandos: comandos_simples comandos_simples_seq; 
+/* bloco_comandos: '[' ']'; */
+
+bloco_comandos: '[' comandos_simples_seq ']'; 
+
+comandos_simples_seq: %empty;
+comandos_simples_seq: comandos_simples comandos_simples_seq;
 
 /* Declaração de variável: 
 Esta declaração é idêntica ao comando simples de declaração de variável
@@ -114,9 +115,9 @@ chamada_funcao: TK_ID '(' lista_argumentos ')';
 
 lista_argumentos: argumento ',' lista_argumentos;
 lista_argumentos: argumento;
+lista_argumentos: %empty;
 
 /* Um argumento é uma expressão. */
-/* argumento: %empty; */
 argumento: expressao; 
 
 /* TODO: separar por vírgula */
@@ -133,15 +134,58 @@ construção iterativa para controle estruturado de fluxo.
 A condicional consiste no token TK_SE seguido de uma expressão entre parênteses 
 e então por um bloco de comandos obrigatório. Após este bloco, podemos opcionalmente ter o token
 TK_SENAO que, quando aparece, é seguido obrigatoriamente por um bloco de comandos. */
-construcoes_fluxo_controle: TK_SE '('expressao ')' '[' bloco_comandos']';
-construcoes_fluxo_controle: TK_SE '('expressao ')' '[' bloco_comandos']' TK_SENAO '[' bloco_comandos']';
+construcoes_fluxo_controle: TK_SE '('expressao ')' bloco_comandos;
+construcoes_fluxo_controle: TK_SE '('expressao ')' bloco_comandos TK_SENAO bloco_comandos;
 
 /* Temos apenas uma construção de repetição que é o token TK_ENQUANTO 
 seguido de uma expressão entre parênteses e de um bloco de comandos. */
-construcoes_fluxo_controle: TK_ENQUANTO '('expressao ')' '[' bloco_comandos']';
+construcoes_fluxo_controle: TK_ENQUANTO '('expressao ')' bloco_comandos;
 
-expressao: %empty;
-/* TODO: implement expressao*/
+expressao: operacao_binaria_or;
+
+/* Precedência 7 */
+operacao_binaria_or: operacao_binaria_and '|' operacao_binaria_and;
+operacao_binaria_or: operacao_binaria_and 
+
+/* Precedência 6 */
+operacao_binaria_and: operacao_binaria_igualdade '&' operacao_binaria_igualdade;
+operacao_binaria_and: operacao_binaria_igualdade 
+
+/* Precedência 5 */
+operacao_binaria_igualdade: operacao_binaria_relacional TK_OC_EQ operacao_binaria_relacional;
+operacao_binaria_igualdade: operacao_binaria_relacional TK_OC_NE operacao_binaria_relacional;
+operacao_binaria_igualdade: operacao_binaria_relacional;
+
+/* Precedência 4 */
+operacao_binaria_relacional: operacao_binaria_soma_sub '<' operacao_binaria_soma_sub;
+operacao_binaria_relacional: operacao_binaria_soma_sub '>' operacao_binaria_soma_sub;
+operacao_binaria_relacional: operacao_binaria_soma_sub TK_OC_LE operacao_binaria_soma_sub;
+operacao_binaria_relacional: operacao_binaria_soma_sub TK_OC_GE operacao_binaria_soma_sub;
+operacao_binaria_relacional: operacao_binaria_soma_sub;
+
+/* Precedência 3 */
+operacao_binaria_soma_sub: operacao_binaria_mult_div '+' operacao_binaria_mult_div;
+operacao_binaria_soma_sub: operacao_binaria_mult_div '-' operacao_binaria_mult_div;
+operacao_binaria_soma_sub: operacao_binaria_mult_div;
+
+/* Precedência 2 */
+operacao_binaria_mult_div: operacao_unaria;
+operacao_binaria_mult_div: operacao_unaria '*' operacao_unaria;
+operacao_binaria_mult_div: operacao_unaria '/' operacao_unaria;
+operacao_binaria_mult_div: operacao_unaria '%' operacao_unaria;
+
+/* Precedência 1 */
+operacao_unaria: operando;
+operacao_unaria: '+' operando;
+operacao_unaria: '-' operando;
+operacao_unaria: '!' operando;
+
+/* Precedência 0 */
+operando: chamada_funcao;
+operando: TK_ID;
+operando: TK_LI_INTEIRO;
+operando: TK_LI_DECIMAL;
+operando: '(' expressao ')';
 
 %%
 
