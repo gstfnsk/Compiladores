@@ -142,6 +142,7 @@ construcoes_fluxo_controle: TK_SE '('expressao ')' bloco_comandos TK_SENAO bloco
 seguido de uma expressão entre parênteses e de um bloco de comandos. */
 construcoes_fluxo_controle: TK_ENQUANTO '('expressao ')' bloco_comandos;
 
+/* Expressões envolvem operandos e operadores, sendo este opcional. */
 expressao: operacao_binaria_or;
 
 /* Precedência 7 */
@@ -182,11 +183,16 @@ operacao_unaria: '-' operando;
 operacao_unaria: '!' operando;
 
 /* Precedência 0 */
-operando: chamada_funcao;
+/* Os operandos podem ser identificadores, literais e 
+chamada de função ou outras expressões, 
+podendo portanto ser formadas recursivamente pelo emprego de operadores */
 operando: TK_ID;
 operando: TK_LI_INTEIRO;
 operando: TK_LI_DECIMAL;
+operando: chamada_funcao;
 operando: '(' expressao ')';
+/* Elas também permitem o uso de parênteses para forçar
+uma associatividade ou precedência diferente daquela tradicional.  */
 
 %%
 
