@@ -1,4 +1,4 @@
-programa -> inteiro com ex_parametro := inteiro := [
+ex_func1 -> inteiro ex_parametro_sem_com_e_virgula := inteiro := [
     se () [
         var decl_variavel_com_inic := inteiro com 10
         var decl_variavel := decimal
@@ -8,4 +8,7 @@ programa -> inteiro com ex_parametro := inteiro := [
         retorna := inteiro
         teste_atrib := 
     ]
-];
+], 
+ex_func2 -> decimal com param := inteiro, param2 := decimal := [],
+ex_func3 -> inteiro param3 := decimal := []
+;

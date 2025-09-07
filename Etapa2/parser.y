@@ -54,10 +54,8 @@ cabecalho: TK_ID TK_SETA TK_INTEIRO TK_COM lista_parametros TK_ATRIB;
 /* A lista de parâmetros, quando presente, consiste no token opcional TK_COM
 seguido de uma lista, separada por vírgula, de parâmetros.  */
 lista_parametros: %empty;
-lista_parametros: parametro lista_parametros_seq;
-
-lista_parametros_seq: %empty;
-lista_parametros_seq: ',' parametro lista_parametros_seq;
+lista_parametros: parametro ',' lista_parametros
+lista_parametros: parametro
 
 /* Cada parâmetro consiste no token TK_ID seguido do token TK_ATRIB
 seguido ou do token TK_INTEIRO ou do token TK_DECIMAL. */
@@ -112,7 +110,15 @@ comando_atribuicao: TK_ID TK_ATRIB expressao;
 Uma chamada de função consiste no token TK_ID, seguida de argumentos entre parênteses, 
 sendo que cada argumento é separado do outro por vírgula. 
 Um argumento é uma expressão. Uma chamada de função pode existir sem argumentos. */
-chamada_funcao: TK_ID '(' argumentos ')';
+chamada_funcao: TK_ID '(' lista_argumentos ')';
+
+lista_argumentos: argumento ',' lista_argumentos;
+lista_argumentos: argumento;
+
+/* Um argumento é uma expressão. */
+/* argumento: %empty; */
+argumento: expressao; 
+
 /* TODO: separar por vírgula */
 
 /* Comando de Retorno: 
@@ -133,10 +139,6 @@ construcoes_fluxo_controle: TK_SE '('expressao ')' '[' bloco_comandos']' TK_SENA
 /* Temos apenas uma construção de repetição que é o token TK_ENQUANTO 
 seguido de uma expressão entre parênteses e de um bloco de comandos. */
 construcoes_fluxo_controle: TK_ENQUANTO '('expressao ')' '[' bloco_comandos']';
-
-/* Um argumento é uma expressão. */
-argumentos: %empty;
-/* argumentos: expressao; */
 
 expressao: %empty;
 /* TODO: implement expressao*/
