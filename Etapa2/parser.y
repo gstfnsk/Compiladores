@@ -1,3 +1,4 @@
+/* Grupo D */
 %{
 #include<stdio.h>
 int yylex(void);
