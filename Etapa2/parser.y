@@ -48,15 +48,15 @@ seguido ou do token TK_DECIMAL ou do token TK_INTEIRO,
 seguido por uma lista opcional de parâmetros seguido do
 token TK_ATRIB. */
 cabecalho: TK_ID TK_SETA TK_DECIMAL lista_parametros TK_ATRIB;
-cabecalho: TK_ID TK_SETA TK_DECIMAL TK_COM lista_parametros TK_ATRIB;
 cabecalho: TK_ID TK_SETA TK_INTEIRO lista_parametros TK_ATRIB;
-cabecalho: TK_ID TK_SETA TK_INTEIRO TK_COM lista_parametros TK_ATRIB;
 
 /* A lista de parâmetros, quando presente, consiste no token opcional TK_COM
 seguido de uma lista, separada por vírgula, de parâmetros.  */
 lista_parametros: %empty;
 lista_parametros: parametro ',' lista_parametros
 lista_parametros: parametro
+lista_parametros: TK_COM parametro ',' lista_parametros
+lista_parametros: TK_COM parametro
 
 /* Cada parâmetro consiste no token TK_ID seguido do token TK_ATRIB
 seguido ou do token TK_INTEIRO ou do token TK_DECIMAL. */

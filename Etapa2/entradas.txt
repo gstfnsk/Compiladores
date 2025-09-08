@@ -5,10 +5,12 @@ ex_func1 -> inteiro ex_parametro_sem_com_e_virgula := inteiro := [
     ]
     enquanto ((2+2)*!ex_id | (ex_id2 & ex_chamada_func()) % 3.4) [
         chamada_funcao()
+        chamada_funcao(teste_args, (12.43))
         retorna c := inteiro
         teste_atrib := a + b
     ]
 ], 
 ex_func2 -> decimal com param := inteiro, param2 := decimal := [],
-ex_func3 -> inteiro param3 := decimal := []
+ex_func3 -> inteiro param3 := decimal := [],
+ex_func4 -> inteiro com := []
 ;
