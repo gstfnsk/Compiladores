@@ -146,35 +146,35 @@ construcoes_fluxo_controle: TK_ENQUANTO '('expressao ')' bloco_comandos;
 expressao: operacao_binaria_or;
 
 /* Precedência 7 */
-operacao_binaria_or: operacao_binaria_and '|' operacao_binaria_and;
+operacao_binaria_or: operacao_binaria_or '|' operacao_binaria_and;
 operacao_binaria_or: operacao_binaria_and 
 
 /* Precedência 6 */
-operacao_binaria_and: operacao_binaria_igualdade '&' operacao_binaria_igualdade;
+operacao_binaria_and: operacao_binaria_and '&' operacao_binaria_igualdade;
 operacao_binaria_and: operacao_binaria_igualdade 
 
 /* Precedência 5 */
-operacao_binaria_igualdade: operacao_binaria_relacional TK_OC_EQ operacao_binaria_relacional;
-operacao_binaria_igualdade: operacao_binaria_relacional TK_OC_NE operacao_binaria_relacional;
+operacao_binaria_igualdade: operacao_binaria_igualdade TK_OC_EQ operacao_binaria_relacional;
+operacao_binaria_igualdade: operacao_binaria_igualdade TK_OC_NE operacao_binaria_relacional;
 operacao_binaria_igualdade: operacao_binaria_relacional;
 
 /* Precedência 4 */
-operacao_binaria_relacional: operacao_binaria_soma_sub '<' operacao_binaria_soma_sub;
-operacao_binaria_relacional: operacao_binaria_soma_sub '>' operacao_binaria_soma_sub;
-operacao_binaria_relacional: operacao_binaria_soma_sub TK_OC_LE operacao_binaria_soma_sub;
-operacao_binaria_relacional: operacao_binaria_soma_sub TK_OC_GE operacao_binaria_soma_sub;
+operacao_binaria_relacional: operacao_binaria_relacional '<' operacao_binaria_soma_sub;
+operacao_binaria_relacional: operacao_binaria_relacional '>' operacao_binaria_soma_sub;
+operacao_binaria_relacional: operacao_binaria_relacional TK_OC_LE operacao_binaria_soma_sub;
+operacao_binaria_relacional: operacao_binaria_relacional TK_OC_GE operacao_binaria_soma_sub;
 operacao_binaria_relacional: operacao_binaria_soma_sub;
 
 /* Precedência 3 */
-operacao_binaria_soma_sub: operacao_binaria_mult_div '+' operacao_binaria_mult_div;
-operacao_binaria_soma_sub: operacao_binaria_mult_div '-' operacao_binaria_mult_div;
+operacao_binaria_soma_sub: operacao_binaria_soma_sub '+' operacao_binaria_mult_div;
+operacao_binaria_soma_sub: operacao_binaria_soma_sub '-' operacao_binaria_mult_div;
 operacao_binaria_soma_sub: operacao_binaria_mult_div;
 
 /* Precedência 2 */
 operacao_binaria_mult_div: operacao_unaria;
-operacao_binaria_mult_div: operacao_unaria '*' operacao_unaria;
-operacao_binaria_mult_div: operacao_unaria '/' operacao_unaria;
-operacao_binaria_mult_div: operacao_unaria '%' operacao_unaria;
+operacao_binaria_mult_div: operacao_binaria_mult_div '*' operacao_unaria;
+operacao_binaria_mult_div: operacao_binaria_mult_div '/' operacao_unaria;
+operacao_binaria_mult_div: operacao_binaria_mult_div '%' operacao_unaria;
 
 /* Precedência 1 */
 operacao_unaria: operando;
