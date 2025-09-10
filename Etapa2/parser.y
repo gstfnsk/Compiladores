@@ -37,7 +37,7 @@ lista: lista ',' elemento;
 
 /* Cada elemento dessa lista é ou uma definição de função 
 ou uma declaração de variável. */
-elemento: declaracao_variavel;
+elemento: declaracao_variavel_global;
 elemento: definicao_funcao;
 
 /* Definição de Função: Ela possui um cabeçalho e um corpo. */
@@ -53,10 +53,11 @@ cabecalho: TK_ID TK_SETA TK_INTEIRO lista_parametros TK_ATRIB;
 /* A lista de parâmetros, quando presente, consiste no token opcional TK_COM
 seguido de uma lista, separada por vírgula, de parâmetros.  */
 lista_parametros: %empty;
-lista_parametros: parametro ',' lista_parametros
-lista_parametros: parametro
-lista_parametros: TK_COM parametro ',' lista_parametros
-lista_parametros: TK_COM parametro
+lista_parametros: lista_parametros_nao_vazia;
+lista_parametros: TK_COM lista_parametros_nao_vazia;
+
+lista_parametros_nao_vazia: parametro;
+lista_parametros_nao_vazia: parametro ',' lista_parametros_nao_vazia;
 
 /* Cada parâmetro consiste no token TK_ID seguido do token TK_ATRIB
 seguido ou do token TK_INTEIRO ou do token TK_DECIMAL. */
@@ -90,8 +91,8 @@ comandos_simples_seq: comandos_simples comandos_simples_seq;
 /* Declaração de variável: 
 Esta declaração é idêntica ao comando simples de declaração de variável
 sendo que a única e importante diferença é que esse elemento não pode receber valores de inicialização. */
-declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_DECIMAL;
-declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_INTEIRO;
+declaracao_variavel_global: TK_VAR TK_ID TK_ATRIB TK_DECIMAL;
+declaracao_variavel_global: TK_VAR TK_ID TK_ATRIB TK_INTEIRO;
 
 /* Declaração de Variável: 
 Consiste no token TK_VAR seguido do token TK_ID, 
@@ -102,6 +103,8 @@ seja seguida do token TK_COM e de um literal.
 Um literal pode ser ou o token TK_LI_INTEIRO ou o token TK_LI_DECIMAL. */
 declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_DECIMAL TK_COM TK_LI_DECIMAL;
 declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_INTEIRO TK_COM TK_LI_INTEIRO;
+declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_DECIMAL;
+declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_INTEIRO;
 
 /* Comando de Atribuição: 
 O comando de atribuição consiste em um token TK_ID, 
@@ -178,9 +181,9 @@ operacao_binaria_mult_div: operacao_binaria_mult_div '%' operacao_unaria;
 
 /* Precedência 1 */
 operacao_unaria: operando;
-operacao_unaria: '+' operando;
-operacao_unaria: '-' operando;
-operacao_unaria: '!' operando;
+operacao_unaria: '+' operacao_unaria;
+operacao_unaria: '-' operacao_unaria;
+operacao_unaria: '!' operacao_unaria;
 
 /* Precedência 0 */
 /* Os operandos podem ser identificadores, literais e 
