@@ -55,39 +55,65 @@ e a lista é terminada pelo operador ponto-e-vírgula. */
 programa: lista ';' {
     arvore = asd_new("programa");
     if ($1 != NULL) asd_add_child(arvore, $1);
-    $$ = arvore;
-	printf("programa nao vazio \n"); } ;
+	printf("programa nao vazio \n"); };
 
-programa: %empty { $$ = NULL; printf("programa vazio \n");}; 
+programa: %empty { arvore = NULL; printf("programa vazio \n");}; 
 
-lista: elemento
-lista: elemento ',' lista
+lista: elemento { $$ = $1; printf("1\n"); };
+lista: elemento ',' lista {
+    printf("2\n");
+    if ($1 && $3) {
+        $$ = $1;
+        asd_add_child($1, $3); 
+    } else if ($1) {
+        $$ = $1;
+    } else { // não tenho certeza se precisa
+        $$ = $3;
+    }};
 
 
 /* Cada elemento dessa lista é ou uma definição de função 
 ou uma declaração de variável. */
-elemento: declaracao_variavel_global;
-elemento: definicao_funcao;
+elemento: declaracao_variavel_global { $$ = $1; printf("3\n"); };
+elemento: definicao_funcao { $$ = $1; printf("4\n"); };
 
 /* Definição de Função: Ela possui um cabeçalho e um corpo. */
-definicao_funcao: cabecalho corpo;
+definicao_funcao: cabecalho corpo {
+    $$ = $1; 
+    $$ = asd_new("corpo");
+    printf("5\n");
+    if ($2 != NULL) {
+        asd_add_child($$, $2); 
+    }
+};
 
 /* O cabeçalho consiste no token TK_ID seguido do token TK_SETA
 seguido ou do token TK_DECIMAL ou do token TK_INTEIRO, 
 seguido por uma lista opcional de parâmetros seguido do
 token TK_ATRIB. */
 cabecalho: TK_ID TK_SETA TK_DECIMAL lista_parametros TK_ATRIB {
+    printf("6\n");
+    //     if($1 != NULL){
+    //     $$ = asd_new($1->lexema); 
+    //     $$->payload = $1;
+    // };
 };
+
 cabecalho: TK_ID TK_SETA TK_INTEIRO lista_parametros TK_ATRIB {
+    printf("7\n");
+    //  if($1 != NULL){
+    //     $$ = asd_new($1->lexema); 
+    //     $$->payload = $1;
+    // };
 };
 
 /* A lista de parâmetros, quando presente, consiste no token opcional TK_COM
 seguido de uma lista, separada por vírgula, de parâmetros.  */
-lista_parametros: %empty { $$ = NULL; };
-lista_parametros: lista_parametros_nao_vazia {} ;
-lista_parametros: TK_COM lista_parametros_nao_vazia {}; 
+lista_parametros: %empty { $$ = NULL; printf("8\n"); };
+lista_parametros: lista_parametros_nao_vazia { $$ = $1; printf("9\n"); } ;
+lista_parametros: TK_COM lista_parametros_nao_vazia { $$ = $2; printf("10\n"); }; 
 
-lista_parametros_nao_vazia: parametro { $$ = $1; };
+lista_parametros_nao_vazia: parametro { $$ = $1; printf("11\n");};
 lista_parametros_nao_vazia: parametro ',' lista_parametros_nao_vazia { };
 
 /* Cada parâmetro consiste no token TK_ID seguido do token TK_ATRIB
