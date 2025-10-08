@@ -53,16 +53,15 @@ void yyerror (char const *mensagem);
 Os elementos da lista são separados pelo operador vírgula 
 e a lista é terminada pelo operador ponto-e-vírgula. */
 programa: lista ';' {
-    arvore = asd_new("programa");
-    if ($1) asd_add_child(arvore, $1);
+    if ($1)  { arvore = $1; };
 	// printf("programa nao vazio \n"); 
     };
 
-programa: %empty { arvore = NULL; printf("programa vazio \n");}; 
+programa: %empty { arvore = NULL; 
+// printf("programa vazio \n");
+}; 
 
-lista: elemento { $$ = $1;
-//  printf("1\n"); 
- };
+lista: elemento { $$ = $1;};
 lista: elemento ',' lista {
     // printf("2\n");
     if ($1 && $3) {
@@ -84,9 +83,8 @@ elemento: definicao_funcao { $$ = $1; };
 
 /* Definição de Função: Ela possui um cabeçalho e um corpo. */
 definicao_funcao: cabecalho corpo {
-    $$ = asd_new("definicao_funcao");
     if ($1) {
-    asd_add_child($$, $1);  // adiciona o cabeçalho
+    $$ = $1;  // adiciona o cabeçalho
     }
     if ($2) asd_add_child($$, $2);  // adiciona o corpo
     // printf("5\n");
@@ -99,10 +97,6 @@ token TK_ATRIB. */
 cabecalho: TK_ID TK_SETA TK_DECIMAL lista_parametros TK_ATRIB {
     // printf("6\n");
     $$ = asd_new($1->lexema);
-    if ($1) {
-    asd_add_child($$, asd_new($1->lexema)); // ID: nome da função
-    asd_add_child($$, asd_new("DECIMAL"));  // tipo
-    }
     if ($4) asd_add_child($$, $4);          // parâmetros, se houver
 };
 
@@ -111,7 +105,7 @@ cabecalho: TK_ID TK_SETA TK_INTEIRO lista_parametros TK_ATRIB {
      $$ = asd_new($1->lexema);
      if ($1) {
     asd_add_child($$, asd_new($1->lexema)); // ID: nome da função
-    asd_add_child($$, asd_new("INTEIRO"));  // tipo
+    // asd_add_child($$, asd_new($3->lexema));  // tipo
      }
     if ($4) asd_add_child($$, $4);          // parâmetros, se houver
 };
@@ -218,7 +212,6 @@ declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_DECIMAL TK_COM TK_LI_DECIMAL {
         asd_add_child($$, asd_new($2->lexema));
         $$->payload = $2;
     }
-    asd_add_child($$, asd_new("DECIMAL"));
     if ($6) {
         asd_add_child($$, asd_new($6->lexema));
         $$->payload = $6;
@@ -230,7 +223,6 @@ declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_INTEIRO TK_COM TK_LI_INTEIRO {
         asd_add_child($$, asd_new($2->lexema));
         $$->payload = $2;
     }
-    asd_add_child($$, asd_new("INTEIRO"));
     if ($6) {
         asd_add_child($$, asd_new($6->lexema));
         $$->payload = $6;

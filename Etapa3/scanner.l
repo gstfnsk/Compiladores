@@ -34,9 +34,39 @@ com { return TK_COM; }
 [!*/%+\-<>\[\]()=,;&|]   { return yytext[0]; }
 
 [0-9]*\.[0-9]+ { 
+    valor_lexico_t *aux = malloc(sizeof(valor_lexico_t));
+
+    if(aux == NULL){
+       fprintf(stderr, "Erro");
+       exit(1);
+    }
+    aux->lexema = strdup(yytext);
+    aux->line_number = yylineno;
+    aux->type = TK_LI_DECIMAL;
+    if(aux->lexema == NULL){
+      fprintf(stderr, "Erro");
+      free(aux);
+      exit(1);
+    }
+    yylval.valor_lexico = aux;
     return TK_LI_DECIMAL; }
 
 [0-9]+ { 
+    valor_lexico_t *aux = malloc(sizeof(valor_lexico_t));
+
+    if(aux == NULL){
+       fprintf(stderr, "Erro");
+       exit(1);
+    }
+    aux->lexema = strdup(yytext);
+    aux->line_number = yylineno;
+    aux->type = TK_LI_INTEIRO;
+    if(aux->lexema == NULL){
+      fprintf(stderr, "Erro");
+      free(aux);
+      exit(1);
+    }
+    yylval.valor_lexico = aux;
     return TK_LI_INTEIRO; }
 
 [a-z_][a-z0-9_]* {
