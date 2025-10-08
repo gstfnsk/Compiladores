@@ -102,11 +102,9 @@ cabecalho: TK_ID TK_SETA TK_DECIMAL lista_parametros TK_ATRIB {
 
 cabecalho: TK_ID TK_SETA TK_INTEIRO lista_parametros TK_ATRIB {
     // printf("7\n");
+    if ($1) {
      $$ = asd_new($1->lexema);
-     if ($1) {
-    asd_add_child($$, asd_new($1->lexema)); // ID: nome da função
-    // asd_add_child($$, asd_new($3->lexema));  // tipo
-     }
+    }
     if ($4) asd_add_child($$, $4);          // parâmetros, se houver
 };
 
@@ -126,7 +124,6 @@ lista_parametros_nao_vazia: parametro { $$ = $1;
 // printf("11\n");
 };
 lista_parametros_nao_vazia: parametro ',' lista_parametros_nao_vazia {
-    $$ = asd_new("parametros");
     if ($1) {
     asd_add_child($$, $1);}
     if ($3) {
@@ -172,8 +169,7 @@ bloco_comandos: '[' comandos_simples_seq ']' {
 comandos_simples_seq: %empty { $$ = NULL; 
 // printf("dale"); 
 };
-comandos_simples_seq: comandos_simples comandos_simples_seq { 
-    $$ = asd_new("comandos");
+comandos_simples_seq: comandos_simples comandos_simples_seq {
     if ($1 && $2) {
         asd_add_child($1, $2); 
         $$ = $1;
