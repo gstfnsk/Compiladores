@@ -3,7 +3,7 @@
 
 typedef struct valor_lexico {
 		int line_number;
-		char type;
+		int type;
 		char *lexema;
 	} valor_lexico_t;
 
