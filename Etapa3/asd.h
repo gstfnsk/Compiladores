@@ -1,3 +1,7 @@
+/*Grupo D*/
+/*00228729 - Matheus Henrique Sabadin*/
+/*00289108 - Giulia Chimini Stefainski*/
+
 #ifndef _ASD_H_
 #define _ASD_H_
 

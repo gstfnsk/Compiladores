@@ -1,3 +1,7 @@
+# Grupo D
+# 00228729 - Matheus Henrique Sabadin
+# 00289108 - Giulia Chimini Stefainski
+
 # Nome do executável
 EXEC = etapa3
 
@@ -13,7 +17,7 @@ LEXER_C  = scanner.lex.c
 
 # Compilador e flags
 CC = gcc
-CFLAGS = -fsanitize=address -g -Werror
+CFLAGS = -fsanitize=address -g -Werror -Wall
 LDFLAGS = -lfl -lm
 
 # Regra principal

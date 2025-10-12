@@ -1,4 +1,6 @@
 /*Grupo D*/
+/*00228729 - Matheus Henrique Sabadin*/
+/*00289108 - Giulia Chimini Stefainski*/
 
 %{ 
 #include<stdio.h>
@@ -6,6 +8,8 @@
 #include "asd.h"
 %}
 
+%option noinput
+%option nounput
 %option noyywrap
 %option yylineno
 
