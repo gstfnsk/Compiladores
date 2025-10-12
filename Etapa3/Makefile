@@ -1,5 +1,5 @@
 # Nome do executável
-EXEC = main
+EXEC = etapa3
 
 # Arquivos
 PARSER = parser.y

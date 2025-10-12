@@ -40,10 +40,10 @@ com { return TK_COM; }
        fprintf(stderr, "Erro");
        exit(1);
     }
-    aux->lexema = strdup(yytext);
+    aux->value = strdup(yytext);
     aux->line_number = yylineno;
     aux->type = TK_LI_DECIMAL;
-    if(aux->lexema == NULL){
+    if(aux->value == NULL){
       fprintf(stderr, "Erro");
       free(aux);
       exit(1);
@@ -58,10 +58,10 @@ com { return TK_COM; }
        fprintf(stderr, "Erro");
        exit(1);
     }
-    aux->lexema = strdup(yytext);
+    aux->value = strdup(yytext);
     aux->line_number = yylineno;
     aux->type = TK_LI_INTEIRO;
-    if(aux->lexema == NULL){
+    if(aux->value == NULL){
       fprintf(stderr, "Erro");
       free(aux);
       exit(1);
@@ -76,10 +76,10 @@ com { return TK_COM; }
        fprintf(stderr, "Erro");
        exit(1);
     }
-    aux->lexema = strdup(yytext);
+    aux->value = strdup(yytext);
     aux->line_number = yylineno;
     aux->type = TK_ID;
-    if(aux->lexema == NULL){
+    if(aux->value == NULL){
       fprintf(stderr, "Erro");
       free(aux);
       exit(1);
