@@ -8,6 +8,8 @@
 #include "asd.h"
 %}
 
+%option noinput
+%option nounput
 %option noyywrap
 %option yylineno
 
