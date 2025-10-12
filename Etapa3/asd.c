@@ -19,6 +19,12 @@ void asd_free(asd_tree_t *tree)
 {
   if (tree != NULL){
     int i;
+
+    if (tree->payload != NULL) {
+      free(tree->payload->lexema);
+      free(tree->payload);
+    }
+
     for (i = 0; i < tree->number_of_children; i++){
       asd_free(tree->children[i]);
     }
