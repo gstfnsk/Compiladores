@@ -21,7 +21,7 @@ void asd_free(asd_tree_t *tree)
     int i;
 
     if (tree->payload != NULL) {
-      free(tree->payload->lexema);
+      free(tree->payload->value);
       free(tree->payload);
     }
 
