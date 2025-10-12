@@ -4,7 +4,7 @@
 typedef struct valor_lexico {
 		int line_number;
 		int type;
-		char *lexema;
+		char *value;
 	} valor_lexico_t;
 
 typedef struct asd_tree {

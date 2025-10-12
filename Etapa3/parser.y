@@ -96,14 +96,14 @@ seguido por uma lista opcional de parâmetros seguido do
 token TK_ATRIB. */
 cabecalho: TK_ID TK_SETA TK_DECIMAL lista_parametros TK_ATRIB {
     // printf("6\n");
-    $$ = asd_new($1->lexema);
+    $$ = asd_new($1->value);
     if ($4) asd_add_child($$, $4);          // parâmetros, se houver
 };
 
 cabecalho: TK_ID TK_SETA TK_INTEIRO lista_parametros TK_ATRIB {
     // printf("7\n");
     if ($1) {
-     $$ = asd_new($1->lexema);
+     $$ = asd_new($1->value);
     }
     if ($4) asd_add_child($$, $4);          // parâmetros, se houver
 };
@@ -133,12 +133,12 @@ lista_parametros_nao_vazia: parametro ',' lista_parametros_nao_vazia {
 /* Cada parâmetro consiste no token TK_ID seguido do token TK_ATRIB
 seguido ou do token TK_INTEIRO ou do token TK_DECIMAL. */
 parametro: TK_ID TK_ATRIB TK_DECIMAL {
-	free($1->lexema);
+	free($1->value);
     free($1);
     $$ = NULL;
 };
 parametro: TK_ID TK_ATRIB TK_INTEIRO {
-	free($1->lexema);
+	free($1->value);
     free($1);
     $$ = NULL;
 };
@@ -184,13 +184,13 @@ comandos_simples_seq: comandos_simples comandos_simples_seq {
 Esta declaração é idêntica ao comando simples de declaração de variável
 sendo que a única e importante diferença é que esse elemento não pode receber valores de inicialização. */
 declaracao_variavel_global: TK_VAR TK_ID TK_ATRIB TK_DECIMAL {
-    free($2->lexema);
+    free($2->value);
     free($2);
     $$ = NULL;
 };
 
 declaracao_variavel_global: TK_VAR TK_ID TK_ATRIB TK_INTEIRO {
-	free($2->lexema);
+	free($2->value);
     free($2);
     $$ = NULL;
 };
@@ -205,32 +205,32 @@ Um literal pode ser ou o token TK_LI_INTEIRO ou o token TK_LI_DECIMAL. */
 declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_DECIMAL TK_COM TK_LI_DECIMAL {
 	$$ = asd_new("com");
     if ($2) {
-        asd_add_child($$, asd_new($2->lexema));
+        asd_add_child($$, asd_new($2->value));
         $$->payload = $2;
     }
     if ($6) {
-        asd_add_child($$, asd_new($6->lexema));
+        asd_add_child($$, asd_new($6->value));
         $$->payload = $6;
     }
 };
 declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_INTEIRO TK_COM TK_LI_INTEIRO {
 	$$ = asd_new("com");
     if ($2) {
-        asd_add_child($$, asd_new($2->lexema));
+        asd_add_child($$, asd_new($2->value));
         $$->payload = $2;
     }
     if ($6) {
-        asd_add_child($$, asd_new($6->lexema));
+        asd_add_child($$, asd_new($6->value));
         $$->payload = $6;
     }
 };
 declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_DECIMAL {
-    free($2->lexema);
+    free($2->value);
     free($2);
     $$ = NULL;
 };
 declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_INTEIRO { 
-	free($2->lexema);
+	free($2->value);
     free($2);
     $$ = NULL;
 };
@@ -241,7 +241,7 @@ seguido do token TK_ATRIB e enfim seguido por uma expressão. */
 comando_atribuicao: TK_ID TK_ATRIB expressao {
 	$$ = asd_new(":="); 
     if($1) {
-        asd_add_child($$, asd_new($1->lexema));  
+        asd_add_child($$, asd_new($1->value));  
     }
     if($3) {
         asd_add_child($$, $3);  
@@ -256,7 +256,7 @@ Um argumento é uma expressão. Uma chamada de função pode existir sem argumen
 chamada_funcao: TK_ID '(' lista_argumentos ')' {
 	if($1){
     char nome[256];
-    snprintf(nome, sizeof(nome), "call %s", $1->lexema);
+    snprintf(nome, sizeof(nome), "call %s", $1->value);
     $$ = asd_new(nome);
     if($3){asd_add_child($$, $3);};
     $$->payload = $1;
@@ -393,9 +393,9 @@ operacao_unaria: '!' operacao_unaria {
 /* Os operandos podem ser identificadores, literais e 
 chamada de função ou outras expressões, 
 podendo portanto ser formadas recursivamente pelo emprego de operadores */
-operando: TK_ID { $$ = asd_new($1->lexema); $$->payload = $1;};
-operando: TK_LI_INTEIRO { $$ = asd_new($1->lexema); $$->payload = $1;};
-operando: TK_LI_DECIMAL { $$ = asd_new($1->lexema); $$->payload = $1; };
+operando: TK_ID { $$ = asd_new($1->value); $$->payload = $1;};
+operando: TK_LI_INTEIRO { $$ = asd_new($1->value); $$->payload = $1;};
+operando: TK_LI_DECIMAL { $$ = asd_new($1->value); $$->payload = $1; };
 operando: chamada_funcao { $$ = $1; };
 operando: '(' expressao ')' { $$ = $2; };
 
