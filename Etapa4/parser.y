@@ -43,6 +43,8 @@ void yyerror (char const *mensagem);
 %token <lexical_value> TK_ID TK_LI_INTEIRO TK_LI_DECIMAL
 
 %type <node> programa lista elemento definicao_funcao declaracao_variavel_global cabecalho corpo
+%type <node> escopo_inicio escopo_fim
+%type <node> escopo_funcao_inicio escopo_funcao_fim
 %type <node> lista_parametros lista_parametros_nao_vazia parametro bloco_comandos
 %type <node> comandos_simples comandos_simples_seq comando_atribuicao chamada_funcao
 %type <node> comando_retorno construcoes_fluxo_controle expressao declaracao_variavel
@@ -55,6 +57,8 @@ void yyerror (char const *mensagem);
 /* Um programa na linguagem é composto por uma lista opcional de elementos. 
 Os elementos da lista são separados pelo operador vírgula 
 e a lista é terminada pelo operador ponto-e-vírgula. */
+// TODO: implementar escopo_inicio e escopo_fim
+// programa: escopo_inicio lista escopo_fim ';' {
 programa: lista ';' {
     if ($1)  { arvore = $1; }
 	// printf("programa nao vazio \n"); 
@@ -64,6 +68,19 @@ programa: %empty {
     arvore = NULL; 
     // printf("programa vazio \n");
 }; 
+
+// TODO: implementar escopo_inicio e escopo_fim
+// Escopo global
+// escopo_inicio: %empty  // Cria tabela e empilha ela
+// {
+//     create_symbol_table();
+//     push_scope();
+// };
+// escopo_fim: %empty // Desempilha a tabela do topo e dá um free profundo na memória daquela tabela
+// {
+//     pop_scope();
+//     destroy_symbol_table();
+// };
 
 lista: elemento { $$ = $1;};
 lista: elemento ',' lista {
@@ -87,6 +104,9 @@ elemento: declaracao_variavel_global {
 elemento: definicao_funcao { $$ = $1; };
 
 /* Definição de Função: Ela possui um cabeçalho e um corpo. */
+// TODO: implementar escopo_funcao_fim
+// Parâmetros são variáveis locais do escopo da função, já inicializadas
+// definicao_funcao: cabecalho corpo escopo_funcao_fim {
 definicao_funcao: cabecalho corpo {
     if ($1) { $$ = $1; } // adiciona o cabeçalho
     if ($2) { asd_add_child($$, $2); }  // adiciona o corpo
@@ -97,6 +117,8 @@ definicao_funcao: cabecalho corpo {
 seguido ou do token TK_DECIMAL ou do token TK_INTEIRO, 
 seguido por uma lista opcional de parâmetros seguido do
 token TK_ATRIB. */
+// TODO: implementar escopo_funcao_inicio
+// cabecalho: TK_ID TK_SETA TK_DECIMAL escopo_funcao_inicio lista_parametros TK_ATRIB {
 cabecalho: TK_ID TK_SETA TK_DECIMAL lista_parametros TK_ATRIB {
     // printf("6\n");
     $$ = asd_new($1->value);
@@ -428,7 +450,7 @@ operacao_unaria: '!' operacao_unaria {
 /* Os operandos podem ser identificadores, literais e 
 chamada de função ou outras expressões, 
 podendo portanto ser formadas recursivamente pelo emprego de operadores */
-operando: TK_ID { $$ = asd_new($1->value); $$->payload = $1;};
+operando: TK_ID { $$ = asd_new($1->value); $$->payload = $1;}; // TODO: Verificar se foi declarado
 operando: TK_LI_INTEIRO { $$ = asd_new($1->value); $$->payload = $1;};
 operando: TK_LI_DECIMAL { $$ = asd_new($1->value); $$->payload = $1; };
 operando: chamada_funcao { $$ = $1; };
