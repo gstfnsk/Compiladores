@@ -1,3 +1,7 @@
+/*Grupo D*/
+/*00228729 - Matheus Henrique Sabadin*/
+/*00289108 - Giulia Chimini Stefainski*/
+
 #define ERR_UNDECLARED       10 //2.2
 #define ERR_DECLARED         11 //2.2
 #define ERR_VARIABLE         20 //2.3
