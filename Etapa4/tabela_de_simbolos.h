@@ -13,7 +13,7 @@ typedef enum {
 
 typedef enum {
     INT,
-    FLOAT
+    DECIMAL
 } Tipo;
 
 typedef struct Simbolo {
