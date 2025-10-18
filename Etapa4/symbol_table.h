@@ -17,13 +17,15 @@ typedef enum {
 } Type;
 
 typedef struct Symbol {
-    Nature natureza;
-    Type tipo;
+    Nature nature;
+    Type type;
     // argumento argumentos;
-    lexical_value_t *valor;
+    lexical_value_t *lexical_value;
 } Symbol;
 
 void initialize_stack();
 void destroy_stack();
 void create_symbol_table();
 void destroy_symbol_table();
+void push_scope();
+void pop_scope();
