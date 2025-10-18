@@ -22,3 +22,8 @@ typedef struct Simbolo {
     // argumento argumentos;
     valor_lexico_t *valor;
 } Simbolo;
+
+void initialize_stack();
+void destroy_stack();
+void create_symbol_table();
+void destroy_symbol_table();
