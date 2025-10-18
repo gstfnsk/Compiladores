@@ -32,15 +32,15 @@ void yyerror (char const *mensagem);
 
 %code requires {
     typedef struct asd_tree asd_tree_t;
-    typedef struct valor_lexico lexical_value_t;
+    typedef struct lexical_value lexical_value_t;
 }
 
 %union {
-	lexical_value_t *valor_lexico;
+	lexical_value_t *lexical_value;
 	asd_tree_t *node;
 }
 
-%token <valor_lexico> TK_ID TK_LI_INTEIRO TK_LI_DECIMAL
+%token <lexical_value> TK_ID TK_LI_INTEIRO TK_LI_DECIMAL
 
 %type <node> programa lista elemento definicao_funcao declaracao_variavel_global cabecalho corpo
 %type <node> lista_parametros lista_parametros_nao_vazia parametro bloco_comandos

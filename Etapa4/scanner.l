@@ -52,7 +52,7 @@ com { return TK_COM; }
       free(aux);
       exit(1);
     }
-    yylval.valor_lexico = aux;
+    yylval.lexical_value = aux;
     return TK_LI_DECIMAL; }
 
 [0-9]+ { 
@@ -70,7 +70,7 @@ com { return TK_COM; }
       free(aux);
       exit(1);
     }
-    yylval.valor_lexico = aux;
+    yylval.lexical_value = aux;
     return TK_LI_INTEIRO; }
 
 [a-z_][a-z0-9_]* {
@@ -88,7 +88,7 @@ com { return TK_COM; }
       free(aux);
       exit(1);
     }
-    yylval.valor_lexico = aux;
+    yylval.lexical_value = aux;
     return TK_ID; }
 
 . { return TK_ER; }

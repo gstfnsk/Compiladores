@@ -5,7 +5,7 @@
 #ifndef _ASD_H_
 #define _ASD_H_
 
-typedef struct valor_lexico {
+typedef struct lexical_value {
 		int line_number;
 		int type;
 		char *value;
