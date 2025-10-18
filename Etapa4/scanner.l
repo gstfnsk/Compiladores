@@ -38,7 +38,7 @@ com { return TK_COM; }
 [!*/%+\-<>\[\]()=,;&|]   { return yytext[0]; }
 
 [0-9]*\.[0-9]+ { 
-    valor_lexico_t *aux = malloc(sizeof(valor_lexico_t));
+    lexical_value_t *aux = malloc(sizeof(lexical_value_t));
 
     if(aux == NULL){
        fprintf(stderr, "Erro");
@@ -56,7 +56,7 @@ com { return TK_COM; }
     return TK_LI_DECIMAL; }
 
 [0-9]+ { 
-    valor_lexico_t *aux = malloc(sizeof(valor_lexico_t));
+    lexical_value_t *aux = malloc(sizeof(lexical_value_t));
 
     if(aux == NULL){
        fprintf(stderr, "Erro");
@@ -74,7 +74,7 @@ com { return TK_COM; }
     return TK_LI_INTEIRO; }
 
 [a-z_][a-z0-9_]* {
-   valor_lexico_t *aux = malloc(sizeof(valor_lexico_t));
+   lexical_value_t *aux = malloc(sizeof(lexical_value_t));
 
     if(aux == NULL){
        fprintf(stderr, "Erro");

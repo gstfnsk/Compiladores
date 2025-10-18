@@ -9,19 +9,19 @@ typedef enum {
     LITERAL,
     IDENTIFICADOR,
     FUNCAO
-} Natureza;
+} Nature;
 
 typedef enum {
     INT,
     DECIMAL
-} Tipo;
+} Type;
 
-typedef struct Simbolo {
-    Natureza natureza;
-    Tipo tipo;
+typedef struct Symbol {
+    Nature natureza;
+    Type tipo;
     // argumento argumentos;
-    valor_lexico_t *valor;
-} Simbolo;
+    lexical_value_t *valor;
+} Symbol;
 
 void initialize_stack();
 void destroy_stack();

@@ -32,11 +32,11 @@ void yyerror (char const *mensagem);
 
 %code requires {
     typedef struct asd_tree asd_tree_t;
-    typedef struct valor_lexico valor_lexico_t;
+    typedef struct valor_lexico lexical_value_t;
 }
 
 %union {
-	valor_lexico_t *valor_lexico;
+	lexical_value_t *valor_lexico;
 	asd_tree_t *node;
 }
 
