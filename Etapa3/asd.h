@@ -5,17 +5,17 @@
 #ifndef _ASD_H_
 #define _ASD_H_
 
-typedef struct valor_lexico {
+typedef struct lexical_value {
 		int line_number;
 		int type;
 		char *value;
-	} valor_lexico_t;
+	} lexical_value_t;
 
 typedef struct asd_tree {
   char *label;
   int number_of_children;
   struct asd_tree **children;
-  valor_lexico_t *payload;
+  lexical_value_t *payload;
 } asd_tree_t;
 
 /*
