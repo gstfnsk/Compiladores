@@ -58,10 +58,7 @@ void yyerror (char const *mensagem);
 /* Um programa na linguagem é composto por uma lista opcional de elementos. 
 Os elementos da lista são separados pelo operador vírgula 
 e a lista é terminada pelo operador ponto-e-vírgula. */
-// TODO: implementar escopo_inicio e escopo_fim
 programa: escopo_inicio lista escopo_fim ';' {
-// programa: lista ';' {
-    // if ($1)  { arvore = $1; }
     if ($2)  { arvore = $2; }
 	// printf("programa nao vazio \n"); 
 };
@@ -80,6 +77,7 @@ escopo_inicio: %empty  // Cria tabela e empilha ela
 };
 escopo_fim: %empty // Desempilha a tabela do topo e dá um free profundo na memória daquela tabela
 {
+    // Talvez dê pra chamar pop_scope() aqui e chamar o destroy_stack na main
     destroy_stack();
 };
 
@@ -95,9 +93,6 @@ lista: elemento ',' lista {
         $$ = $3;
     }
 };
-// lista: %empty {
-//     $$ = NULL;
-// };
 
 /* Cada elemento dessa lista é ou uma definição de função 
 ou uma declaração de variável. */
