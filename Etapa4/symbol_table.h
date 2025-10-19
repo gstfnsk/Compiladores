@@ -6,15 +6,15 @@
 #include "asd.h"
 
 typedef enum {
+    INT,
+    DECIMAL
+} Type;
+
+typedef enum {
     LITERAL,
     IDENTIFICADOR,
     FUNCAO
 } Nature;
-
-typedef enum {
-    INT,
-    DECIMAL
-} Type;
 
 typedef struct Symbol {
     Nature nature;
@@ -22,6 +22,18 @@ typedef struct Symbol {
     // argumento argumentos;
     lexical_value_t *lexical_value;
 } Symbol;
+
+// Nó em uma lista encadeada de símbolos dentro de um escopo. Isso implementa uma 
+// tabela de símbolos como uma lista encadeada simples.
+typedef struct SymbolNode {
+    Symbol symbol;
+    struct SymbolNode *next;
+} SymbolNode;
+
+typedef struct Scope {
+    SymbolNode *symbols;         // Topo de uma lista encadeada simples de símbolos neste escopo.
+    struct Scope *prev;          // O escopo anterior na pilha de escopos.
+} Scope;
 
 void initialize_stack();
 void destroy_stack();

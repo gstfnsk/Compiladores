@@ -5,6 +5,7 @@
 %{
 #include<stdio.h>
 #include "asd.h"
+#include "symbol_table.h"
 extern asd_tree_t *arvore;
 int yylex(void);
 void yyerror (char const *mensagem);
@@ -58,29 +59,29 @@ void yyerror (char const *mensagem);
 Os elementos da lista são separados pelo operador vírgula 
 e a lista é terminada pelo operador ponto-e-vírgula. */
 // TODO: implementar escopo_inicio e escopo_fim
-// programa: escopo_inicio lista escopo_fim ';' {
-programa: lista ';' {
-    if ($1)  { arvore = $1; }
+programa: escopo_inicio lista escopo_fim ';' {
+// programa: lista ';' {
+    // if ($1)  { arvore = $1; }
+    if ($2)  { arvore = $2; }
 	// printf("programa nao vazio \n"); 
 };
 
-programa: %empty {
+// programa: %empty {
+programa: escopo_inicio escopo_fim ';' {
     arvore = NULL; 
     // printf("programa vazio \n");
 }; 
 
 // TODO: implementar escopo_inicio e escopo_fim
 // Escopo global
-// escopo_inicio: %empty  // Cria tabela e empilha ela
-// {
-//     create_symbol_table();
-//     push_scope();
-// };
-// escopo_fim: %empty // Desempilha a tabela do topo e dá um free profundo na memória daquela tabela
-// {
-//     pop_scope();
-//     destroy_symbol_table();
-// };
+escopo_inicio: %empty  // Cria tabela e empilha ela
+{
+    push_scope();
+};
+escopo_fim: %empty // Desempilha a tabela do topo e dá um free profundo na memória daquela tabela
+{
+    destroy_stack();
+};
 
 lista: elemento { $$ = $1;};
 lista: elemento ',' lista {
@@ -94,6 +95,9 @@ lista: elemento ',' lista {
         $$ = $3;
     }
 };
+// lista: %empty {
+//     $$ = NULL;
+// };
 
 /* Cada elemento dessa lista é ou uma definição de função 
 ou uma declaração de variável. */
