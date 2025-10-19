@@ -6,6 +6,9 @@
 #include <stdlib.h>
 #include "symbol_table.h"
 
+// A variável global com o topo da pilha de escopos. Se é nulo, significa que a pilha está vazia.
+Scope *g_scope_stack_top = NULL;
+
 // Limpa todos os símbolos em uma lista encadeada de símbolos.
 static void free_symbol_list(SymbolNode *head) {
     while (head) {
