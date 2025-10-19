@@ -6,7 +6,7 @@
 #include "asd.h"
 
 typedef enum {
-    INT,
+    INTEIRO,
     DECIMAL
 } Type;
 
