@@ -16,10 +16,20 @@ typedef enum {
     FUNCAO
 } Nature;
 
+typedef struct Param {
+    char *name; // Nome do parâmetro
+    Type type; // Tipo
+} Param;
+
+typedef struct FuncSignature {
+    int param_count; // Quantidade de parâmetros
+    Param *params;  // Vetor de structs Param
+} FuncSignature;
+
 typedef struct Symbol {
     Nature nature;
     Type type;
-    // argumento argumentos;
+    FuncSignature *signature; // Se não for função é NULL
     lexical_value_t *lexical_value;
 } Symbol;
 
