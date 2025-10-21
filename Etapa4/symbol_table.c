@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "symbol_table.h"
 
 // A variável global com o topo da pilha de escopos. Se é nulo, significa que a pilha está vazia.
@@ -59,4 +60,115 @@ void pop_scope(void) {
          g_scope_stack_top = top->prev;
          free_one_scope(top);
      }
+}
+
+// Insere símbolo no escopo atual
+SymbolNode *insert_symbol(Symbol s) {
+    if (!g_scope_stack_top) return NULL;
+
+    SymbolNode *node = calloc(1, sizeof(SymbolNode));
+    node->symbol = s;
+    node->next = g_scope_stack_top->symbols;
+    g_scope_stack_top->symbols = node;
+    return node;
+}
+
+// Busca símbolo por nome, subindo na pilha de escopos
+SymbolNode *find_symbol(const char *name) {
+    for (Scope *scope = g_scope_stack_top; scope != NULL; scope = scope->prev) {
+        for (SymbolNode *n = scope->symbols; n != NULL; n = n->next) {
+            if (n->symbol.lexical_value && n->symbol.lexical_value->value) {
+                if (strcmp(n->symbol.lexical_value->value, name) == 0)
+                    return n;
+            }
+        }
+    }
+    return NULL;
+}
+
+// Transforma função em "Símbolo"
+Symbol make_function_symbol(const char *name, Type return_type, FuncSignature *sig) {
+    Symbol s;
+    s.nature = FUNCAO;
+    s.type = return_type;
+    s.signature = sig;
+
+    // Cria cópia do valor léxico para ter ele persistente 
+    // mesmo que o token original seja liberado
+    s.lexical_value = calloc(1, sizeof(lexical_value_t));
+    s.lexical_value->value = strdup(name);
+    s.lexical_value->line_number = 0;  // TODO: ver como preencher
+    s.lexical_value->type = 0;         // idem
+
+    return s;
+}
+
+// Transforma variável em "Símbolo"
+Symbol make_var_symbol(const char *name, Type type) {
+    Symbol s;
+    s.nature = IDENTIFICADOR;
+    s.type = type;
+    s.signature = NULL;
+
+    s.lexical_value = calloc(1, sizeof(lexical_value_t));
+    s.lexical_value->value = strdup(name);
+    s.lexical_value->line_number = 0;
+    s.lexical_value->type = 0;
+    return s;
+}
+
+
+// Declaração e alocação
+FuncSignature *funcsig_new(int param_count) {
+    FuncSignature *sig = calloc(1, sizeof(FuncSignature)); // Aloca um bloco de memória do tamanho de FuncSignature (struct)
+    if (!sig) return NULL;
+
+    sig->param_count = param_count; // Salva o número de parâmetros no campo da struct
+    if (param_count > 0) 
+        sig->params = calloc(param_count, sizeof(Param)); // Aloca um vetor contínuo de param_count elementos do tipo Param
+
+    if (!sig->params) {
+        free(sig);
+        return NULL;
+    }
+    return sig;
+}
+
+// Parte para lidar com os argumentos de funções:
+
+// Transforma nó lista_parâmetros da AST em FuncSignature
+FuncSignature *build_func_signature(asd_tree_t *param_list_node) {
+    if (!param_list_node)
+        return funcsig_new(0);
+
+    int n = param_list_node->number_of_children;
+    FuncSignature *sig = funcsig_new(n);
+
+    for (int i = 0; i < n; ++i) {
+        asd_tree_t *param = param_list_node->children[i];
+        asd_tree_t *id_node = param->children[0];
+        asd_tree_t *type_node = param->children[1];
+
+        sig->params[i].name = strdup(id_node->payload->value);
+
+        if (strcmp(type_node->label, "TK_INTEIRO") == 0 || strcmp(type_node->label, "inteiro") == 0)
+            sig->params[i].type = INTEIRO;
+        else
+            sig->params[i].type = DECIMAL;
+    }
+
+    return sig;
+}
+
+
+// Desalocação
+void funcsig_free(FuncSignature *sig) {
+    if (!sig) return;
+    if (sig->params) {
+        for (int i = 0; i < sig->param_count; ++i) {
+            free(sig->params[i].name); // É seguro usar free mesmo se name for NULL
+        }
+        free(sig->params);
+    }
+    free(sig);
 }
