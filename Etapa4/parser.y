@@ -60,13 +60,11 @@ Os elementos da lista são separados pelo operador vírgula
 e a lista é terminada pelo operador ponto-e-vírgula. */
 programa: escopo_inicio lista escopo_fim ';' {
     if ($2)  { arvore = $2; }
-	// printf("programa nao vazio \n"); 
 };
 
 // programa: %empty {
 programa: escopo_inicio escopo_fim ';' {
     arvore = NULL; 
-    // printf("programa vazio \n");
 }; 
 
 // TODO: implementar escopo_inicio e escopo_fim
@@ -83,13 +81,12 @@ escopo_fim: %empty // Desempilha a tabela do topo e dá um free profundo na mem�
 
 lista: elemento { $$ = $1;};
 lista: elemento ',' lista {
-    // printf("2\n");
     if ($1 && $3) {
         $$ = $1;
         asd_add_child($1, $3); 
     } else if ($1) {
         $$ = $1;
-    } else { // não tenho certeza se precisa
+    } else { 
         $$ = $3;
     }
 };
@@ -98,7 +95,6 @@ lista: elemento ',' lista {
 ou uma declaração de variável. */
 elemento: declaracao_variavel_global {
     $$ = $1; 
-    // printf("3\n"); 
 };
 elemento: definicao_funcao { $$ = $1; };
 
@@ -109,65 +105,76 @@ elemento: definicao_funcao { $$ = $1; };
 definicao_funcao: cabecalho corpo {
     if ($1) { $$ = $1; } // adiciona o cabeçalho
     if ($2) { asd_add_child($$, $2); }  // adiciona o corpo
-    // printf("5\n");
 };
+
+tipo_retorno: TK_DECIMAL;
+tipo_retorno: TK_INTEIRO;
 
 /* O cabeçalho consiste no token TK_ID seguido do token TK_SETA
 seguido ou do token TK_DECIMAL ou do token TK_INTEIRO, 
 seguido por uma lista opcional de parâmetros seguido do
 token TK_ATRIB. */
 // TODO: implementar escopo_funcao_inicio
-// cabecalho: TK_ID TK_SETA TK_DECIMAL escopo_funcao_inicio lista_parametros TK_ATRIB {
-cabecalho: TK_ID TK_SETA TK_DECIMAL lista_parametros TK_ATRIB {
-    // printf("6\n");
+// cabecalho: TK_ID TK_SETA tipo_retorno escopo_funcao_inicio lista_parametros TK_ATRIB {
+
+cabecalho: TK_ID TK_SETA tipo_retorno lista_parametros TK_ATRIB {
+    // Testa se já existe esse identificador
+    // TODO: Melhorar teste e mensagem
+    // if (find_symbol($1->value)) {
+    //     fprintf(stderr, "Erro semântico: Identificador já existe. \n", $1->value);
+    //     YYABORT;
+    // }
+    // Cria símbolo da função e verifica duplicata no escopo global
+    
+    // FuncSignature *sig = build_func_signature($4); // Converte lista_parametros em FuncSignature
+    // Symbol func = make_function_symbol($1->value, $3, sig); // Faz a função virar um símbolo
+    // insert_symbol(func); // Insere no escopo atual (global)
+    
+    // push_scope();
+
+    // Insere parâmetros no escopo local
+    // insert_params_into_scope(sig);
+    
+    // Constrói nó da AST
     $$ = asd_new($1->value);
-    if ($4) { asd_add_child($$, $4); }          // parâmetros, se houver
+    if ($4) { asd_add_child($$, $4); }
+
     free($1->value);
     free($1);
-};
-
-cabecalho: TK_ID TK_SETA TK_INTEIRO lista_parametros TK_ATRIB {
-    // printf("7\n");
-    if ($1) {
-        $$ = asd_new($1->value);
-        free($1->value);
-        free($1);
-    }
-    if ($4) { asd_add_child($$, $4); }         // parâmetros, se houver
 };
 
 /* A lista de parâmetros, quando presente, consiste no token opcional TK_COM
 seguido de uma lista, separada por vírgula, de parâmetros.  */
 lista_parametros: %empty { 
     $$ = NULL; 
-    // printf("8\n"); 
 };
 lista_parametros: lista_parametros_nao_vazia { 
     $$ = $1; 
-    // printf("9\n"); 
 } ;
 lista_parametros: TK_COM lista_parametros_nao_vazia { 
     $$ = $2; 
-    // printf("10\n"); 
 }; 
 
 lista_parametros_nao_vazia: parametro { 
     $$ = $1; 
-    // printf("11\n");
 };
 lista_parametros_nao_vazia: parametro ',' lista_parametros_nao_vazia {
-    if ($1) { asd_add_child($$, $1); }
+    if ($1) {
+        
+         asd_add_child($$, $1); }
     if ($3) { asd_add_child($$, $3); }
  };
 
 /* Cada parâmetro consiste no token TK_ID seguido do token TK_ATRIB
 seguido ou do token TK_INTEIRO ou do token TK_DECIMAL. */
 parametro: TK_ID TK_ATRIB TK_DECIMAL {
+    // TODO: adicionar argumento em func signature
 	free($1->value);
     free($1);
     $$ = NULL;
 };
 parametro: TK_ID TK_ATRIB TK_INTEIRO {
+    // TODO: adicionar argumento em func signature
 	free($1->value);
     free($1);
     $$ = NULL;
@@ -197,7 +204,6 @@ bloco_comandos: '[' comandos_simples_seq ']' {
 }; 
 
 comandos_simples_seq: %empty { $$ = NULL; 
-// printf("dale"); 
 };
 comandos_simples_seq: comandos_simples comandos_simples_seq {
     if ($1 && $2) {
@@ -210,16 +216,38 @@ comandos_simples_seq: comandos_simples comandos_simples_seq {
     }
     };
 
+escopo_inicio_bloco: %empty  // Cria tabela e empilha ela
+{
+    push_scope();
+};
+
+escopo_fim_bloco: %empty
+{
+    pop_scope();
+};
+
+escopo_inicio_bloco_aninhado: %empty  // Cria tabela e empilha ela
+{
+    push_scope();
+};
+
+escopo_fim_bloco_aninhado: %empty
+{
+    pop_scope();
+};
+
 /* Declaração de variável: 
 Esta declaração é idêntica ao comando simples de declaração de variável
 sendo que a única e importante diferença é que esse elemento não pode receber valores de inicialização. */
 declaracao_variavel_global: TK_VAR TK_ID TK_ATRIB TK_DECIMAL {
+    //TODO: se não existir, adiciona na tabela de símbolos global
     free($2->value);
     free($2);
     $$ = NULL;
 };
 
 declaracao_variavel_global: TK_VAR TK_ID TK_ATRIB TK_INTEIRO {
+    //TODO: se não existir, adiciona na tabela de símbolos global
 	free($2->value);
     free($2);
     $$ = NULL;
@@ -235,35 +263,42 @@ Um literal pode ser ou o token TK_LI_INTEIRO ou o token TK_LI_DECIMAL. */
 declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_DECIMAL TK_COM TK_LI_DECIMAL {
 	$$ = asd_new("com");
     if ($2) {
+    //TODO: testar se já existe (global), se não existe, adicionar na tabela de símbolos local
         asd_add_child($$, asd_new($2->value));
         $$->payload = $2;
         free($2->value);
         free($2);
     }
     if ($6) {
+        //TODO: Função que testa se tipo do valor é o tipo declarado        
         asd_add_child($$, asd_new($6->value));
         $$->payload = $6;
     }
 };
+
 declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_INTEIRO TK_COM TK_LI_INTEIRO {
 	$$ = asd_new("com");
     if ($2) {
+    //TODO: testar se já existe (global), se não existe, adicionar na tabela de símbolos local
         asd_add_child($$, asd_new($2->value));
         $$->payload = $2;
         free($2->value);
         free($2);
     }
     if ($6) {
+        //TODO: Função que testa se tipo do valor é o tipo declarado
         asd_add_child($$, asd_new($6->value));
         $$->payload = $6;
     }
 };
 declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_DECIMAL {
+    //TODO: testar se já existe (local e global), se não existe, adicionar na tabela de símbolos local
     free($2->value);
     free($2);
     $$ = NULL;
 };
 declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_INTEIRO { 
+    //TODO: testar se já existe (local e global), se não existe, adicionar na tabela de símbolos local
 	free($2->value);
     free($2);
     $$ = NULL;
@@ -273,6 +308,7 @@ declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_INTEIRO {
 O comando de atribuição consiste em um token TK_ID, 
 seguido do token TK_ATRIB e enfim seguido por uma expressão. */
 comando_atribuicao: TK_ID TK_ATRIB expressao {
+    //TODO: testar se existe essa variável
 	$$ = asd_new(":="); 
     if($1) { asd_add_child($$, asd_new($1->value)); }
     if($3) { asd_add_child($$, $3); }
@@ -285,10 +321,13 @@ sendo que cada argumento é separado do outro por vírgula.
 Um argumento é uma expressão. Uma chamada de função pode existir sem argumentos. */
 chamada_funcao: TK_ID '(' lista_argumentos ')' {
 	if($1){
+        //TODO: testar se existe essa função
         char nome[256];
         snprintf(nome, sizeof(nome), "call %s", $1->value);
         $$ = asd_new(nome);
-        if($3){ asd_add_child($$, $3); }
+        if($3){ 
+            //TODO: testar se os argumentos coincidem com o declarado
+            asd_add_child($$, $3); }
         $$->payload = $1;
     };
 };
