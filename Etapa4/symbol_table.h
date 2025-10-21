@@ -51,3 +51,11 @@ void create_symbol_table();
 void destroy_symbol_table();
 void push_scope();
 void pop_scope();
+
+SymbolNode *insert_symbol(Symbol s);
+SymbolNode *find_symbol(const char *name);
+Symbol make_function_symbol(const char *name, Type return_type, FuncSignature *sig);
+Symbol make_var_symbol(const char *name, Type type);
+FuncSignature *funcsig_new(int param_count);
+FuncSignature *build_func_signature(asd_tree_t *param_list_node);
+void funcsig_free(FuncSignature *sig);
