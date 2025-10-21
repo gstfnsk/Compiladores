@@ -129,10 +129,10 @@ cabecalho: TK_ID TK_SETA TK_INTEIRO lista_parametros TK_ATRIB {
     Symbol func = make_function_symbol($1->value, INTEIRO, sig); // Faz a função virar um símbolo
     insert_symbol(func); // Insere no escopo atual (global)
     
-    // push_scope();
+    push_scope();
 
     // Insere parâmetros no escopo local
-    // insert_params_into_scope(sig);
+    insert_params_into_scope(sig);
     
     // Constrói nó da AST
     $$ = asd_new($1->value);
@@ -155,10 +155,10 @@ cabecalho: TK_ID TK_SETA TK_DECIMAL lista_parametros TK_ATRIB {
     Symbol func = make_function_symbol($1->value, DECIMAL, sig); // Faz a função virar um símbolo
     insert_symbol(func); // Insere no escopo atual (global)
     
-    // push_scope();
+    push_scope();
 
     // Insere parâmetros no escopo local
-    // insert_params_into_scope(sig);
+    insert_params_into_scope(sig);
     
     // Constrói nó da AST
     $$ = asd_new($1->value);

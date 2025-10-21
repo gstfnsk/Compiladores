@@ -59,3 +59,4 @@ Symbol make_var_symbol(const char *name, Type type);
 FuncSignature *funcsig_new(int param_count);
 FuncSignature *build_func_signature(asd_tree_t *param_list_node);
 void funcsig_free(FuncSignature *sig);
+void insert_params_into_scope(FuncSignature *sig);

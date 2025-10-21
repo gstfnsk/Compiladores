@@ -117,7 +117,7 @@ Symbol make_var_symbol(const char *name, Type type) {
     return s;
 }
 
-
+// Parte para lidar com os argumentos de funções:
 // Declaração e alocação
 FuncSignature *funcsig_new(int param_count) {
     FuncSignature *sig = calloc(1, sizeof(FuncSignature)); // Aloca um bloco de memória do tamanho de FuncSignature (struct)
@@ -134,7 +134,16 @@ FuncSignature *funcsig_new(int param_count) {
     return sig;
 }
 
-// Parte para lidar com os argumentos de funções:
+
+void insert_params_into_scope(FuncSignature *sig) {
+    if (!sig || sig->param_count == 0)
+        return;
+
+    for (int i = 0; i < sig->param_count; i++) {
+        Symbol param = make_var_symbol(sig->params[i].name, sig->params[i].type);
+        insert_symbol(param);
+    }
+}
 
 // Transforma nó lista_parâmetros da AST em FuncSignature
 FuncSignature *build_func_signature(asd_tree_t *param_list_node) {
@@ -159,7 +168,6 @@ FuncSignature *build_func_signature(asd_tree_t *param_list_node) {
 
     return sig;
 }
-
 
 // Desalocação
 void funcsig_free(FuncSignature *sig) {
