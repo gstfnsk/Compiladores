@@ -52,7 +52,6 @@ void yyerror (char const *mensagem);
 %type <node> operacao_binaria_or operacao_binaria_and operacao_binaria_igualdade
 %type <node> operacao_binaria_relacional operacao_binaria_soma_sub lista_argumentos
 %type <node> operacao_binaria_mult_div operacao_unaria operando argumento
-
 %%
 
 /* Um programa na linguagem é composto por uma lista opcional de elementos. 
@@ -107,8 +106,8 @@ definicao_funcao: cabecalho corpo {
     if ($2) { asd_add_child($$, $2); }  // adiciona o corpo
 };
 
-tipo_retorno: TK_DECIMAL;
-tipo_retorno: TK_INTEIRO;
+/* tipo_retorno: TK_DECIMAL { $$ = $1; };
+tipo_retorno: TK_INTEIRO { $$ = $1; }; */
 
 /* O cabeçalho consiste no token TK_ID seguido do token TK_SETA
 seguido ou do token TK_DECIMAL ou do token TK_INTEIRO, 
@@ -117,7 +116,7 @@ token TK_ATRIB. */
 // TODO: implementar escopo_funcao_inicio
 // cabecalho: TK_ID TK_SETA tipo_retorno escopo_funcao_inicio lista_parametros TK_ATRIB {
 
-cabecalho: TK_ID TK_SETA tipo_retorno lista_parametros TK_ATRIB {
+cabecalho: TK_ID TK_SETA TK_INTEIRO lista_parametros TK_ATRIB {
     // Testa se já existe esse identificador
     // TODO: Melhorar teste e mensagem
     // if (find_symbol($1->value)) {
@@ -126,9 +125,35 @@ cabecalho: TK_ID TK_SETA tipo_retorno lista_parametros TK_ATRIB {
     // }
     // Cria símbolo da função e verifica duplicata no escopo global
     
-    // FuncSignature *sig = build_func_signature($4); // Converte lista_parametros em FuncSignature
-    // Symbol func = make_function_symbol($1->value, $3, sig); // Faz a função virar um símbolo
-    // insert_symbol(func); // Insere no escopo atual (global)
+    FuncSignature *sig = build_func_signature($4); // Converte lista_parametros em FuncSignature
+    Symbol func = make_function_symbol($1->value, INTEIRO, sig); // Faz a função virar um símbolo
+    insert_symbol(func); // Insere no escopo atual (global)
+    
+    // push_scope();
+
+    // Insere parâmetros no escopo local
+    // insert_params_into_scope(sig);
+    
+    // Constrói nó da AST
+    $$ = asd_new($1->value);
+    if ($4) { asd_add_child($$, $4); }
+
+    free($1->value);
+    free($1);
+};
+
+cabecalho: TK_ID TK_SETA TK_DECIMAL lista_parametros TK_ATRIB {
+    // Testa se já existe esse identificador
+    // TODO: Melhorar teste e mensagem
+    // if (find_symbol($1->value)) {
+    //     fprintf(stderr, "Erro semântico: Identificador já existe. \n", $1->value);
+    //     YYABORT;
+    // }
+    // Cria símbolo da função e verifica duplicata no escopo global
+    
+    FuncSignature *sig = build_func_signature($4); // Converte lista_parametros em FuncSignature
+    Symbol func = make_function_symbol($1->value, DECIMAL, sig); // Faz a função virar um símbolo
+    insert_symbol(func); // Insere no escopo atual (global)
     
     // push_scope();
 
