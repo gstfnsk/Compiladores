@@ -4,14 +4,14 @@
 
 void throw_undeclared_error(int line, char *input)
 {
-  printf("[ERR_UNDECLARED] na linha %i.\n--> Identificador \"%s\" está sendo utilizado sem ser declarado.\n", line, input);
-  exit(ERR_UNDECLARED);
+    printf("[ERR_UNDECLARED] na linha %i.\n--> Identificador \"%s\" está sendo utilizado sem ser declarado.\n", line, input);
+    exit(ERR_UNDECLARED);
 }
 
 void throw_already_declared_error(int line, char *input)
 {
-  printf("[ERR_DECLARED] Na linha %i.\n--> Tentativa de nova declaração de identificador \"%s\" já utilizado.\n", line, input);
-  exit(ERR_DECLARED);
+    printf("[ERR_DECLARED] Na linha %i.\n--> Tentativa de nova declaração de identificador \"%s\" já utilizado.\n", line, input);
+    exit(ERR_DECLARED);
 }
 
 void throw_var_used_as_func_error(int line, char *input){
