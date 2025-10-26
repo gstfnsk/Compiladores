@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include<stdlib.h>
+#include <stdlib.h>
 #include "errors.h"
 
 void throw_undeclared_error(int line, char *input)
