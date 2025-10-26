@@ -1,0 +1,9 @@
+funcao_decimal -> decimal :=
+[
+    retorna 3.14 := decimal
+],
+
+funcao_decimal -> decimal :=
+[
+    retorna 3.14 := decimal
+];
