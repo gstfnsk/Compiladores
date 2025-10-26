@@ -125,6 +125,13 @@ cabecalho: TK_ID TK_SETA TK_INTEIRO lista_parametros TK_ATRIB {
     //     YYABORT;
     // }
     // Cria símbolo da função e verifica duplicata no escopo global
+
+    SymbolNode *s_exists = find_symbol($1->value);
+
+    if (s_exists) {
+        throw_already_declared_error($1->line_number, $1->value);
+        YYABORT;
+    }
     
     FuncSignature *sig = build_func_signature($4); // Converte lista_parametros em FuncSignature
     Symbol func = make_function_symbol($1->value, INTEIRO, sig); // Faz a função virar um símbolo
@@ -151,6 +158,13 @@ cabecalho: TK_ID TK_SETA TK_DECIMAL lista_parametros TK_ATRIB {
     //     YYABORT;
     // }
     // Cria símbolo da função e verifica duplicata no escopo global
+
+    SymbolNode *s_exists = find_symbol($1->value);
+
+    if (s_exists) {
+        throw_already_declared_error($1->line_number, $1->value);
+        YYABORT;
+    }
     
     FuncSignature *sig = build_func_signature($4); // Converte lista_parametros em FuncSignature
     Symbol func = make_function_symbol($1->value, DECIMAL, sig); // Faz a função virar um símbolo
