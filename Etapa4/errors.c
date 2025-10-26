@@ -10,7 +10,7 @@ void throw_undeclared_error(int line, char *input)
 
 void throw_already_declared_error(int line, char *input)
 {
-    printf("[ERR_DECLARED] Na linha %i.\n--> Tentativa de nova declaração de identificador \"%s\" já utilizado.\n", line, input);
+    printf("[ERR_DECLARED] Na linha %i.\n--> Tentativa de nova declaração de identificador \"%s\", o qual já foi utilizado.\n", line, input);
     exit(ERR_DECLARED);
 }
 
