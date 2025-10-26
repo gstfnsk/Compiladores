@@ -306,6 +306,16 @@ declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_DECIMAL TK_COM TK_LI_DECIMAL {
 	$$ = asd_new("com");
     if ($2) {
     //TODO: testar se já existe (global), se não existe, adicionar na tabela de símbolos local
+        SymbolNode *s_exists = find_symbol($2->value);
+
+        if (s_exists) {
+            throw_already_declared_error($2->line_number, $2->value);
+            YYABORT;
+        }
+
+        Symbol var_symbol = make_var_symbol($2->value, INTEIRO);
+        insert_symbol(var_symbol);
+
         asd_add_child($$, asd_new($2->value));
         $$->payload = $2;
         free($2->value);
@@ -321,7 +331,16 @@ declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_DECIMAL TK_COM TK_LI_DECIMAL {
 declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_INTEIRO TK_COM TK_LI_INTEIRO {
 	$$ = asd_new("com");
     if ($2) {
-    //TODO: testar se já existe (global), se não existe, adicionar na tabela de símbolos local
+        SymbolNode *s_exists = find_symbol($2->value);
+
+        if (s_exists) {
+            throw_already_declared_error($2->line_number, $2->value);
+            YYABORT;
+        }
+
+        Symbol var_symbol = make_var_symbol($2->value, INTEIRO);
+        insert_symbol(var_symbol);
+
         asd_add_child($$, asd_new($2->value));
         $$->payload = $2;
         free($2->value);
