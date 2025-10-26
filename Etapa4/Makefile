@@ -10,6 +10,7 @@ PARSER = parser.y
 LEXER  = scanner.l
 ASD    = asd.c
 SYMBOL_TABLE = symbol_table.c
+ERRORS = errors.c
 
 # Arquivos gerados pelo Bison/Flex
 PARSER_C = parser.tab.c
@@ -22,8 +23,8 @@ CFLAGS = -fsanitize=address -g -Werror -Wall
 LDFLAGS = -lfl -lm
 
 # Regra principal
-$(EXEC): main.c $(ASD) $(SYMBOL_TABLE) $(PARSER_C) $(LEXER_C)
-	$(CC) $(CFLAGS) -o $@ main.c $(ASD) $(SYMBOL_TABLE) $(PARSER_C) $(LEXER_C) $(LDFLAGS)
+$(EXEC): main.c $(ASD) $(SYMBOL_TABLE) $(ERRORS) $(PARSER_C) $(LEXER_C)
+	$(CC) $(CFLAGS) -o $@ main.c $(ASD) $(SYMBOL_TABLE) $(ERRORS) $(PARSER_C) $(LEXER_C) $(LDFLAGS)
 
 # Gerar parser.tab.c e parser.tab.h
 $(PARSER_C) $(PARSER_H): $(PARSER)
