@@ -4,6 +4,7 @@
 
 %{
 #include<stdio.h>
+#include "errors.h"
 #include "asd.h"
 #include "symbol_table.h"
 extern asd_tree_t *arvore;
@@ -212,7 +213,7 @@ corpo: bloco_comandos { $$ = $1; };
 bloco de comandos, declaração de variável, comando de atribuição, 
 chamada de função, comando de retorno, e construções de fluxo de controle. */
 comandos_simples: bloco_comandos { $$ = $1; };
-comandos_simples: declaracao_variavel { $$ = $1; };
+comandos_simples: declaracao_variavel { $$ = $1; }; // TODO: verificar se a variável já existe e jogar um erro, caso exista
 comandos_simples: comando_atribuicao { $$ = $1; };
 comandos_simples: chamada_funcao { $$ = $1; };
 comandos_simples: comando_retorno { $$ = $1; };
@@ -265,14 +266,34 @@ escopo_fim_bloco_aninhado: %empty
 Esta declaração é idêntica ao comando simples de declaração de variável
 sendo que a única e importante diferença é que esse elemento não pode receber valores de inicialização. */
 declaracao_variavel_global: TK_VAR TK_ID TK_ATRIB TK_DECIMAL {
-    //TODO: se não existir, adiciona na tabela de símbolos global
+    // Verifica se o símbolo já existe em qualquer escopo.
+    SymbolNode *s_exists = find_symbol($2->value);
+
+    if (s_exists) {
+        throw_already_declared_error($2->line_number, $2->value);
+        YYABORT;
+    }
+
+    Symbol var_symbol = make_var_symbol($2->value, DECIMAL);
+    insert_symbol(var_symbol);
+
     free($2->value);
     free($2);
     $$ = NULL;
 };
 
 declaracao_variavel_global: TK_VAR TK_ID TK_ATRIB TK_INTEIRO {
-    //TODO: se não existir, adiciona na tabela de símbolos global
+    // Verifica se o símbolo já existe em qualquer escopo.
+    SymbolNode *s_exists = find_symbol($2->value);
+
+    if (s_exists) {
+        throw_already_declared_error($2->line_number, $2->value);
+        YYABORT;
+    }
+
+    Symbol var_symbol = make_var_symbol($2->value, INTEIRO);
+    insert_symbol(var_symbol);
+
 	free($2->value);
     free($2);
     $$ = NULL;
