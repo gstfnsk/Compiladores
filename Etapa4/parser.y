@@ -118,14 +118,6 @@ token TK_ATRIB. */
 // cabecalho: TK_ID TK_SETA tipo_retorno escopo_funcao_inicio lista_parametros TK_ATRIB {
 
 cabecalho: TK_ID TK_SETA TK_INTEIRO lista_parametros TK_ATRIB {
-    // Testa se já existe esse identificador
-    // TODO: Melhorar teste e mensagem
-    // if (find_symbol($1->value)) {
-    //     fprintf(stderr, "Erro semântico: Identificador já existe. \n", $1->value);
-    //     YYABORT;
-    // }
-    // Cria símbolo da função e verifica duplicata no escopo global
-
     SymbolNode *s_exists = find_symbol($1->value);
 
     if (s_exists) {
@@ -151,14 +143,6 @@ cabecalho: TK_ID TK_SETA TK_INTEIRO lista_parametros TK_ATRIB {
 };
 
 cabecalho: TK_ID TK_SETA TK_DECIMAL lista_parametros TK_ATRIB {
-    // Testa se já existe esse identificador
-    // TODO: Melhorar teste e mensagem
-    // if (find_symbol($1->value)) {
-    //     fprintf(stderr, "Erro semântico: Identificador já existe. \n", $1->value);
-    //     YYABORT;
-    // }
-    // Cria símbolo da função e verifica duplicata no escopo global
-
     SymbolNode *s_exists = find_symbol($1->value);
 
     if (s_exists) {
@@ -280,7 +264,6 @@ escopo_fim_bloco_aninhado: %empty
 Esta declaração é idêntica ao comando simples de declaração de variável
 sendo que a única e importante diferença é que esse elemento não pode receber valores de inicialização. */
 declaracao_variavel_global: TK_VAR TK_ID TK_ATRIB TK_DECIMAL {
-    // Verifica se o símbolo já existe em qualquer escopo.
     SymbolNode *s_exists = find_symbol($2->value);
 
     if (s_exists) {
@@ -297,7 +280,6 @@ declaracao_variavel_global: TK_VAR TK_ID TK_ATRIB TK_DECIMAL {
 };
 
 declaracao_variavel_global: TK_VAR TK_ID TK_ATRIB TK_INTEIRO {
-    // Verifica se o símbolo já existe em qualquer escopo.
     SymbolNode *s_exists = find_symbol($2->value);
 
     if (s_exists) {
