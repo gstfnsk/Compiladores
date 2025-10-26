@@ -10,15 +10,25 @@
 // A variável global com o topo da pilha de escopos. Se é nulo, significa que a pilha está vazia.
 Scope *g_scope_stack_top = NULL;
 
+static void free_symbol_contents(Symbol *s) {
+    if (!s) return;
+
+    if (s->lexical_value) {
+        free(s->lexical_value->value);
+        free(s->lexical_value);
+    }
+
+    if (s->nature == FUNCAO && s->signature) {
+        funcsig_free(s->signature);
+    }
+}
+
 // Limpa todos os símbolos em uma lista encadeada de símbolos.
 static void free_symbol_list(SymbolNode *head) {
     while (head) {
         SymbolNode *next = head->next;
-
-        // head->symbol.lexical_value não é liberado aqui porque o código 
-        // da AST é o responsável por liberar lexical_value_t em asd_free.
+        free_symbol_contents(&head->symbol);
         free(head);
-
         head = next;
     }
 }
