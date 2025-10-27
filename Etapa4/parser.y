@@ -105,6 +105,7 @@ elemento: definicao_funcao { $$ = $1; };
 definicao_funcao: cabecalho corpo {
     if ($1) { $$ = $1; } // adiciona o cabeçalho
     if ($2) { asd_add_child($$, $2); }  // adiciona o corpo
+    pop_scope();
 };
 
 /* tipo_retorno: TK_DECIMAL { $$ = $1; };
@@ -124,14 +125,10 @@ cabecalho: TK_ID TK_SETA TK_INTEIRO lista_parametros TK_ATRIB {
         YYABORT;
     }
     
-    FuncSignature *sig = build_func_signature($4); // Converte lista_parametros em FuncSignature
-    Symbol func = make_function_symbol($1->value, INTEIRO, sig); // Faz a função virar um símbolo
+    Symbol func = make_function_symbol($1->value, INTEIRO, NULL); // Faz a função virar um símbolo
     insert_symbol(func); // Insere no escopo atual (global)
     
     push_scope();
-
-    // Insere parâmetros no escopo local
-    insert_params_into_scope(sig);
     
     // Constrói nó da AST
     $$ = asd_new($1->value);
@@ -148,15 +145,10 @@ cabecalho: TK_ID TK_SETA TK_DECIMAL lista_parametros TK_ATRIB {
         YYABORT;
     }
     
-    FuncSignature *sig = build_func_signature($4); // Converte lista_parametros em FuncSignature
-    Symbol func = make_function_symbol($1->value, DECIMAL, sig); // Faz a função virar um símbolo
+    Symbol func = make_function_symbol($1->value, DECIMAL, NULL); // Faz a função virar um símbolo
     insert_symbol(func); // Insere no escopo atual (global)
-    
+    // Parâmetros já estão inseridos no escopo no momento da leitura
     push_scope();
-
-    // Insere parâmetros no escopo local
-    insert_params_into_scope(sig);
-    
     // Constrói nó da AST
     $$ = asd_new($1->value);
     if ($4) { asd_add_child($$, $4); }
@@ -181,8 +173,9 @@ lista_parametros_nao_vazia: parametro {
     $$ = $1; 
 };
 lista_parametros_nao_vazia: parametro ',' lista_parametros_nao_vazia {
+    // $$ = $1; 
+    // asd_add_child($$, $3); 
     if ($1) {
-        
          asd_add_child($$, $1); }
     if ($3) { asd_add_child($$, $3); }
  };
@@ -190,14 +183,28 @@ lista_parametros_nao_vazia: parametro ',' lista_parametros_nao_vazia {
 /* Cada parâmetro consiste no token TK_ID seguido do token TK_ATRIB
 seguido ou do token TK_INTEIRO ou do token TK_DECIMAL. */
 parametro: TK_ID TK_ATRIB TK_DECIMAL {
-    // TODO: adicionar argumento em func signature
-	free($1->value);
+    SymbolNode *s_exists = find_symbol($1->value);
+    if (s_exists) {
+        throw_already_declared_error($1->line_number, $1->value);
+        YYABORT;
+    }
+    Symbol param = make_var_symbol($1->value, DECIMAL);
+    insert_symbol(param);
+    // TODO: adicionar argumento em func signature?
+    free($1->value);
     free($1);
     $$ = NULL;
 };
 parametro: TK_ID TK_ATRIB TK_INTEIRO {
-    // TODO: adicionar argumento em func signature
-	free($1->value);
+    SymbolNode *s_exists = find_symbol($1->value);
+    if (s_exists) {
+        throw_already_declared_error($1->line_number, $1->value);
+        YYABORT;
+    }
+    Symbol param = make_var_symbol($1->value, INTEIRO);
+    insert_symbol(param);
+    // TODO: adicionar argumento em func signature?
+    free($1->value);
     free($1);
     $$ = NULL;
 };
