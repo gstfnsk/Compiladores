@@ -2,7 +2,7 @@ principal -> inteiro :=
 [
     enquanto (1)
     [
-        var variavel_decimal := decimal com 1.0
+        var variavel_decimal := decimal
 
         se (1)
         [
@@ -12,7 +12,7 @@ principal -> inteiro :=
             ]
             senao
             [
-                var variavel_decimal := decimal com 2.0
+                var variavel_decimal := decimal
             ]
         ]
     ]

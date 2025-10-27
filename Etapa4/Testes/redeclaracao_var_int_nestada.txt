@@ -2,7 +2,7 @@ principal -> inteiro :=
 [
     enquanto (1)
     [
-        var variavel_inteira := inteiro com 1
+        var variavel_inteira := inteiro
 
         se (1)
         [
@@ -12,7 +12,7 @@ principal -> inteiro :=
             ]
             senao
             [
-                var variavel_inteira := inteiro com 2
+                var variavel_inteira := inteiro
             ]
         ]
     ]
