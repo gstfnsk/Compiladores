@@ -209,7 +209,7 @@ corpo: bloco_comandos { $$ = $1; };
 bloco de comandos, declaração de variável, comando de atribuição, 
 chamada de função, comando de retorno, e construções de fluxo de controle. */
 comandos_simples: bloco_comandos { $$ = $1; };
-comandos_simples: declaracao_variavel { $$ = $1; }; // TODO: verificar se a variável já existe e jogar um erro, caso exista
+comandos_simples: declaracao_variavel { $$ = $1; };
 comandos_simples: comando_atribuicao { $$ = $1; };
 comandos_simples: chamada_funcao { $$ = $1; };
 comandos_simples: comando_retorno { $$ = $1; };
