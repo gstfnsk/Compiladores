@@ -301,7 +301,6 @@ Um literal pode ser ou o token TK_LI_INTEIRO ou o token TK_LI_DECIMAL. */
 declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_DECIMAL TK_COM TK_LI_DECIMAL {
 	$$ = asd_new("com");
     if ($2) {
-    //TODO: testar se já existe (global), se não existe, adicionar na tabela de símbolos local
         SymbolNode *s_exists = find_symbol($2->value);
 
         if (s_exists) {
@@ -318,7 +317,7 @@ declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_DECIMAL TK_COM TK_LI_DECIMAL {
         free($2);
     }
     if ($6) {
-        //TODO: Função que testa se tipo do valor é o tipo declarado        
+        //TODO: Verificar se o tipo do literal (TK_LI_INTEIRO ou TK_LI_DECIMAL) corresponde ao tipo declarado para a variável.     
         asd_add_child($$, asd_new($6->value));
         $$->payload = $6;
     }
@@ -343,7 +342,7 @@ declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_INTEIRO TK_COM TK_LI_INTEIRO {
         free($2);
     }
     if ($6) {
-        //TODO: Função que testa se tipo do valor é o tipo declarado
+        //TODO: Verificar se o tipo do literal (TK_LI_INTEIRO ou TK_LI_DECIMAL) corresponde ao tipo declarado para a variável.
         asd_add_child($$, asd_new($6->value));
         $$->payload = $6;
     }
@@ -383,6 +382,7 @@ declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_INTEIRO {
 O comando de atribuição consiste em um token TK_ID, 
 seguido do token TK_ATRIB e enfim seguido por uma expressão. */
 comando_atribuicao: TK_ID TK_ATRIB expressao {
+    // TODO: implementar sistema de inferência de tipos: Verificar se o tipo da expressao à direita é compatível com o tipo do TK_ID à esquerda.
     SymbolNode *s = find_symbol($1->value);
     if (!s) {
         throw_undeclared_error($1->line_number, $1->value);
@@ -442,10 +442,12 @@ argumento: expressao { $$ = $1; };
 Trata-se do token TK_RETORNA seguido de uma expressão, 
 seguido do token TK_ATRIB e terminado ou pelo token TK_DECIMAL ou pelo token TK_INTEIRO. */
 comando_retorno: TK_RETORNA expressao TK_ATRIB TK_DECIMAL{
+    // TODO: Verificar se o tipo da expressao do retorno é compatível com o tipo de retorno da função atual.
 	$$ = asd_new("retorna");
     if($2){ asd_add_child($$, $2); }
 };
 comando_retorno: TK_RETORNA expressao TK_ATRIB TK_INTEIRO {
+    // TODO: Verificar se o tipo da expressao do retorno é compatível com o tipo de retorno da função atual.
 	$$ = asd_new("retorna");
     if($2){ asd_add_child($$, $2); }
 };
