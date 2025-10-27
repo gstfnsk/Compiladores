@@ -555,6 +555,17 @@ operacao_unaria: '!' operacao_unaria {
 chamada de função ou outras expressões, 
 podendo portanto ser formadas recursivamente pelo emprego de operadores */
 operando: TK_ID {
+    SymbolNode *s = find_symbol($1->value);
+    if (!s) {
+        throw_undeclared_error($1->line_number, $1->value);
+        YYABORT;
+    }
+    
+    if (s->symbol.nature == FUNCAO) {
+        throw_func_used_as_var_error($1->line_number, $1->value);
+        YYABORT;
+    }
+
     $$ = asd_new($1->value);
     $$->payload = $1;
 };
