@@ -6,6 +6,26 @@
 #include<stdio.h>
 #include "parser.tab.h"
 #include "asd.h"
+
+lexical_value_t *make_lexical_value(const char *yytext, int token_type, int line_number) {
+    lexical_value_t *aux = malloc(sizeof(lexical_value_t));
+    if (!aux) {
+        fprintf(stderr, "Erro: falha ao alocar lexical_value_t\n");
+        exit(1);
+    }
+
+    aux->value = strdup(yytext);
+    aux->line_number = line_number;
+    aux->type = token_type;
+
+    if (!aux->value) {
+        fprintf(stderr, "Erro: falha ao copiar valor do token\n");
+        free(aux);
+        exit(1);
+    }
+
+    return aux;
+}
 %}
 
 %option noinput
@@ -38,58 +58,19 @@ com { return TK_COM; }
 [!*/%+\-<>\[\]()=,;&|]   { return yytext[0]; }
 
 [0-9]*\.[0-9]+ { 
-    lexical_value_t *aux = malloc(sizeof(lexical_value_t));
-
-    if(aux == NULL){
-       fprintf(stderr, "Erro");
-       exit(1);
-    }
-    aux->value = strdup(yytext);
-    aux->line_number = yylineno;
-    aux->type = TK_LI_DECIMAL;
-    if(aux->value == NULL){
-      fprintf(stderr, "Erro");
-      free(aux);
-      exit(1);
-    }
-    yylval.lexical_value = aux;
-    return TK_LI_DECIMAL; }
+    yylval.lexical_value = make_lexical_value(yytext, TK_LI_DECIMAL, yylineno);
+    return TK_LI_DECIMAL;
+}
 
 [0-9]+ { 
-    lexical_value_t *aux = malloc(sizeof(lexical_value_t));
-
-    if(aux == NULL){
-       fprintf(stderr, "Erro");
-       exit(1);
-    }
-    aux->value = strdup(yytext);
-    aux->line_number = yylineno;
-    aux->type = TK_LI_INTEIRO;
-    if(aux->value == NULL){
-      fprintf(stderr, "Erro");
-      free(aux);
-      exit(1);
-    }
-    yylval.lexical_value = aux;
-    return TK_LI_INTEIRO; }
+    yylval.lexical_value = make_lexical_value(yytext, TK_LI_INTEIRO, yylineno);
+    return TK_LI_INTEIRO;
+}
 
 [a-z_][a-z0-9_]* {
-   lexical_value_t *aux = malloc(sizeof(lexical_value_t));
-
-    if(aux == NULL){
-       fprintf(stderr, "Erro");
-       exit(1);
-    }
-    aux->value = strdup(yytext);
-    aux->line_number = yylineno;
-    aux->type = TK_ID;
-    if(aux->value == NULL){
-      fprintf(stderr, "Erro");
-      free(aux);
-      exit(1);
-    }
-    yylval.lexical_value = aux;
-    return TK_ID; }
+   yylval.lexical_value = make_lexical_value(yytext, TK_ID, yylineno);
+   return TK_ID;
+}
 
 . { return TK_ER; }
 
