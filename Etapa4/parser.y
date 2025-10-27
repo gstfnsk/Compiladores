@@ -365,7 +365,17 @@ declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_INTEIRO {
 O comando de atribuição consiste em um token TK_ID, 
 seguido do token TK_ATRIB e enfim seguido por uma expressão. */
 comando_atribuicao: TK_ID TK_ATRIB expressao {
-    //TODO: testar se existe essa variável
+    SymbolNode *s = find_symbol($1->value);
+    if (!s) {
+        throw_undeclared_error($1->line_number, $1->value);
+        YYABORT;
+    }
+
+    if (s->symbol.nature == FUNCAO) {
+        throw_func_used_as_var_error($1->line_number, $1->value);
+        YYABORT;
+    }
+
 	$$ = asd_new(":="); 
     if($1) { asd_add_child($$, asd_new($1->value)); }
     if($3) { asd_add_child($$, $3); }
