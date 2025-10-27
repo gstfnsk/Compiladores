@@ -119,7 +119,6 @@ token TK_ATRIB. */
 
 cabecalho: TK_ID TK_SETA TK_INTEIRO lista_parametros TK_ATRIB {
     SymbolNode *s_exists = find_symbol($1->value);
-
     if (s_exists) {
         throw_already_declared_error($1->line_number, $1->value);
         YYABORT;
@@ -144,7 +143,6 @@ cabecalho: TK_ID TK_SETA TK_INTEIRO lista_parametros TK_ATRIB {
 
 cabecalho: TK_ID TK_SETA TK_DECIMAL lista_parametros TK_ATRIB {
     SymbolNode *s_exists = find_symbol($1->value);
-
     if (s_exists) {
         throw_already_declared_error($1->line_number, $1->value);
         YYABORT;
@@ -265,7 +263,6 @@ Esta declaração é idêntica ao comando simples de declaração de variável
 sendo que a única e importante diferença é que esse elemento não pode receber valores de inicialização. */
 declaracao_variavel_global: TK_VAR TK_ID TK_ATRIB TK_DECIMAL {
     SymbolNode *s_exists = find_symbol($2->value);
-
     if (s_exists) {
         throw_already_declared_error($2->line_number, $2->value);
         YYABORT;
@@ -281,7 +278,6 @@ declaracao_variavel_global: TK_VAR TK_ID TK_ATRIB TK_DECIMAL {
 
 declaracao_variavel_global: TK_VAR TK_ID TK_ATRIB TK_INTEIRO {
     SymbolNode *s_exists = find_symbol($2->value);
-
     if (s_exists) {
         throw_already_declared_error($2->line_number, $2->value);
         YYABORT;
