@@ -545,9 +545,18 @@ operacao_unaria: '!' operacao_unaria {
 /* Os operandos podem ser identificadores, literais e 
 chamada de função ou outras expressões, 
 podendo portanto ser formadas recursivamente pelo emprego de operadores */
-operando: TK_ID { $$ = asd_new($1->value); $$->payload = $1;}; // TODO: Verificar se foi declarado
-operando: TK_LI_INTEIRO { $$ = asd_new($1->value); $$->payload = $1;};
-operando: TK_LI_DECIMAL { $$ = asd_new($1->value); $$->payload = $1; };
+operando: TK_ID {
+    $$ = asd_new($1->value);
+    $$->payload = $1;
+};
+operando: TK_LI_INTEIRO { 
+    $$ = asd_new($1->value);
+    $$->payload = $1;
+};
+operando: TK_LI_DECIMAL {
+    $$ = asd_new($1->value);
+    $$->payload = $1;
+};
 operando: chamada_funcao { $$ = $1; };
 operando: '(' expressao ')' { $$ = $2; };
 
