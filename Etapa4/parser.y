@@ -378,7 +378,16 @@ sendo que cada argumento é separado do outro por vírgula.
 Um argumento é uma expressão. Uma chamada de função pode existir sem argumentos. */
 chamada_funcao: TK_ID '(' lista_argumentos ')' {
 	if($1){
-        //TODO: testar se existe essa função
+        SymbolNode *s = find_symbol($1->value);
+        if (!s) {
+            throw_undeclared_error($1->line_number, $1->value);
+            YYABORT;
+        }
+        if (s->symbol.nature != FUNCAO) {
+            throw_var_used_as_func_error($1->line_number, $1->value);
+            YYABORT;
+        }
+
         char nome[256];
         snprintf(nome, sizeof(nome), "call %s", $1->value);
         $$ = asd_new(nome);
