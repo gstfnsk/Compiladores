@@ -308,7 +308,7 @@ declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_DECIMAL TK_COM TK_LI_DECIMAL {
             YYABORT;
         }
 
-        Symbol var_symbol = make_var_symbol($2->value, INTEIRO);
+        Symbol var_symbol = make_var_symbol($2->value, DECIMAL);
         insert_symbol(var_symbol);
 
         asd_add_child($$, asd_new($2->value));
