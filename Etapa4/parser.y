@@ -349,13 +349,31 @@ declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_INTEIRO TK_COM TK_LI_INTEIRO {
     }
 };
 declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_DECIMAL {
-    //TODO: testar se já existe (local e global), se não existe, adicionar na tabela de símbolos local
+    SymbolNode *s_exists = find_symbol($2->value);
+
+    if (s_exists) {
+        throw_already_declared_error($2->line_number, $2->value);
+        YYABORT;
+    }
+
+    Symbol var_symbol = make_var_symbol($2->value, INTEIRO);
+    insert_symbol(var_symbol);
+
     free($2->value);
     free($2);
     $$ = NULL;
 };
 declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_INTEIRO { 
-    //TODO: testar se já existe (local e global), se não existe, adicionar na tabela de símbolos local
+    SymbolNode *s_exists = find_symbol($2->value);
+
+    if (s_exists) {
+        throw_already_declared_error($2->line_number, $2->value);
+        YYABORT;
+    }
+
+    Symbol var_symbol = make_var_symbol($2->value, INTEIRO);
+    insert_symbol(var_symbol);
+
 	free($2->value);
     free($2);
     $$ = NULL;
