@@ -84,38 +84,38 @@ SymbolNode *insert_symbol(Symbol s) {
 }
 
 // Busca símbolo por nome, subindo na pilha de escopos
-SymbolNode *find_symbol(const char *name) {
-    printf("[DEBUG] find_symbol: Buscando por '%s'\n", name);
-    int scope_level = 0; // Para debug, para saber em qual nível de escopo estamos
-    for (Scope *scope = g_scope_stack_top; scope != NULL; scope = scope->prev) {
-        printf("[DEBUG] find_symbol: Verificando escopo nível %d\n", scope_level);
-        for (SymbolNode *n = scope->symbols; n != NULL; n = n->next) {
-            if (n->symbol.lexical_value && n->symbol.lexical_value->value) {
-                printf("[DEBUG] find_symbol:   Comparando com '%s'\n", n->symbol.lexical_value->value);
-                if (strcmp(n->symbol.lexical_value->value, name) == 0) {
-                    printf("[DEBUG] find_symbol: Símbolo '%s' encontrado no escopo %d.\n", name, scope_level);
-                    return n;
-                }
-            }
-        }
-        scope_level++;
-    }
-    printf("[DEBUG] find_symbol: Símbolo '%s' não encontrado em nenhum escopo.\n", name);
-    return NULL;
-}
-
-// // Busca símbolo por nome, subindo na pilha de escopos
 // SymbolNode *find_symbol(const char *name) {
+//     printf("[DEBUG] find_symbol: Buscando por '%s'\n", name);
+//     int scope_level = 0; // Para debug, para saber em qual nível de escopo estamos
 //     for (Scope *scope = g_scope_stack_top; scope != NULL; scope = scope->prev) {
+//         printf("[DEBUG] find_symbol: Verificando escopo nível %d\n", scope_level);
 //         for (SymbolNode *n = scope->symbols; n != NULL; n = n->next) {
 //             if (n->symbol.lexical_value && n->symbol.lexical_value->value) {
-//                 if (strcmp(n->symbol.lexical_value->value, name) == 0)
+//                 printf("[DEBUG] find_symbol:   Comparando com '%s'\n", n->symbol.lexical_value->value);
+//                 if (strcmp(n->symbol.lexical_value->value, name) == 0) {
+//                     printf("[DEBUG] find_symbol: Símbolo '%s' encontrado no escopo %d.\n", name, scope_level);
 //                     return n;
+//                 }
 //             }
 //         }
+//         scope_level++;
 //     }
+//     printf("[DEBUG] find_symbol: Símbolo '%s' não encontrado em nenhum escopo.\n", name);
 //     return NULL;
 // }
+
+// Busca símbolo por nome, subindo na pilha de escopos
+SymbolNode *find_symbol(const char *name) {
+    for (Scope *scope = g_scope_stack_top; scope != NULL; scope = scope->prev) {
+        for (SymbolNode *n = scope->symbols; n != NULL; n = n->next) {
+            if (n->symbol.lexical_value && n->symbol.lexical_value->value) {
+                if (strcmp(n->symbol.lexical_value->value, name) == 0)
+                    return n;
+            }
+        }
+    }
+    return NULL;
+}
 
 // Transforma função em "Símbolo"
 Symbol make_function_symbol(const char *name, Type return_type, FuncSignature *sig) {
@@ -181,20 +181,24 @@ FuncSignature *build_func_signature(asd_tree_t *param_list_node) {
     if (!param_list_node)
         return funcsig_new(0);
 
-    int n = param_list_node->number_of_children;
-    FuncSignature *sig = funcsig_new(n);
+    // Conta quantos parâmetros há
+    int count = 0;
+    for (asd_tree_t *p = param_list_node; p != NULL; 
+         p = (p->number_of_children > 1 ? p->children[1] : NULL))
+        count++;
 
-    for (int i = 0; i < n; ++i) {
-        asd_tree_t *param = param_list_node->children[i];
-        asd_tree_t *id_node = param->children[0];
-        asd_tree_t *type_node = param->children[1];
+    FuncSignature *sig = funcsig_new(count);
 
-        sig->params[i].name = strdup(id_node->payload->value);
+    int i = 0;
+    for (asd_tree_t *p = param_list_node; p != NULL; 
+         p = (p->number_of_children > 1 ? p->children[1] : NULL)) {
 
-        if (strcmp(type_node->label, "TK_INTEIRO") == 0 || strcmp(type_node->label, "inteiro") == 0)
-            sig->params[i].type = INTEIRO;
-        else
-            sig->params[i].type = DECIMAL;
+        // O nó do tipo é sempre o primeiro filho
+        asd_tree_t *type_node = p->children[0];
+        sig->params[i].name = strdup(p->label);
+        sig->params[i].type = 
+            (strcmp(type_node->label, "inteiro") == 0) ? INTEIRO : DECIMAL;
+        i++;
     }
 
     return sig;

@@ -124,11 +124,13 @@ cabecalho: TK_ID TK_SETA TK_INTEIRO lista_parametros TK_ATRIB {
         throw_already_declared_error($1->line_number, $1->value);
         YYABORT;
     }
-    
-    Symbol func = make_function_symbol($1->value, INTEIRO, NULL); // Faz a função virar um símbolo
+    FuncSignature *sig = build_func_signature($4);
+    Symbol func = make_function_symbol($1->value, INTEIRO, sig); // Faz a função virar um símbolo
     insert_symbol(func); // Insere no escopo atual (global)
     
     push_scope();
+
+    insert_params_into_scope(sig);
     
     // Constrói nó da AST
     $$ = asd_new($1->value);
@@ -144,11 +146,14 @@ cabecalho: TK_ID TK_SETA TK_DECIMAL lista_parametros TK_ATRIB {
         throw_already_declared_error($1->line_number, $1->value);
         YYABORT;
     }
-    
-    Symbol func = make_function_symbol($1->value, DECIMAL, NULL); // Faz a função virar um símbolo
+    FuncSignature *sig = build_func_signature($4);
+    Symbol func = make_function_symbol($1->value, DECIMAL, sig); // Faz a função virar um símbolo
     insert_symbol(func); // Insere no escopo atual (global)
     // Parâmetros já estão inseridos no escopo no momento da leitura
     push_scope();
+
+    insert_params_into_scope(sig);
+
     // Constrói nó da AST
     $$ = asd_new($1->value);
     if ($4) { asd_add_child($$, $4); }
