@@ -395,6 +395,7 @@ O comando de atribuição consiste em um token TK_ID,
 seguido do token TK_ATRIB e enfim seguido por uma expressão. */
 comando_atribuicao: TK_ID TK_ATRIB expressao {
     // TODO: implementar sistema de inferência de tipos: Verificar se o tipo da expressao à direita é compatível com o tipo do TK_ID à esquerda.
+    // TODO: checar se TK_ID existe
     SymbolNode *s = find_symbol($1->value);
     if (!s) {
         throw_undeclared_error($1->line_number, $1->value);
@@ -432,7 +433,10 @@ chamada_funcao: TK_ID '(' lista_argumentos ')' {
         snprintf(nome, sizeof(nome), "call %s", $1->value);
         $$ = asd_new(nome);
         if($3){ 
-            //TODO: testar se os argumentos coincidem com o declarado
+            // Testa se os argumentos coincidem com o declarado
+            // if($3 && !validate_call_args(s->symbol.signature, $3, $1->line_number, $1->value)) {
+            //     YYABORT;
+            // }
             asd_add_child($$, $3); }
         $$->payload = $1;
     };

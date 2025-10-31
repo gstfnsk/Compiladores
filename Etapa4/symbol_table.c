@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include "symbol_table.h"
+#include "parser.tab.h"
+#include "errors.h"
 
 // A variável global com o topo da pilha de escopos. Se é nulo, significa que a pilha está vazia.
 Scope *g_scope_stack_top = NULL;
@@ -215,3 +217,127 @@ void funcsig_free(FuncSignature *sig) {
     }
     free(sig);
 }
+
+// Type infer_expr_type(asd_tree_t *node) {
+//     if (!node) return -1; 
+    
+//     // Literal
+//     if (node->payload && node->payload->type == TK_LI_INTEIRO)
+//         return INTEIRO;
+//     if (node->payload && node->payload->type == TK_LI_DECIMAL)
+//         return DECIMAL;
+    
+//     // Variável
+//     if (node->payload && node->payload->type == TK_ID) {
+//         SymbolNode *sym = find_symbol(node->payload->value);
+//         if (!sym) return -1; 
+//         return sym->symbol.type;
+//     }
+    
+//     // Operadores unários (+, -): preserva o tipo do operando
+//     // NOTA: Precisa verificar ANTES dos binários, pois compartilham os mesmos labels!
+//     // Unário tem 1 filho, binário tem 2 filhos
+//     if ((strcmp(node->label, "+") == 0 || strcmp(node->label, "-") == 0) 
+//         && node->number_of_children == 1) {
+//         Type operand = infer_expr_type(node->children[0]);
+//         if (operand == -1) return -1;
+//         return operand; // Preserva o tipo do operando
+//     }
+    
+//     // Operador unário de negação lógica (!): retorna INTEIRO (0 ou 1)
+//     if (strcmp(node->label, "!") == 0) {
+//         if (node->number_of_children < 1) return -1;
+//         Type operand = infer_expr_type(node->children[0]);
+//         if (operand == -1) return -1;
+//         return INTEIRO; // Negação lógica retorna inteiro (boolean)
+//     }
+    
+//     // Expressões binárias aritméticas (+, -, *, /): ambos operandos devem ter o mesmo tipo
+//     if (strcmp(node->label, "+") == 0 || strcmp(node->label, "-") == 0 ||
+//         strcmp(node->label, "*") == 0 || strcmp(node->label, "/") == 0) {
+//         if (node->number_of_children < 2) return -1;
+//         Type left = infer_expr_type(node->children[0]);
+//         Type right = infer_expr_type(node->children[1]);
+//         if (left == -1 || right == -1 || left != right) return -1;
+//         return left; // Retorna o tipo dos operandos (são iguais)
+//     }
+    
+//     // Modulo (%): ambos operandos devem ser INTEIRO
+//     if (strcmp(node->label, "%") == 0) {
+//         if (node->number_of_children < 2) return -1;
+//         Type left = infer_expr_type(node->children[0]);
+//         Type right = infer_expr_type(node->children[1]);
+//         if (left != INTEIRO || right != INTEIRO) return -1;
+//         return INTEIRO;
+//     }
+    
+//     // Operadores relacionais (<, >, <=, >=): comparam operandos do mesmo tipo, retornam INTEIRO
+//     if (strcmp(node->label, "<") == 0 || strcmp(node->label, ">") == 0 ||
+//         strcmp(node->label, "<=") == 0 || strcmp(node->label, ">=") == 0) {
+//         if (node->number_of_children < 2) return -1;
+//         Type left = infer_expr_type(node->children[0]);
+//         Type right = infer_expr_type(node->children[1]);
+//         if (left == -1 || right == -1 || left != right) return -1;
+//         return INTEIRO; // Operações relacionais retornam "boolean" (INTEIRO)
+//     }
+    
+//     // Operadores de igualdade (==, !=): comparam operandos do mesmo tipo, retornam INTEIRO
+//     if (strcmp(node->label, "==") == 0 || strcmp(node->label, "!=") == 0) {
+//         if (node->number_of_children < 2) return -1;
+//         Type left = infer_expr_type(node->children[0]);
+//         Type right = infer_expr_type(node->children[1]);
+//         if (left == -1 || right == -1 || left != right) return -1;
+//         return INTEIRO; // Operações de igualdade retornam "boolean" (INTEIRO)
+//     }
+    
+//     // Operadores lógicos (&, |): operandos devem ter o mesmo tipo, retornam INTEIRO
+//     if (strcmp(node->label, "&") == 0 || strcmp(node->label, "|") == 0) {
+//         if (node->number_of_children < 2) return -1;
+//         Type left = infer_expr_type(node->children[0]);
+//         Type right = infer_expr_type(node->children[1]);
+//         if (left == -1 || right == -1 || left != right) return -1;
+//         return INTEIRO; // Operações lógicas retornam "boolean" (INTEIRO)
+//     }
+    
+//     // Chamada de função: retorna o tipo de retorno da função
+//     if (strncmp(node->label, "call ", 5) == 0) {
+//         SymbolNode *fsym = find_symbol(node->label + 5); // após "call "
+//         if (!fsym || fsym->symbol.nature != FUNCAO) return -1;
+//         return fsym->symbol.type; // Tipo de retorno da função
+//     }
+    
+//     // Parênteses: apenas passa o tipo da expressão interna
+//     // (Não precisa tratar separadamente se a AST já remove os parênteses)
+    
+//     return -1; // Tipo desconhecido ou nó inválido
+// }
+
+// int validate_call_args(FuncSignature *sig, asd_tree_t *args, int line, const char *func_name) {
+//     int argc = 0;
+//     asd_tree_t **arg_arr = NULL;
+//     // Collect all arguments into an array:
+//     if (!args) argc = 0;
+//     else {
+//         argc = args->number_of_children + 1;
+//         arg_arr = malloc(argc * sizeof(asd_tree_t*));
+//         arg_arr[0] = args;
+//         for (int i = 1; i < argc; ++i) {
+//             arg_arr[i] = args->children[i-1];
+//         }
+//     }
+//     if (argc < sig->param_count) {
+//         throw_missing_args_error(line, (char*)func_name); return 0;
+//     }
+//     if (argc > sig->param_count) {
+//         throw_excess_args_error(line, (char*)func_name); return 0;
+//     }
+//     for (int i = 0; i < argc; ++i) {
+//         Type given = infer_expr_type(arg_arr[i]);
+//         Type wanted = sig->params[i].type;
+//         if (given != wanted) {
+//             throw_mismatch_symbol_table_type_error(line, func_name); return 0;
+//         }
+//     }
+//     free(arg_arr);
+//     return 1;
+// }
