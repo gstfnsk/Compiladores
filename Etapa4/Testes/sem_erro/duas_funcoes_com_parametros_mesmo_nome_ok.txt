@@ -1,0 +1,12 @@
+// Objetivo: provar que o escopo de parâmetro é por função.
+// Esperado: sem erro — parâmetros iguais porém em escopos de função diferentes.
+
+f1 -> inteiro com x := inteiro :=
+[
+    retorna x := inteiro
+],
+
+f2 -> inteiro com x := inteiro :=
+[
+    retorna x := inteiro
+];

@@ -1,0 +1,12 @@
+// Objetivo: você já tem função não declarada globalmente, mas aqui é dentro de bloco para ver se o analisador não “confunde” com símbolo de bloco.
+// Esperado: ERR_UNDECLARED para funcao_que_nao_existe.
+
+principal -> inteiro :=
+[
+    se (1)
+    [
+        resultado := funcao_que_nao_existe()
+    ]
+
+    retorna 0 := inteiro
+];

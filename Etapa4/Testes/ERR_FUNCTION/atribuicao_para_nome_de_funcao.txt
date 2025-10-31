@@ -1,0 +1,13 @@
+// Você já tem “função usada como var”, mas dá pra ter o inverso: tentar atribuir para o identificador da função.
+// Esperado: ERR_FUNCTION. Semântica deve reprovar — pode ser o mesmo erro que você já usa para “função usada como variável”, então erro de uso indevido de identificador de função como variável. (Nome pode variar no seu compilador, mas a ideia é: símbolo existe, mas o tipo de entrada na tabela não permite essa operação.) Base: o arquivo já mostra esse tipo de teste. 
+
+minha_funcao -> inteiro :=
+[
+    retorna 0 := inteiro
+],
+
+principal -> inteiro :=
+[
+    minha_funcao := 10
+    retorna 0 := inteiro
+];

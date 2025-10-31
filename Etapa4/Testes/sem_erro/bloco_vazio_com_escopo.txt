@@ -1,0 +1,12 @@
+// Objetivo: mostrar que mesmo bloco vazio cria/empilha/desempilha.
+// Esperado: sem erro, mas útil pra testar se o parser/semântico está realmente empilhando e desempilhando, mesmo sem declarações (a especificação diz pra identificar esses pontos na gramática).
+
+principal -> inteiro :=
+[
+    se (1)
+    [
+        // bloco vazio
+    ]
+
+    retorna 0 := inteiro
+];

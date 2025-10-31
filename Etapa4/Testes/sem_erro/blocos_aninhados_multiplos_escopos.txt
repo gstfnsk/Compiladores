@@ -1,0 +1,20 @@
+// Objetivo: mostrar busca descendo vários níveis até achar no topo “real”.
+// Esperado: sem erro — ele tem que procurar em todos os escopos até chegar no global da função.
+
+principal -> inteiro :=
+[
+    var a := inteiro com 1
+
+    se (1)
+    [
+        se (1)
+        [
+            se (1)
+            [
+                a := a + 1
+            ]
+        ]
+    ]
+
+    retorna 0 := inteiro
+];

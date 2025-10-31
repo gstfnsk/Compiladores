@@ -1,0 +1,14 @@
+// Objetivo: garantir que um parâmetro da função é visível em blocos aninhados.
+// Esperado: sem erro (mostra resolução subindo na pilha até o escopo da função).
+
+soma -> inteiro com x := inteiro :=
+[
+    se (1)
+    [
+        // usa o parâmetro dentro de um bloco
+        var y := inteiro
+        y := x + 1
+    ]
+
+    retorna 0 := inteiro
+];

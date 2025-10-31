@@ -1,0 +1,10 @@
+// Você já testa atribuir para global dentro da função (no teste completo), mas aqui é um teste mínimo.
+// Esperado: sem erro — tem que subir até o escopo global.
+
+var g := inteiro,
+
+usa_global -> inteiro :=
+[
+    g := 10
+    retorna 0 := inteiro
+];

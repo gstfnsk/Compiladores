@@ -1,0 +1,19 @@
+// Objetivo: mostrar que declaração em um ramo não existe no outro, nem depois.
+// Esperado: ERR_UNDECLARED para x := 3 e para y := 4 (nenhuma das duas é garantida fora do se/senao).
+
+principal -> inteiro :=
+[
+    se (1)
+    [
+        var x := inteiro com 1
+    ]
+    senao
+    [
+        var y := inteiro com 2
+    ]
+
+    x := 3
+    y := 4
+
+    retorna 0 := inteiro
+];
