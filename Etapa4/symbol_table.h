@@ -45,10 +45,7 @@ typedef struct Scope {
     struct Scope *prev;          // O escopo anterior na pilha de escopos.
 } Scope;
 
-void initialize_stack();
 void destroy_stack();
-void create_symbol_table();
-void destroy_symbol_table();
 void push_scope();
 void pop_scope();
 

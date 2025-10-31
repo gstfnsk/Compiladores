@@ -40,22 +40,10 @@ static void free_one_scope(Scope *s) {
     free(s);
 }
 
-void initialize_stack(void) {
-    // Não tenho certeza se precisamos de uma initialize_stack, porque o escopo global pode ser inicializado com push_scope.
-}
-
 void destroy_stack(void) {
     // Retira e libera todos os escopos.
     while (g_scope_stack_top)
         pop_scope();
-}
-
-void create_symbol_table(void) {
-
-};
-
-void destroy_symbol_table(void) {
-
 }
 
 void push_scope(void) {
