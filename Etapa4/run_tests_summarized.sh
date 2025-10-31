@@ -43,18 +43,17 @@ for test_file in "$TEST_DIR"/ERR_*/*.txt "$TEST_DIR"/sem_erro/*.txt; do
         # 1. Capture the entire output from the command
         output=$("$EXECUTABLE" < "$test_file")
         
-        # 2. Get just the last line of the captured output
-        last_line=$(echo "$output" | tail -n 1)
-        
-        # 3. Check if the test file is in the 'sem_erro' directory
+        # 2. Check if the test file is in the 'sem_erro' directory
         if [[ "$test_file" == *"sem_erro"* ]]; then
             # --- LOGIC FOR 'sem_erro' FOLDER ---
-            # Logic is reversed: an error starting with "-->" is a FAILURE.
             
+            # Get just the last line
+            last_line=$(echo "$output" | tail -n 1)
+            
+            # Logic is reversed: an error starting with "-->" is a FAILURE.
             if [[ "$last_line" == "--> "* ]]; then
                 # This is a FAILURE case
                 echo -e "${RED}Test FAILED${NC}"
-                echo "$output" # Show the unexpected error
             else
                 # This is a SUCCESS case
                 echo -e "${GREEN}Test PASSED${NC}"
@@ -62,12 +61,21 @@ for test_file in "$TEST_DIR"/ERR_*/*.txt "$TEST_DIR"/sem_erro/*.txt; do
 
         else
             # --- LOGIC FOR ALL OTHER 'ERR_*' FOLDERS ---
-            # Logic is normal: an error starting with "-->" is a SUCCESS.
+
+            # 1. Get the expected folder name (e.g., "ERR_UNDECLARED")
+            expected_folder_name=$(basename "$(dirname "$test_file")")
             
-            if [[ "$last_line" == "--> "* ]]; then
+            # 2. ***THIS IS THE FIX***
+            #    Construct the expected *prefix* for the first line WITH brackets
+            expected_prefix="[$expected_folder_name]"
+            
+            # 3. Get the first line of the output
+            first_line=$(echo "$output" | head -n 1)
+            
+            # 4. Perform the check: "does the line *start with* [FOLDER_NAME]?"
+            if [[ "$first_line" == "$expected_prefix"* ]]; then
                 # This is a SUCCESS case
-                # Print the entire output in green
-                echo -e "${GREEN}${output}${NC}"
+                echo -e "${GREEN}Test PASSED${NC}"
             else
                 # This is a FAILURE case
                 echo -e "${RED}Test FAILED${NC}"
