@@ -1,5 +1,5 @@
-// Objetivo: testar sombreamento de uma variável global por uma local do mesmo nome.
-// Esperado: ERR_DECLARED
+// Objetivo: testar sombreamento de variável global por variável local com o mesmo nome.
+// Esperado: ERR_DECLARED.
 
 var g := inteiro,
 

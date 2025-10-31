@@ -1,5 +1,5 @@
-// Objetivo: garantir que a declaração feita dentro do enquanto não vaza pra fora.
-// Esperado: ERR_UNDECLARED em i := 10.
+// Objetivo: verificar que variáveis declaradas dentro de um 'enquanto' não são visíveis fora dele.
+// Esperado: ERR_UNDECLARED na linha 'i := 10', pois 'i' foi declarada apenas dentro do laço.
 
 principal -> inteiro :=
 [
@@ -8,7 +8,7 @@ principal -> inteiro :=
         var i := inteiro com 0
     ]
 
-    i := 10   // aqui fora não existe
+    i := 10
 
     retorna 0 := inteiro
 ];

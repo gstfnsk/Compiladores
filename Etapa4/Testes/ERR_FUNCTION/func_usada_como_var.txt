@@ -1,3 +1,6 @@
+// Objetivo: garantir que uma função não pode ser usada em contexto de variável (sem chamada).
+// Esperado: ERR_FUNCTION na linha 'resultado_decimal := func_usada_como_var * 3', pois a função foi usada como valor.
+
 func_usada_como_var -> decimal :=
 [
     retorna 3.14 := decimal

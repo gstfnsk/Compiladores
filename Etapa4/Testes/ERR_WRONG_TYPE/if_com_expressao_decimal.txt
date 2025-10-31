@@ -1,0 +1,15 @@
+// Objetivo: checar que o tipo do teste do if é o tipo da expressão de teste;
+//           se a linguagem exigir que isso seja inteiro/boolean-like, decimal diferente deve dar erro.
+// Esperado: ERR_WRONG_TYPE na linha
+//           'se (1.5)'
+//           porque a expressão do if está em decimal.
+
+principal -> inteiro :=
+[
+    se (1.5)
+    [
+        retorna 0 := inteiro
+    ]
+
+    retorna 0 := inteiro
+];

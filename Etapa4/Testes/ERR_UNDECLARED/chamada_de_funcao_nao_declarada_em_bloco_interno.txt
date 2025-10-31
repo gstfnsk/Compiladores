@@ -1,5 +1,5 @@
-// Objetivo: você já tem função não declarada globalmente, mas aqui é dentro de bloco para ver se o analisador não “confunde” com símbolo de bloco.
-// Esperado: ERR_UNDECLARED para funcao_que_nao_existe.
+// Objetivo: testar chamada de função não declarada dentro de um bloco interno.
+// Esperado: ERR_UNDECLARED na linha 'resultado := funcao_que_nao_existe()', pois essa função não foi declarada.
 
 principal -> inteiro :=
 [

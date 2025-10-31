@@ -1,5 +1,7 @@
-// Objetivo: provar que podemos ter uma função chamada imprime e uma variável diferente dentro da função.
-// Esperado: sem erro (nomes distintos: imprime e imprime_local).
+// Objetivo: mostrar que não há conflito quando existe uma função chamada 'imprime' e, em outra função ('principal'),
+//           é declarada uma variável com outro nome ('imprime_local') — isto é, nomes diferentes não geram colisão
+//           de símbolo.
+// Esperado: sem erro — todas as declarações ocorrem em escopos diferentes e com nomes diferentes.
 
 imprime -> inteiro com v := inteiro :=
 [

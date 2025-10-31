@@ -1,5 +1,5 @@
-// Objetivo: mostrar busca descendo vários níveis até achar no topo “real”.
-// Esperado: sem erro — ele tem que procurar em todos os escopos até chegar no global da função.
+// Objetivo: verificar se busca de variável percorre corretamente escopos aninhados.
+// Esperado: sem erro — 'a' é encontrada no escopo mais externo.
 
 principal -> inteiro :=
 [

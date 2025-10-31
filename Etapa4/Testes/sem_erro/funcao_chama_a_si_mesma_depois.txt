@@ -1,5 +1,5 @@
-// Objetivo: testar recursão simples: o símbolo deve estar na tabela quando entrar no corpo.
-// Esperado: sem erro — ao entrar no corpo da função, ela já deve ter sido inserida na tabela do escopo imediatamente anterior.
+// Objetivo: validar que a função pode chamar a si mesma (recursão).
+// Esperado: sem erro — 'fatorial' deve estar disponível durante a análise do corpo da função.
 
 fatorial -> inteiro com n := inteiro :=
 [

@@ -1,5 +1,5 @@
-// Objetivo: duas var iguais no MESMO bloco (sem entrar em se/enquanto).
-// Esperado: ERR_DECLARED na segunda a, porque é o mesmo escopo.
+// Objetivo: verificar redeclaração de variável no mesmo bloco.
+// Esperado: ERR_DECLARED na segunda linha 'var a := inteiro', pois a variável 'a' já existe no escopo atual.
 
 principal -> inteiro :=
 [

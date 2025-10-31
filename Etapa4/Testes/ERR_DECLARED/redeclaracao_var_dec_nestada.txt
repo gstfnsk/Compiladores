@@ -1,3 +1,6 @@
+// Objetivo: detectar redeclaração de variável 'variavel_decimal' em um escopo interno aninhado.
+// Esperado: ERR_DECLARED na linha 'var variavel_decimal := decimal' dentro do bloco 'senao', pois já existe uma variável com o mesmo nome em um escopo acima.
+
 principal -> inteiro :=
 [
     enquanto (1)
@@ -8,7 +11,6 @@ principal -> inteiro :=
         [
             se (0)
             [
-                
             ]
             senao
             [
