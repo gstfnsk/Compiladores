@@ -1,0 +1,14 @@
+// Objetivo: testar recursão simples: o símbolo deve estar na tabela quando entrar no corpo.
+// Esperado: sem erro — ao entrar no corpo da função, ela já deve ter sido inserida na tabela do escopo imediatamente anterior.
+
+fatorial -> inteiro com n := inteiro :=
+[
+    se (n <= 1)
+    [
+        retorna 1 := inteiro
+    ]
+    senao
+    [
+        retorna n * fatorial(n - 1) := inteiro
+    ]
+];

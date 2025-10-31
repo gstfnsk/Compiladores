@@ -1,0 +1,10 @@
+// Objetivo: mostrar que olhar só “daqui pra frente” não basta — tem que olhar a pilha, e no escopo atual não achou.
+// Esperado: ERR_UNDECLARED no uso de a := 10 porque a declaração vem depois no mesmo escopo.
+
+principal -> inteiro :=
+[
+    a := 10
+    var a := inteiro
+
+    retorna 0 := inteiro
+];

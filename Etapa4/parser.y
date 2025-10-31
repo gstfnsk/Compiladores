@@ -4,6 +4,7 @@
 
 %{
 #include<stdio.h>
+#include "errors.h"
 #include "asd.h"
 #include "symbol_table.h"
 extern asd_tree_t *arvore;
@@ -52,7 +53,6 @@ void yyerror (char const *mensagem);
 %type <node> operacao_binaria_or operacao_binaria_and operacao_binaria_igualdade
 %type <node> operacao_binaria_relacional operacao_binaria_soma_sub lista_argumentos
 %type <node> operacao_binaria_mult_div operacao_unaria operando argumento
-
 %%
 
 /* Um programa na linguagem é composto por uma lista opcional de elementos. 
@@ -60,13 +60,11 @@ Os elementos da lista são separados pelo operador vírgula
 e a lista é terminada pelo operador ponto-e-vírgula. */
 programa: escopo_inicio lista escopo_fim ';' {
     if ($2)  { arvore = $2; }
-	// printf("programa nao vazio \n"); 
 };
 
 // programa: %empty {
 programa: escopo_inicio escopo_fim ';' {
     arvore = NULL; 
-    // printf("programa vazio \n");
 }; 
 
 // TODO: implementar escopo_inicio e escopo_fim
@@ -83,13 +81,12 @@ escopo_fim: %empty // Desempilha a tabela do topo e dá um free profundo na mem�
 
 lista: elemento { $$ = $1;};
 lista: elemento ',' lista {
-    // printf("2\n");
     if ($1 && $3) {
         $$ = $1;
         asd_add_child($1, $3); 
     } else if ($1) {
         $$ = $1;
-    } else { // não tenho certeza se precisa
+    } else { 
         $$ = $3;
     }
 };
@@ -98,7 +95,6 @@ lista: elemento ',' lista {
 ou uma declaração de variável. */
 elemento: declaracao_variavel_global {
     $$ = $1; 
-    // printf("3\n"); 
 };
 elemento: definicao_funcao { $$ = $1; };
 
@@ -109,66 +105,111 @@ elemento: definicao_funcao { $$ = $1; };
 definicao_funcao: cabecalho corpo {
     if ($1) { $$ = $1; } // adiciona o cabeçalho
     if ($2) { asd_add_child($$, $2); }  // adiciona o corpo
-    // printf("5\n");
+    pop_scope();
 };
+
+/* tipo_retorno: TK_DECIMAL { $$ = $1; };
+tipo_retorno: TK_INTEIRO { $$ = $1; }; */
 
 /* O cabeçalho consiste no token TK_ID seguido do token TK_SETA
 seguido ou do token TK_DECIMAL ou do token TK_INTEIRO, 
 seguido por uma lista opcional de parâmetros seguido do
 token TK_ATRIB. */
 // TODO: implementar escopo_funcao_inicio
-// cabecalho: TK_ID TK_SETA TK_DECIMAL escopo_funcao_inicio lista_parametros TK_ATRIB {
-cabecalho: TK_ID TK_SETA TK_DECIMAL lista_parametros TK_ATRIB {
-    // printf("6\n");
+// cabecalho: TK_ID TK_SETA tipo_retorno escopo_funcao_inicio lista_parametros TK_ATRIB {
+
+cabecalho: TK_ID TK_SETA TK_INTEIRO lista_parametros TK_ATRIB {
+    SymbolNode *s_exists = find_symbol($1->value);
+    if (s_exists) {
+        throw_already_declared_error($1->line_number, $1->value);
+        YYABORT;
+    }
+    FuncSignature *sig = build_func_signature($4);
+    Symbol func = make_function_symbol($1->value, INTEIRO, sig); // Faz a função virar um símbolo
+    insert_symbol(func); // Insere no escopo atual (global)
+    
+    push_scope();
+
+    insert_params_into_scope(sig);
+    
+    // Constrói nó da AST
     $$ = asd_new($1->value);
-    if ($4) { asd_add_child($$, $4); }          // parâmetros, se houver
+    if ($4) { asd_add_child($$, $4); }
+
     free($1->value);
     free($1);
 };
 
-cabecalho: TK_ID TK_SETA TK_INTEIRO lista_parametros TK_ATRIB {
-    // printf("7\n");
-    if ($1) {
-        $$ = asd_new($1->value);
-        free($1->value);
-        free($1);
+cabecalho: TK_ID TK_SETA TK_DECIMAL lista_parametros TK_ATRIB {
+    SymbolNode *s_exists = find_symbol($1->value);
+    if (s_exists) {
+        throw_already_declared_error($1->line_number, $1->value);
+        YYABORT;
     }
-    if ($4) { asd_add_child($$, $4); }         // parâmetros, se houver
+    FuncSignature *sig = build_func_signature($4);
+    Symbol func = make_function_symbol($1->value, DECIMAL, sig); // Faz a função virar um símbolo
+    insert_symbol(func); // Insere no escopo atual (global)
+    // Parâmetros já estão inseridos no escopo no momento da leitura
+    push_scope();
+
+    insert_params_into_scope(sig);
+
+    // Constrói nó da AST
+    $$ = asd_new($1->value);
+    if ($4) { asd_add_child($$, $4); }
+
+    free($1->value);
+    free($1);
 };
 
 /* A lista de parâmetros, quando presente, consiste no token opcional TK_COM
 seguido de uma lista, separada por vírgula, de parâmetros.  */
 lista_parametros: %empty { 
     $$ = NULL; 
-    // printf("8\n"); 
 };
 lista_parametros: lista_parametros_nao_vazia { 
     $$ = $1; 
-    // printf("9\n"); 
 } ;
 lista_parametros: TK_COM lista_parametros_nao_vazia { 
     $$ = $2; 
-    // printf("10\n"); 
 }; 
 
 lista_parametros_nao_vazia: parametro { 
     $$ = $1; 
-    // printf("11\n");
 };
 lista_parametros_nao_vazia: parametro ',' lista_parametros_nao_vazia {
-    if ($1) { asd_add_child($$, $1); }
+    // $$ = $1; 
+    // asd_add_child($$, $3); 
+    if ($1) {
+         asd_add_child($$, $1); }
     if ($3) { asd_add_child($$, $3); }
  };
 
 /* Cada parâmetro consiste no token TK_ID seguido do token TK_ATRIB
 seguido ou do token TK_INTEIRO ou do token TK_DECIMAL. */
 parametro: TK_ID TK_ATRIB TK_DECIMAL {
-	free($1->value);
+    SymbolNode *s_exists = find_symbol($1->value);
+    if (s_exists) {
+        throw_already_declared_error($1->line_number, $1->value);
+        YYABORT;
+    }
+    Symbol param = make_var_symbol($1->value, DECIMAL);
+    insert_symbol(param);
+    // TODO: adicionar argumento em func signature?
+    free($1->value);
     free($1);
     $$ = NULL;
 };
 parametro: TK_ID TK_ATRIB TK_INTEIRO {
-	free($1->value);
+    SymbolNode *s_exists = find_symbol($1->value);
+    if (s_exists) {
+        throw_already_declared_error($1->line_number, $1->value);
+        YYABORT;
+    }
+    Symbol param = make_var_symbol($1->value, INTEIRO);
+    insert_symbol(param);
+    // TODO: adicionar argumento em func signature?
+    free($1->value);
     free($1);
     $$ = NULL;
 };
@@ -197,7 +238,6 @@ bloco_comandos: '[' comandos_simples_seq ']' {
 }; 
 
 comandos_simples_seq: %empty { $$ = NULL; 
-// printf("dale"); 
 };
 comandos_simples_seq: comandos_simples comandos_simples_seq {
     if ($1 && $2) {
@@ -210,16 +250,54 @@ comandos_simples_seq: comandos_simples comandos_simples_seq {
     }
     };
 
+escopo_inicio_bloco: %empty  // Cria tabela e empilha ela
+{
+    push_scope();
+};
+
+escopo_fim_bloco: %empty
+{
+    pop_scope();
+};
+
+escopo_inicio_bloco_aninhado: %empty  // Cria tabela e empilha ela
+{
+    push_scope();
+};
+
+escopo_fim_bloco_aninhado: %empty
+{
+    pop_scope();
+};
+
 /* Declaração de variável: 
 Esta declaração é idêntica ao comando simples de declaração de variável
 sendo que a única e importante diferença é que esse elemento não pode receber valores de inicialização. */
 declaracao_variavel_global: TK_VAR TK_ID TK_ATRIB TK_DECIMAL {
+    SymbolNode *s_exists = find_symbol($2->value);
+    if (s_exists) {
+        throw_already_declared_error($2->line_number, $2->value);
+        YYABORT;
+    }
+
+    Symbol var_symbol = make_var_symbol($2->value, DECIMAL);
+    insert_symbol(var_symbol);
+
     free($2->value);
     free($2);
     $$ = NULL;
 };
 
 declaracao_variavel_global: TK_VAR TK_ID TK_ATRIB TK_INTEIRO {
+    SymbolNode *s_exists = find_symbol($2->value);
+    if (s_exists) {
+        throw_already_declared_error($2->line_number, $2->value);
+        YYABORT;
+    }
+
+    Symbol var_symbol = make_var_symbol($2->value, INTEIRO);
+    insert_symbol(var_symbol);
+
 	free($2->value);
     free($2);
     $$ = NULL;
@@ -235,35 +313,78 @@ Um literal pode ser ou o token TK_LI_INTEIRO ou o token TK_LI_DECIMAL. */
 declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_DECIMAL TK_COM TK_LI_DECIMAL {
 	$$ = asd_new("com");
     if ($2) {
+        SymbolNode *s_exists = find_symbol($2->value);
+
+        if (s_exists) {
+            throw_already_declared_error($2->line_number, $2->value);
+            YYABORT;
+        }
+
+        Symbol var_symbol = make_var_symbol($2->value, DECIMAL);
+        insert_symbol(var_symbol);
+
         asd_add_child($$, asd_new($2->value));
         $$->payload = $2;
         free($2->value);
         free($2);
     }
     if ($6) {
+        //TODO: Verificar se o tipo do literal (TK_LI_INTEIRO ou TK_LI_DECIMAL) corresponde ao tipo declarado para a variável.     
         asd_add_child($$, asd_new($6->value));
         $$->payload = $6;
     }
 };
+
 declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_INTEIRO TK_COM TK_LI_INTEIRO {
 	$$ = asd_new("com");
     if ($2) {
+        SymbolNode *s_exists = find_symbol($2->value);
+
+        if (s_exists) {
+            throw_already_declared_error($2->line_number, $2->value);
+            YYABORT;
+        }
+
+        Symbol var_symbol = make_var_symbol($2->value, INTEIRO);
+        insert_symbol(var_symbol);
+
         asd_add_child($$, asd_new($2->value));
         $$->payload = $2;
         free($2->value);
         free($2);
     }
     if ($6) {
+        //TODO: Verificar se o tipo do literal (TK_LI_INTEIRO ou TK_LI_DECIMAL) corresponde ao tipo declarado para a variável.
         asd_add_child($$, asd_new($6->value));
         $$->payload = $6;
     }
 };
 declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_DECIMAL {
+    SymbolNode *s_exists = find_symbol($2->value);
+
+    if (s_exists) {
+        throw_already_declared_error($2->line_number, $2->value);
+        YYABORT;
+    }
+
+    Symbol var_symbol = make_var_symbol($2->value, INTEIRO);
+    insert_symbol(var_symbol);
+
     free($2->value);
     free($2);
     $$ = NULL;
 };
 declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_INTEIRO { 
+    SymbolNode *s_exists = find_symbol($2->value);
+
+    if (s_exists) {
+        throw_already_declared_error($2->line_number, $2->value);
+        YYABORT;
+    }
+
+    Symbol var_symbol = make_var_symbol($2->value, INTEIRO);
+    insert_symbol(var_symbol);
+
 	free($2->value);
     free($2);
     $$ = NULL;
@@ -273,6 +394,18 @@ declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_INTEIRO {
 O comando de atribuição consiste em um token TK_ID, 
 seguido do token TK_ATRIB e enfim seguido por uma expressão. */
 comando_atribuicao: TK_ID TK_ATRIB expressao {
+    // TODO: implementar sistema de inferência de tipos: Verificar se o tipo da expressao à direita é compatível com o tipo do TK_ID à esquerda.
+    SymbolNode *s = find_symbol($1->value);
+    if (!s) {
+        throw_undeclared_error($1->line_number, $1->value);
+        YYABORT;
+    }
+
+    if (s->symbol.nature == FUNCAO) {
+        throw_func_used_as_var_error($1->line_number, $1->value);
+        YYABORT;
+    }
+
 	$$ = asd_new(":="); 
     if($1) { asd_add_child($$, asd_new($1->value)); }
     if($3) { asd_add_child($$, $3); }
@@ -285,10 +418,22 @@ sendo que cada argumento é separado do outro por vírgula.
 Um argumento é uma expressão. Uma chamada de função pode existir sem argumentos. */
 chamada_funcao: TK_ID '(' lista_argumentos ')' {
 	if($1){
+        SymbolNode *s = find_symbol($1->value);
+        if (!s) {
+            throw_undeclared_error($1->line_number, $1->value);
+            YYABORT;
+        }
+        if (s->symbol.nature != FUNCAO) {
+            throw_var_used_as_func_error($1->line_number, $1->value);
+            YYABORT;
+        }
+
         char nome[256];
         snprintf(nome, sizeof(nome), "call %s", $1->value);
         $$ = asd_new(nome);
-        if($3){ asd_add_child($$, $3); }
+        if($3){ 
+            //TODO: testar se os argumentos coincidem com o declarado
+            asd_add_child($$, $3); }
         $$->payload = $1;
     };
 };
@@ -309,10 +454,12 @@ argumento: expressao { $$ = $1; };
 Trata-se do token TK_RETORNA seguido de uma expressão, 
 seguido do token TK_ATRIB e terminado ou pelo token TK_DECIMAL ou pelo token TK_INTEIRO. */
 comando_retorno: TK_RETORNA expressao TK_ATRIB TK_DECIMAL{
+    // TODO: Verificar se o tipo da expressao do retorno é compatível com o tipo de retorno da função atual.
 	$$ = asd_new("retorna");
     if($2){ asd_add_child($$, $2); }
 };
 comando_retorno: TK_RETORNA expressao TK_ATRIB TK_INTEIRO {
+    // TODO: Verificar se o tipo da expressao do retorno é compatível com o tipo de retorno da função atual.
 	$$ = asd_new("retorna");
     if($2){ asd_add_child($$, $2); }
 };
@@ -449,9 +596,29 @@ operacao_unaria: '!' operacao_unaria {
 /* Os operandos podem ser identificadores, literais e 
 chamada de função ou outras expressões, 
 podendo portanto ser formadas recursivamente pelo emprego de operadores */
-operando: TK_ID { $$ = asd_new($1->value); $$->payload = $1;}; // TODO: Verificar se foi declarado
-operando: TK_LI_INTEIRO { $$ = asd_new($1->value); $$->payload = $1;};
-operando: TK_LI_DECIMAL { $$ = asd_new($1->value); $$->payload = $1; };
+operando: TK_ID {
+    SymbolNode *s = find_symbol($1->value);
+    if (!s) {
+        throw_undeclared_error($1->line_number, $1->value);
+        YYABORT;
+    }
+    
+    if (s->symbol.nature == FUNCAO) {
+        throw_func_used_as_var_error($1->line_number, $1->value);
+        YYABORT;
+    }
+
+    $$ = asd_new($1->value);
+    $$->payload = $1;
+};
+operando: TK_LI_INTEIRO { 
+    $$ = asd_new($1->value);
+    $$->payload = $1;
+};
+operando: TK_LI_DECIMAL {
+    $$ = asd_new($1->value);
+    $$->payload = $1;
+};
 operando: chamada_funcao { $$ = $1; };
 operando: '(' expressao ')' { $$ = $2; };
 

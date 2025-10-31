@@ -1,0 +1,14 @@
+// Objetivo: garantir que a declaração feita dentro do enquanto não vaza pra fora.
+// Esperado: ERR_UNDECLARED em i := 10.
+
+principal -> inteiro :=
+[
+    enquanto (1)
+    [
+        var i := inteiro com 0
+    ]
+
+    i := 10   // aqui fora não existe
+
+    retorna 0 := inteiro
+];

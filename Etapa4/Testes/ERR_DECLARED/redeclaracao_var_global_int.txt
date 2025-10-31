@@ -1,0 +1,2 @@
+var g_variavel_inteira := inteiro,
+var g_variavel_inteira := inteiro;

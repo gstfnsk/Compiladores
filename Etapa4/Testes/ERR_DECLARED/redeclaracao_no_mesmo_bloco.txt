@@ -1,0 +1,10 @@
+// Objetivo: duas var iguais no MESMO bloco (sem entrar em se/enquanto).
+// Esperado: ERR_DECLARED na segunda a, porque é o mesmo escopo.
+
+principal -> inteiro :=
+[
+    var a := inteiro
+    var a := inteiro
+
+    retorna 0 := inteiro
+];

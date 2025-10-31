@@ -1,0 +1,12 @@
+func_usada_como_var -> decimal :=
+[
+    retorna 3.14 := decimal
+],
+
+soma_e_multiplica -> inteiro com a := inteiro, b := inteiro :=
+[
+    var resultado_decimal := inteiro
+    resultado_decimal := func_usada_como_var * 3
+
+    retorna 0 := inteiro
+];

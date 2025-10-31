@@ -1,0 +1,14 @@
+// Objetivo: provar que podemos ter uma função chamada imprime e uma variável diferente dentro da função.
+// Esperado: sem erro (nomes distintos: imprime e imprime_local).
+
+imprime -> inteiro com v := inteiro :=
+[
+    retorna 0 := inteiro
+],
+
+principal -> inteiro :=
+[
+    var imprime_local := inteiro com 1
+    imprime_local := 2
+    retorna 0 := inteiro
+];

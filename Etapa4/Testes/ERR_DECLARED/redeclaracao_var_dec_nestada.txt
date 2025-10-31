@@ -1,0 +1,21 @@
+principal -> inteiro :=
+[
+    enquanto (1)
+    [
+        var variavel_decimal := decimal
+
+        se (1)
+        [
+            se (0)
+            [
+                
+            ]
+            senao
+            [
+                var variavel_decimal := decimal
+            ]
+        ]
+    ]
+
+    retorna 0 := inteiro
+];
