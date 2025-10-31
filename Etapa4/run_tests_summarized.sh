@@ -6,6 +6,11 @@ EXECUTABLE="./etapa4"
 
 # The directory containing test subfolders
 TEST_DIR="Testes"
+
+# --- Colors ---
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+NC='\033[0m' # No Color
 # --- End Configuration ---
 
 
@@ -48,11 +53,11 @@ for test_file in "$TEST_DIR"/ERR_*/*.txt "$TEST_DIR"/sem_erro/*.txt; do
             
             if [[ "$last_line" == "--> "* ]]; then
                 # This is a FAILURE case
-                echo "Test FAILED"
+                echo -e "${RED}Test FAILED${NC}"
                 echo "$output" # Show the unexpected error
             else
                 # This is a SUCCESS case
-                echo "Test PASSED"
+                echo -e "${GREEN}Test PASSED${NC}"
             fi
 
         else
@@ -61,10 +66,11 @@ for test_file in "$TEST_DIR"/ERR_*/*.txt "$TEST_DIR"/sem_erro/*.txt; do
             
             if [[ "$last_line" == "--> "* ]]; then
                 # This is a SUCCESS case
-                echo "$output" # Print the expected error
+                # Print the entire output in green
+                echo -e "${GREEN}${output}${NC}"
             else
                 # This is a FAILURE case
-                echo "Test FAILED"
+                echo -e "${RED}Test FAILED${NC}"
             fi
         fi
         
@@ -74,4 +80,5 @@ for test_file in "$TEST_DIR"/ERR_*/*.txt "$TEST_DIR"/sem_erro/*.txt; do
     fi
 done
 
-echo "
+echo "============================================================"
+echo "All tests finished."
