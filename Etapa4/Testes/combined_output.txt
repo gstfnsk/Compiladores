@@ -1,0 +1,572 @@
+==================================================
+FOLDER: ./ERR_DECLARED
+==================================================
+
+----------------------------------------
+FILE: ./ERR_DECLARED/parametro_redeclarado_no_corpo.txt
+----------------------------------------
+// Objetivo: impedir que dentro da função seja declarada uma variável com o mesmo nome de um parâmetro.
+// Esperado: ERR_DECLARED na linha 'var x := inteiro', pois o parâmetro x já existe no escopo da função.
+
+soma -> inteiro com x := inteiro, y := inteiro :=
+[
+    var x := inteiro
+    retorna 0 := inteiro
+];
+
+
+----------------------------------------
+FILE: ./ERR_DECLARED/redeclaracao_func_dec.txt
+----------------------------------------
+// Objetivo: detectar redeclaração de função no mesmo escopo global.
+// Esperado: ERR_DECLARED na segunda definição de 'funcao_decimal', no início da segunda declaração.
+
+funcao_decimal -> decimal :=
+[
+    retorna 3.14 := decimal
+],
+
+funcao_decimal -> decimal :=
+[
+    retorna 3.14 := decimal
+];
+
+
+----------------------------------------
+FILE: ./ERR_DECLARED/redeclaracao_func_int.txt
+----------------------------------------
+// Objetivo: detectar redeclaração de função no mesmo escopo global.
+// Esperado: ERR_DECLARED na segunda definição de 'funcao_inteiro', no início da segunda declaração.
+
+funcao_inteiro -> inteiro :=
+[
+    retorna 3 := inteiro
+],
+
+funcao_inteiro -> inteiro :=
+[
+    retorna 3 := inteiro
+];
+
+
+----------------------------------------
+FILE: ./ERR_DECLARED/redeclaracao_no_mesmo_bloco.txt
+----------------------------------------
+// Objetivo: verificar redeclaração de variável no mesmo bloco.
+// Esperado: ERR_DECLARED na segunda linha 'var a := inteiro', pois a variável 'a' já existe no escopo atual.
+
+principal -> inteiro :=
+[
+    var a := inteiro
+    var a := inteiro
+
+    retorna 0 := inteiro
+];
+
+
+----------------------------------------
+FILE: ./ERR_DECLARED/redeclaracao_var_com_dec_nestada.txt
+----------------------------------------
+// Objetivo: detectar redeclaração de variável decimal em um escopo interno aninhado (bloco 'senao') quando já existe
+//           uma variável com o mesmo nome declarada no escopo imediatamente externo (dentro do 'enquanto').
+// Esperado: ERR_DECLARED na linha
+//           'var variavel_decimal := decimal com 2.0'
+//           dentro do bloco 'senao', porque 'variavel_decimal' já tinha sido declarada antes no mesmo escopo de função.
+
+principal -> inteiro :=
+[
+    enquanto (1)
+    [
+        var variavel_decimal := decimal com 1.0
+
+        se (1)
+        [
+            se (0)
+            [
+                
+            ]
+            senao
+            [
+                var variavel_decimal := decimal com 2.0
+            ]
+        ]
+    ]
+
+    retorna 0 := inteiro
+];
+
+
+----------------------------------------
+FILE: ./ERR_DECLARED/redeclaracao_var_com_int_nestada.txt
+----------------------------------------
+// Objetivo: detectar redeclaração de variável inteira em um escopo interno aninhado (bloco 'senao') quando já existe
+//           uma variável com o mesmo nome declarada no escopo imediatamente externo (dentro do 'enquanto').
+// Esperado: ERR_DECLARED na linha
+//           'var variavel_inteira := inteiro com 2'
+//           dentro do bloco 'senao', porque 'variavel_inteira' já tinha sido declarada antes no mesmo escopo de função.
+
+principal -> inteiro :=
+[
+    enquanto (1)
+    [
+        var variavel_inteira := inteiro com 1
+
+        se (1)
+        [
+            se (0)
+            [
+                
+            ]
+            senao
+            [
+                var variavel_inteira := inteiro com 2
+            ]
+        ]
+    ]
+
+    retorna 0 := inteiro
+];
+
+
+----------------------------------------
+FILE: ./ERR_DECLARED/redeclaracao_var_dec_nestada.txt
+----------------------------------------
+// Objetivo: detectar redeclaração de variável 'variavel_decimal' em um escopo interno aninhado.
+// Esperado: ERR_DECLARED na linha 'var variavel_decimal := decimal' dentro do bloco 'senao', pois já existe uma variável com o mesmo nome em um escopo acima.
+
+principal -> inteiro :=
+[
+    enquanto (1)
+    [
+        var variavel_decimal := decimal
+
+        se (1)
+        [
+            se (0)
+            [
+            ]
+            senao
+            [
+                var variavel_decimal := decimal
+            ]
+        ]
+    ]
+
+    retorna 0 := inteiro
+];
+
+
+----------------------------------------
+FILE: ./ERR_DECLARED/redeclaracao_var_global_dec.txt
+----------------------------------------
+// Objetivo: detectar redeclaração de variável global.
+// Esperado: ERR_DECLARED na segunda declaração 'var g_variavel_decimal := decimal', pois o identificador já foi declarado no escopo global.
+
+var g_variavel_decimal := decimal,
+var g_variavel_decimal := decimal;
+
+
+----------------------------------------
+FILE: ./ERR_DECLARED/redeclaracao_var_global_int.txt
+----------------------------------------
+// Objetivo: detectar redeclaração de variável global.
+// Esperado: ERR_DECLARED na segunda declaração 'var g_variavel_inteira := inteiro', pois o identificador já foi declarado no escopo global.
+
+var g_variavel_inteira := inteiro,
+var g_variavel_inteira := inteiro;
+
+----------------------------------------
+FILE: ./ERR_DECLARED/redeclaracao_var_int_nestada.txt
+----------------------------------------
+// Objetivo: detectar redeclaração de variável 'variavel_inteira' em um escopo interno aninhado.
+// Esperado: ERR_DECLARED na linha 'var variavel_inteira := inteiro' dentro do bloco 'senao', pois já existe uma variável com o mesmo nome em um escopo acima.
+
+
+principal -> inteiro :=
+[
+    enquanto (1)
+    [
+        var variavel_inteira := inteiro
+
+        se (1)
+        [
+            se (0)
+            [
+                
+            ]
+            senao
+            [
+                var variavel_inteira := inteiro
+            ]
+        ]
+    ]
+
+    retorna 0 := inteiro
+];
+
+----------------------------------------
+FILE: ./ERR_DECLARED/var_sombreia_global.txt
+----------------------------------------
+// Objetivo: testar sombreamento de variável global por variável local com o mesmo nome.
+// Esperado: ERR_DECLARED.
+
+var g := inteiro,
+
+principal -> inteiro :=
+[
+    var g := inteiro com 10
+    g := g + 1
+    retorna 0 := inteiro
+];
+
+==================================================
+FOLDER: ./ERR_FUNCTION
+==================================================
+
+----------------------------------------
+FILE: ./ERR_FUNCTION/atribuicao_para_nome_de_funcao.txt
+----------------------------------------
+// Objetivo: garantir que uma função não pode ser usada como variável em atribuição.
+// Esperado: ERR_FUNCTION na linha 'minha_funcao := 10', pois 'minha_funcao' é um identificador de função.
+
+minha_funcao -> inteiro :=
+[
+    retorna 0 := inteiro
+],
+
+principal -> inteiro :=
+[
+    minha_funcao := 10
+    retorna 0 := inteiro
+];
+
+
+----------------------------------------
+FILE: ./ERR_FUNCTION/func_usada_como_var.txt
+----------------------------------------
+// Objetivo: garantir que uma função não pode ser usada em contexto de variável (sem chamada).
+// Esperado: ERR_FUNCTION na linha 'resultado_decimal := func_usada_como_var * 3', pois a função foi usada como valor.
+
+func_usada_como_var -> decimal :=
+[
+    retorna 3.14 := decimal
+],
+
+soma_e_multiplica -> inteiro com a := inteiro, b := inteiro :=
+[
+    var resultado_decimal := inteiro
+    resultado_decimal := func_usada_como_var * 3
+
+    retorna 0 := inteiro
+];
+
+
+==================================================
+FOLDER: ./ERR_UNDECLARED
+==================================================
+
+----------------------------------------
+FILE: ./ERR_UNDECLARED/atribuicao_nao_declarada.txt
+----------------------------------------
+// Objetivo: verificar se o compilador detecta uso de identificador em atribuição antes de qualquer declaração dele.
+// Esperado: ERR_UNDECLARED na linha
+//           'resultado_decimal := 3'
+//           porque 'resultado_decimal' nunca foi declarado neste escopo nem em escopos externos.
+
+soma_e_multiplica -> inteiro com a := inteiro, b := inteiro :=
+[
+    resultado_decimal := 3
+
+    retorna 0 := inteiro
+];
+
+
+----------------------------------------
+FILE: ./ERR_UNDECLARED/chamada_de_funcao_nao_declarada_em_bloco_interno.txt
+----------------------------------------
+// Objetivo: testar chamada de função não declarada dentro de um bloco interno.
+// Esperado: ERR_UNDECLARED na linha 'resultado := funcao_que_nao_existe()', pois essa função não foi declarada.
+
+principal -> inteiro :=
+[
+    se (1)
+    [
+        resultado := funcao_que_nao_existe()
+    ]
+
+    retorna 0 := inteiro
+];
+
+
+----------------------------------------
+FILE: ./ERR_UNDECLARED/func_nao_declarada.txt
+----------------------------------------
+// Objetivo: detectar chamada de identificador como se fosse função quando esse identificador não foi declarado
+//           (nem como função, nem como variável) em nenhum escopo.
+// Esperado: ERR_UNDECLARED na linha
+//           'resultado_decimal := var_usada_como_func(contador, contador + 1)'
+//           porque 'var_usada_como_func' não foi declarado antes do uso (e 'contador' também não existe, mas o primeiro
+//           erro que deve aparecer é o da função não declarada).
+
+funcao_constante -> decimal :=
+[
+    var resultado_decimal := decimal com 1.0
+    resultado_decimal := var_usada_como_func(contador, contador + 1)
+
+    retorna 3.14 := decimal
+];
+
+
+----------------------------------------
+FILE: ./ERR_UNDECLARED/funcao_declarada_depois_mas_no_mesmo_nivel.txt
+----------------------------------------
+// Objetivo: verificar uso de função antes da sua declaração (sem forward declaration).
+// Esperado: ERR_UNDECLARED na linha 'r := soma(1, 2)', pois 'soma' ainda não foi declarada no momento do uso.
+
+principal -> inteiro :=
+[
+    var r := inteiro
+    r := soma(1, 2)
+    retorna 0 := inteiro
+],
+
+soma -> inteiro com a := inteiro, b := inteiro :=
+[
+    retorna a + b := inteiro
+];
+
+
+----------------------------------------
+FILE: ./ERR_UNDECLARED/if_else_com_declaracoes_distintas.txt
+----------------------------------------
+// Objetivo: garantir que variáveis declaradas dentro de blocos 'se' e 'senao' não existam fora deles.
+// Esperado: ERR_UNDECLARED em 'x := 3' e 'y := 4', pois ambas variáveis foram declaradas apenas em blocos internos.
+
+principal -> inteiro :=
+[
+    se (1)
+    [
+        var x := inteiro com 1
+    ]
+    senao
+    [
+        var y := inteiro com 2
+    ]
+
+    x := 3
+    y := 4
+
+    retorna 0 := inteiro
+];
+
+
+----------------------------------------
+FILE: ./ERR_UNDECLARED/operando_nao_declarado.txt
+----------------------------------------
+// Objetivo: verificar se o analisador semântico acusa identificador não declarado usado como operando em expressão.
+// Esperado: ERR_UNDECLARED na linha
+//           'resultado_decimal := nao_declarado * 3'
+//           porque 'nao_declarado' não existe em nenhum escopo conhecido no momento do uso.
+
+soma_e_multiplica -> inteiro com a := inteiro, b := inteiro :=
+[
+    var resultado_decimal := inteiro
+    resultado_decimal := nao_declarado * 3
+
+    retorna 0 := inteiro
+];
+
+
+----------------------------------------
+FILE: ./ERR_UNDECLARED/uso_antes_da_declaracao_no_mesmo_bloco.txt
+----------------------------------------
+// Objetivo: verificar uso de variável antes da sua declaração no mesmo escopo.
+// Esperado: ERR_UNDECLARED na linha 'a := 10', pois 'a' ainda não foi declarada quando usada.
+
+principal -> inteiro :=
+[
+    a := 10
+    var a := inteiro
+
+    retorna 0 := inteiro
+];
+
+
+----------------------------------------
+FILE: ./ERR_UNDECLARED/while_com_declaracao_e_uso_depois.txt
+----------------------------------------
+// Objetivo: verificar que variáveis declaradas dentro de um 'enquanto' não são visíveis fora dele.
+// Esperado: ERR_UNDECLARED na linha 'i := 10', pois 'i' foi declarada apenas dentro do laço.
+
+principal -> inteiro :=
+[
+    enquanto (1)
+    [
+        var i := inteiro com 0
+    ]
+
+    i := 10
+
+    retorna 0 := inteiro
+];
+
+
+==================================================
+FOLDER: ./ERR_VARIABLE
+==================================================
+
+----------------------------------------
+FILE: ./ERR_VARIABLE/var_usada_como_func.txt
+----------------------------------------
+// Objetivo: garantir que uma variável não pode ser usada como se fosse função (isto é, não pode receber lista de
+//           argumentos entre parênteses).
+// Esperado: ERR_VARIABLE na linha
+//           'resultado_decimal := var_usada_como_func(contador, contador + 1)'
+//           porque 'var_usada_como_func' foi declarada como variável (decimal) e não como função.
+
+funcao_constante -> decimal :=
+[
+    var resultado_decimal := decimal com 1.0
+    var var_usada_como_func := decimal com 1.0
+    resultado_decimal := var_usada_como_func(contador, contador + 1)
+
+    retorna 3.14 := decimal
+];
+
+
+==================================================
+FOLDER: ./sem_erro
+==================================================
+
+----------------------------------------
+FILE: ./sem_erro/bloco_vazio_com_escopo.txt
+----------------------------------------
+// Objetivo: testar criação e destruição de escopo mesmo em blocos vazios.
+// Esperado: sem erro — bloco vazio deve empilhar e desempilhar escopo corretamente.
+
+principal -> inteiro :=
+[
+    se (1)
+    [
+        // bloco vazio
+    ]
+
+    retorna 0 := inteiro
+];
+
+
+----------------------------------------
+FILE: ./sem_erro/blocos_aninhados_multiplos_escopos.txt
+----------------------------------------
+// Objetivo: verificar se busca de variável percorre corretamente escopos aninhados.
+// Esperado: sem erro — 'a' é encontrada no escopo mais externo.
+
+principal -> inteiro :=
+[
+    var a := inteiro com 1
+
+    se (1)
+    [
+        se (1)
+        [
+            se (1)
+            [
+                a := a + 1
+            ]
+        ]
+    ]
+
+    retorna 0 := inteiro
+];
+
+
+----------------------------------------
+FILE: ./sem_erro/duas_funcoes_com_parametros_mesmo_nome_ok.txt
+----------------------------------------
+// Objetivo: garantir que funções diferentes podem ter parâmetros com o mesmo nome.
+// Esperado: sem erro — cada função possui seu próprio escopo de parâmetros.
+
+f1 -> inteiro com x := inteiro :=
+[
+    retorna x := inteiro
+],
+
+f2 -> inteiro com x := inteiro :=
+[
+    retorna x := inteiro
+];
+
+
+----------------------------------------
+FILE: ./sem_erro/funcao_chama_a_si_mesma_depois.txt
+----------------------------------------
+// Objetivo: validar que a função pode chamar a si mesma (recursão).
+// Esperado: sem erro — 'fatorial' deve estar disponível durante a análise do corpo da função.
+
+fatorial -> inteiro com n := inteiro :=
+[
+    se (n <= 1)
+    [
+        retorna 1 := inteiro
+    ]
+    senao
+    [
+        retorna n * fatorial(n - 1) := inteiro
+    ]
+];
+
+
+----------------------------------------
+FILE: ./sem_erro/uso_parametro_em_escopo_interno.txt
+----------------------------------------
+// Objetivo: garantir que parâmetros de função são acessíveis dentro de blocos aninhados.
+// Esperado: sem erro — 'x' é encontrado no escopo da função.
+
+soma -> inteiro com x := inteiro :=
+[
+    se (1)
+    [
+        var y := inteiro
+        y := x + 1
+    ]
+
+    retorna 0 := inteiro
+];
+
+
+----------------------------------------
+FILE: ./sem_erro/var_global_usada_em_funcao.txt
+----------------------------------------
+// Objetivo: verificar que variáveis globais são acessíveis dentro de funções.
+// Esperado: sem erro — 'g' é encontrado no escopo global.
+
+var g := inteiro,
+
+usa_global -> inteiro :=
+[
+    g := 10
+    retorna 0 := inteiro
+];
+
+
+----------------------------------------
+FILE: ./sem_erro/var_local_shadow_func_nome_diferente_ok.txt
+----------------------------------------
+// Objetivo: mostrar que não há conflito quando existe uma função chamada 'imprime' e, em outra função ('principal'),
+//           é declarada uma variável com outro nome ('imprime_local') — isto é, nomes diferentes não geram colisão
+//           de símbolo.
+// Esperado: sem erro — todas as declarações ocorrem em escopos diferentes e com nomes diferentes.
+
+imprime -> inteiro com v := inteiro :=
+[
+    retorna 0 := inteiro
+],
+
+principal -> inteiro :=
+[
+    var imprime_local := inteiro com 1
+    imprime_local := 2
+    retorna 0 := inteiro
+];
+
+
