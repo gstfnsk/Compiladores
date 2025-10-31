@@ -1,5 +1,5 @@
-// Objetivo: impedir que dentro da função eu declare uma variável com o mesmo nome de um parâmetro no mesmo escopo da função.
-// Esperado: ERR_DECLARED na var x := inteiro, porque o escopo atual da função já tem x (parâmetro).
+// Objetivo: impedir que dentro da função seja declarada uma variável com o mesmo nome de um parâmetro.
+// Esperado: ERR_DECLARED na linha 'var x := inteiro', pois o parâmetro x já existe no escopo da função.
 
 soma -> inteiro com x := inteiro, y := inteiro :=
 [

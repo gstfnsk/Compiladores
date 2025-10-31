@@ -1,3 +1,7 @@
+// Objetivo: detectar redeclaração de variável 'variavel_inteira' em um escopo interno aninhado.
+// Esperado: ERR_DECLARED na linha 'var variavel_inteira := inteiro' dentro do bloco 'senao', pois já existe uma variável com o mesmo nome em um escopo acima.
+
+
 principal -> inteiro :=
 [
     enquanto (1)

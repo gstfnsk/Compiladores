@@ -1,5 +1,5 @@
-// Objetivo: provar que o escopo de parâmetro é por função.
-// Esperado: sem erro — parâmetros iguais porém em escopos de função diferentes.
+// Objetivo: garantir que funções diferentes podem ter parâmetros com o mesmo nome.
+// Esperado: sem erro — cada função possui seu próprio escopo de parâmetros.
 
 f1 -> inteiro com x := inteiro :=
 [

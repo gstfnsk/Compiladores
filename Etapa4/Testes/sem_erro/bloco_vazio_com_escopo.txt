@@ -1,5 +1,5 @@
-// Objetivo: mostrar que mesmo bloco vazio cria/empilha/desempilha.
-// Esperado: sem erro, mas útil pra testar se o parser/semântico está realmente empilhando e desempilhando, mesmo sem declarações (a especificação diz pra identificar esses pontos na gramática).
+// Objetivo: testar criação e destruição de escopo mesmo em blocos vazios.
+// Esperado: sem erro — bloco vazio deve empilhar e desempilhar escopo corretamente.
 
 principal -> inteiro :=
 [

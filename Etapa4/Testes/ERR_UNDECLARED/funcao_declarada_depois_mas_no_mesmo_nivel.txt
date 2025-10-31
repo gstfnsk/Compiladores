@@ -1,5 +1,5 @@
-// Objetivo: se sua linguagem não permite referência antecipada de função (forward), isso deve dar erro. Se permite, esse teste prova o contrário. Vou escrever na forma que deve dar erro (porque o texto que você citou fala só de “no momento do uso já ter sido declarado”).
-// Esperado: ERR_UNDECLARED na chamada soma(1, 2) se o seu analisador exige que a função já esteja na tabela quando usada. (Se vocês inserem todas as assinaturas antes, então esse teste deve ser marcado como “OK”.)
+// Objetivo: verificar uso de função antes da sua declaração (sem forward declaration).
+// Esperado: ERR_UNDECLARED na linha 'r := soma(1, 2)', pois 'soma' ainda não foi declarada no momento do uso.
 
 principal -> inteiro :=
 [

@@ -1,5 +1,5 @@
-// Objetivo: mostrar que declaração em um ramo não existe no outro, nem depois.
-// Esperado: ERR_UNDECLARED para x := 3 e para y := 4 (nenhuma das duas é garantida fora do se/senao).
+// Objetivo: garantir que variáveis declaradas dentro de blocos 'se' e 'senao' não existam fora deles.
+// Esperado: ERR_UNDECLARED em 'x := 3' e 'y := 4', pois ambas variáveis foram declaradas apenas em blocos internos.
 
 principal -> inteiro :=
 [
