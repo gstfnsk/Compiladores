@@ -199,7 +199,7 @@ FuncSignature *build_func_signature(asd_tree_t *param_list_node) {
         asd_tree_t *type_node = p->children[0];
         sig->params[i].name = strdup(p->label);
         sig->params[i].type = 
-            (strcmp(type_node->label, "inteiro") == 0) ? INTEIRO : DECIMAL;
+            (strcmp(type_node->label, "inteiro") == 0) ? INT : FLOAT;
         i++;
     }
 
@@ -223,9 +223,9 @@ void funcsig_free(FuncSignature *sig) {
     
 //     // Literal
 //     if (node->payload && node->payload->type == TK_LI_INTEIRO)
-//         return INTEIRO;
+//         return INT;
 //     if (node->payload && node->payload->type == TK_LI_DECIMAL)
-//         return DECIMAL;
+//         return FLOAT;
     
 //     // Variável
 //     if (node->payload && node->payload->type == TK_ID) {
@@ -244,12 +244,12 @@ void funcsig_free(FuncSignature *sig) {
 //         return operand; // Preserva o tipo do operando
 //     }
     
-//     // Operador unário de negação lógica (!): retorna INTEIRO (0 ou 1)
+//     // Operador unário de negação lógica (!): retorna INT (0 ou 1)
 //     if (strcmp(node->label, "!") == 0) {
 //         if (node->number_of_children < 1) return -1;
 //         Type operand = infer_expr_type(node->children[0]);
 //         if (operand == -1) return -1;
-//         return INTEIRO; // Negação lógica retorna inteiro (boolean)
+//         return INT; // Negação lógica retorna inteiro (boolean)
 //     }
     
 //     // Expressões binárias aritméticas (+, -, *, /): ambos operandos devem ter o mesmo tipo
@@ -262,41 +262,41 @@ void funcsig_free(FuncSignature *sig) {
 //         return left; // Retorna o tipo dos operandos (são iguais)
 //     }
     
-//     // Modulo (%): ambos operandos devem ser INTEIRO
+//     // Modulo (%): ambos operandos devem ser INT
 //     if (strcmp(node->label, "%") == 0) {
 //         if (node->number_of_children < 2) return -1;
 //         Type left = infer_expr_type(node->children[0]);
 //         Type right = infer_expr_type(node->children[1]);
-//         if (left != INTEIRO || right != INTEIRO) return -1;
-//         return INTEIRO;
+//         if (left != INT || right != INT) return -1;
+//         return INT;
 //     }
     
-//     // Operadores relacionais (<, >, <=, >=): comparam operandos do mesmo tipo, retornam INTEIRO
+//     // Operadores relacionais (<, >, <=, >=): comparam operandos do mesmo tipo, retornam INT
 //     if (strcmp(node->label, "<") == 0 || strcmp(node->label, ">") == 0 ||
 //         strcmp(node->label, "<=") == 0 || strcmp(node->label, ">=") == 0) {
 //         if (node->number_of_children < 2) return -1;
 //         Type left = infer_expr_type(node->children[0]);
 //         Type right = infer_expr_type(node->children[1]);
 //         if (left == -1 || right == -1 || left != right) return -1;
-//         return INTEIRO; // Operações relacionais retornam "boolean" (INTEIRO)
+//         return INT; // Operações relacionais retornam "boolean" (INT)
 //     }
     
-//     // Operadores de igualdade (==, !=): comparam operandos do mesmo tipo, retornam INTEIRO
+//     // Operadores de igualdade (==, !=): comparam operandos do mesmo tipo, retornam INT
 //     if (strcmp(node->label, "==") == 0 || strcmp(node->label, "!=") == 0) {
 //         if (node->number_of_children < 2) return -1;
 //         Type left = infer_expr_type(node->children[0]);
 //         Type right = infer_expr_type(node->children[1]);
 //         if (left == -1 || right == -1 || left != right) return -1;
-//         return INTEIRO; // Operações de igualdade retornam "boolean" (INTEIRO)
+//         return INT; // Operações de igualdade retornam "boolean" (INT)
 //     }
     
-//     // Operadores lógicos (&, |): operandos devem ter o mesmo tipo, retornam INTEIRO
+//     // Operadores lógicos (&, |): operandos devem ter o mesmo tipo, retornam INT
 //     if (strcmp(node->label, "&") == 0 || strcmp(node->label, "|") == 0) {
 //         if (node->number_of_children < 2) return -1;
 //         Type left = infer_expr_type(node->children[0]);
 //         Type right = infer_expr_type(node->children[1]);
 //         if (left == -1 || right == -1 || left != right) return -1;
-//         return INTEIRO; // Operações lógicas retornam "boolean" (INTEIRO)
+//         return INT; // Operações lógicas retornam "boolean" (INT)
 //     }
     
 //     // Chamada de função: retorna o tipo de retorno da função

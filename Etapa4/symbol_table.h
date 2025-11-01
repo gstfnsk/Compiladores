@@ -2,13 +2,12 @@
 /*00228729 - Matheus Henrique Sabadin*/
 /*00289108 - Giulia Chimini Stefainski*/
 
+#ifndef _SYMBOL_TABLE_H_
+#define _SYMBOL_TABLE_H_
+
 #include <stdio.h>
 #include "asd.h"
-
-typedef enum {
-    INTEIRO,
-    DECIMAL
-} Type;
+#include "types.h"
 
 typedef enum {
     LITERAL,
@@ -60,3 +59,5 @@ FuncSignature *funcsig_new(int param_count);
 FuncSignature *build_func_signature(asd_tree_t *param_list_node);
 void funcsig_free(FuncSignature *sig);
 void insert_params_into_scope(FuncSignature *sig);
+
+#endif //_SYMBOL_TABLE_H_
