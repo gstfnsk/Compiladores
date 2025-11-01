@@ -37,19 +37,22 @@ int get_line_number(void);
 %code requires {
     typedef struct asd_tree asd_tree_t;
     typedef struct lexical_value lexical_value_t;
+    typedef struct Param param_t;
 }
 
 %union {
 	lexical_value_t *lexical_value;
 	asd_tree_t *node;
+    param_t *param;
 }
 
 %token <lexical_value> TK_ID TK_LI_INTEIRO TK_LI_DECIMAL
 
-%type <node> programa lista elemento definicao_funcao declaracao_variavel_global cabecalho corpo
+%type <param> parametro lista_parametros lista_parametros_nao_vazia 
+
+%type <node> programa lista elemento definicao_funcao declaracao_variavel_global corpo
 %type <node> escopo_inicio escopo_fim
-%type <node> escopo_funcao_inicio escopo_funcao_fim
-%type <node> lista_parametros lista_parametros_nao_vazia parametro bloco_comandos
+%type <node> bloco_comandos bloco_comandos_funcao
 %type <node> comandos_simples comandos_simples_seq comando_atribuicao chamada_funcao
 %type <node> comando_retorno construcoes_fluxo_controle expressao declaracao_variavel
 %type <node> operacao_binaria_or operacao_binaria_and operacao_binaria_igualdade
@@ -65,7 +68,7 @@ programa: escopo_inicio lista escopo_fim ';' {
 };
 
 // programa: %empty {
-programa: escopo_inicio escopo_fim ';' {
+programa: ';' {
     arvore = NULL; 
 }; 
 
@@ -77,8 +80,7 @@ escopo_inicio: %empty  // Cria tabela e empilha ela
 };
 escopo_fim: %empty // Desempilha a tabela do topo e dá um free profundo na memória daquela tabela
 {
-    // Talvez dê pra chamar pop_scope() aqui e chamar o destroy_stack na main
-    destroy_stack();
+    pop_scope();
 };
 
 lista: elemento { $$ = $1;};
@@ -104,11 +106,10 @@ elemento: definicao_funcao { $$ = $1; };
 // TODO: implementar escopo_funcao_fim
 // Parâmetros são variáveis locais do escopo da função, já inicializadas
 // definicao_funcao: cabecalho corpo escopo_funcao_fim {
-definicao_funcao: cabecalho corpo {
+/* definicao_funcao: cabecalho corpo {
     if ($1) { $$ = $1; } // adiciona o cabeçalho
     if ($2) { asd_add_child($$, $2); }  // adiciona o corpo
-    pop_scope();
-};
+}; */
 
 /* tipo_retorno: TK_DECIMAL { $$ = $1; };
 tipo_retorno: TK_INTEIRO { $$ = $1; }; */
@@ -120,45 +121,39 @@ token TK_ATRIB. */
 // TODO: implementar escopo_funcao_inicio
 // cabecalho: TK_ID TK_SETA tipo_retorno escopo_funcao_inicio lista_parametros TK_ATRIB {
 
-cabecalho: TK_ID TK_SETA TK_INTEIRO lista_parametros TK_ATRIB {
+definicao_funcao: TK_ID TK_SETA TK_INTEIRO escopo_inicio lista_parametros TK_ATRIB corpo {
     SymbolNode *s_exists = find_symbol($1->value);
     if (s_exists) {
         throw_already_declared_error($1->line_number, $1->value);
         YYABORT;
     }
-    FuncSignature *sig = build_func_signature($4);
+    FuncSignature *sig = build_func_signature($5);
     Symbol func = make_function_symbol($1->value, INT, sig); // Faz a função virar um símbolo
     insert_symbol(func); // Insere no escopo atual (global)
     
-    push_scope();
-
-    insert_params_into_scope(sig);
-    
     // Constrói nó da AST
     $$ = asd_new($1->value);
-    if ($4) { asd_add_child($$, $4); }
+    asd_add_child($$, $7);
 
     free($1->value);
     free($1);
 };
 
-cabecalho: TK_ID TK_SETA TK_DECIMAL lista_parametros TK_ATRIB {
+definicao_funcao: TK_ID TK_SETA TK_DECIMAL escopo_inicio lista_parametros TK_ATRIB corpo {
     SymbolNode *s_exists = find_symbol($1->value);
     if (s_exists) {
         throw_already_declared_error($1->line_number, $1->value);
         YYABORT;
     }
-    FuncSignature *sig = build_func_signature($4);
+    FuncSignature *sig = build_func_signature($5);
     Symbol func = make_function_symbol($1->value, FLOAT, sig); // Faz a função virar um símbolo
     insert_symbol(func); // Insere no escopo atual (global)
     // Parâmetros já estão inseridos no escopo no momento da leitura
-    push_scope();
 
-    insert_params_into_scope(sig);
 
     // Constrói nó da AST
     $$ = asd_new($1->value);
-    if ($4) { asd_add_child($$, $4); }
+    asd_add_child($$, $7);
 
     free($1->value);
     free($1);
@@ -169,6 +164,7 @@ seguido de uma lista, separada por vírgula, de parâmetros.  */
 lista_parametros: %empty { 
     $$ = NULL; 
 };
+
 lista_parametros: lista_parametros_nao_vazia { 
     $$ = $1; 
 } ;
@@ -180,11 +176,8 @@ lista_parametros_nao_vazia: parametro {
     $$ = $1; 
 };
 lista_parametros_nao_vazia: parametro ',' lista_parametros_nao_vazia {
-    // $$ = $1; 
-    // asd_add_child($$, $3); 
-    if ($1) {
-         asd_add_child($$, $1); }
-    if ($3) { asd_add_child($$, $3); }
+    $1->prev = $3;
+    $$ = $1;
  };
 
 /* Cada parâmetro consiste no token TK_ID seguido do token TK_ATRIB
@@ -198,9 +191,10 @@ parametro: TK_ID TK_ATRIB TK_DECIMAL {
     Symbol param = make_var_symbol($1->value, FLOAT);
     insert_symbol(param);
     // TODO: adicionar argumento em func signature?
+    $$ = param_new($1->value, FLOAT);
     free($1->value);
     free($1);
-    $$ = NULL;
+    
 };
 parametro: TK_ID TK_ATRIB TK_INTEIRO {
     SymbolNode *s_exists = find_symbol($1->value);
@@ -211,13 +205,14 @@ parametro: TK_ID TK_ATRIB TK_INTEIRO {
     Symbol param = make_var_symbol($1->value, INT);
     insert_symbol(param);
     // TODO: adicionar argumento em func signature?
+    $$ = param_new($1->value, INT);
     free($1->value);
     free($1);
-    $$ = NULL;
+    
 };
 
 /*  O corpo de uma função é um bloco de comandos */
-corpo: bloco_comandos { $$ = $1; };
+corpo: bloco_comandos_funcao { $$ = $1; };
 
 /* Os comandos simples da linguagem podem ser:
 bloco de comandos, declaração de variável, comando de atribuição, 
@@ -235,12 +230,16 @@ de comandos simples. Um bloco de comandos é considerado como um comando único 
 e pode ser utilizado em qualquer construção que aceite um comando simples. */
 /* bloco_comandos: '[' ']'; */
 
-bloco_comandos: '[' comandos_simples_seq ']' {
+bloco_comandos_funcao: '[' comandos_simples_seq escopo_fim ']' {
    $$ = $2;
-}; 
-
-comandos_simples_seq: %empty { $$ = NULL; 
 };
+
+bloco_comandos: '[' escopo_inicio comandos_simples_seq escopo_fim ']' {
+   $$ = $3;
+};
+
+comandos_simples_seq: %empty { $$ = NULL; };
+
 comandos_simples_seq: comandos_simples comandos_simples_seq {
     if ($1 && $2) {
         asd_add_child($1, $2); 
@@ -250,26 +249,6 @@ comandos_simples_seq: comandos_simples comandos_simples_seq {
     } else {
         $$ = $2;
     }
-    };
-
-escopo_inicio_bloco: %empty  // Cria tabela e empilha ela
-{
-    push_scope();
-};
-
-escopo_fim_bloco: %empty
-{
-    pop_scope();
-};
-
-escopo_inicio_bloco_aninhado: %empty  // Cria tabela e empilha ela
-{
-    push_scope();
-};
-
-escopo_fim_bloco_aninhado: %empty
-{
-    pop_scope();
 };
 
 /* Declaração de variável: 
@@ -438,6 +417,7 @@ chamada_funcao: TK_ID '(' lista_argumentos ')' {
         char nome[256];
         snprintf(nome, sizeof(nome), "call %s", $1->value);
         $$ = asd_new(nome);
+        $$->type = s->symbol.type; // Define o tipo de retorno da chamada de função
         if($3){ 
             // Testa se os argumentos coincidem com o declarado
             // if($3 && !validate_call_args(s->symbol.signature, $3, $1->line_number, $1->value)) {
@@ -692,6 +672,7 @@ operando: TK_ID {
 
     $$ = asd_new($1->value);
     $$->payload = $1;
+    $$->type = s->symbol.type;
 };
 operando: TK_LI_INTEIRO { 
     $$ = asd_new($1->value);
