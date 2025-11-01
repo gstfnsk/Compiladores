@@ -24,8 +24,8 @@ void throw_func_used_as_var_error(int line, char *input){
     exit(ERR_FUNCTION);
 }
 
-void throw_wrong_type_error(int line, char *input, char *tipoVar){
-    printf("[ERR_WRONG_TYPE] Na linha %i.\n--> Uma conversão de tipo explícita é necessária para \"%s\".\n", line, input);
+void throw_type_mismatch_error(int line, char *input1, const char *type1, char *input2, const char *type2){
+    printf("[ERR_WRONG_TYPE] Na linha %i.\n--> Tipo de \"%s\" = %s. \n--> Tipo de \"%s\" = %s. \n", line, input1, type1, input2, type2);
     exit(ERR_WRONG_TYPE);
 }
 

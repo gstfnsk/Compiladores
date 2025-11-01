@@ -15,7 +15,7 @@ void throw_undeclared_error(int line, char *input); // Caso o identificador não
 void throw_already_declared_error(int line, char *input); // Caso o identificador já tenha sido declarado
 void throw_var_used_as_func_error(int line, char *input); // Caso o identificador dito variável seja usado como uma função
 void throw_func_used_as_var_error(int line, char *input); // Caso o identificador dito função seja utilizado como variável
-void throw_wrong_type_error(int line, char *input, char *tipoVar); // Caso haja inferência de tipo a partir de float e int, ou o inverso (não há conversão implícita)
+void throw_type_mismatch_error(int line, char *input1, const char *type1, char *input2, const char *type2); // Caso haja incompatibilidade de tipos em uma operação
 void throw_missing_args_error(int line, char *input); // Caso na hora da chamada da função houver um número menor de argumentos que o necessário
 void throw_excess_args_error(int line, char *input); // Caso houver um número maior de argumentos que o necessário
 void throw_mismatch_symbol_table_type_error(int line, const char *input); // Caso o número de argumentos seja correto, mas os tipos dos argumentos sejam incompatıveis com os tipos registrados na tabela de sımbolos
