@@ -21,7 +21,7 @@ LEXER_C  = scanner.lex.c
 # Compilador e flags
 CC = gcc
 CFLAGS = -fsanitize=address -g -Werror -Wall
-LDFLAGS = -lfl -lm
+LDFLAGS = -ll -lm
 
 # Regra principal
 $(EXEC): main.c $(ASD) $(SYMBOL_TABLE) $(ERRORS) $(TYPES) $(PARSER_C) $(LEXER_C)
