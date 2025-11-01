@@ -5,6 +5,8 @@
 #ifndef _ASD_H_
 #define _ASD_H_
 
+#include "types.h"
+
 typedef struct lexical_value {
 		int line_number;
 		int type;
@@ -16,6 +18,7 @@ typedef struct asd_tree {
   int number_of_children;
   struct asd_tree **children;
   lexical_value_t *payload;
+  Type type;
 } asd_tree_t;
 
 /*
