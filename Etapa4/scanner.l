@@ -6,6 +6,7 @@
 #include<stdio.h>
 #include "parser.tab.h"
 #include "asd.h"
+#include "types.h"
 
 lexical_value_t *make_lexical_value(const char *yytext, int token_type, int line_number) {
     lexical_value_t *aux = malloc(sizeof(lexical_value_t));
