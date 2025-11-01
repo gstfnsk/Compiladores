@@ -43,10 +43,6 @@ static void free_one_scope(Scope *s) {
     free(s);
 }
 
-void initialize_stack(void) {
-    // Não tenho certeza se precisamos de uma initialize_stack, porque o escopo global pode ser inicializado com push_scope.
-}
-
 void destroy_stack(void) {
     // Retira e libera todos os escopos.
     while (g_scope_stack_top)
@@ -62,23 +58,37 @@ void destroy_symbol_table(void) {
 }
 
 void push_scope(void) {
-     Scope *s = calloc(1, sizeof(Scope));
-     s->prev = g_scope_stack_top;
-     g_scope_stack_top = s;
+    // printf("\n\n---------------------------------------------------------------------------\n");
+    // printf("Push de escopo.\n");
+    // print_scope_stack(g_scope_stack_top);
+    Scope *s = calloc(1, sizeof(Scope));
+    s->prev = g_scope_stack_top;
+    g_scope_stack_top = s;
+    // printf("\nApós push de escopo.\n");
+    // print_scope_stack(g_scope_stack_top);
 }
 
 void pop_scope(void) {
-     if (g_scope_stack_top) {
-         Scope *top = g_scope_stack_top;
-         g_scope_stack_top = top->prev;
-         free_one_scope(top);
-     }
+    if (g_scope_stack_top) {
+        // printf("\n\n---------------------------------------------------------------------------\n");
+        // printf("Pop de escopo.\n");
+        // print_scope_stack(g_scope_stack_top);
+        Scope *top = g_scope_stack_top;
+        g_scope_stack_top = top->prev;
+        free_one_scope(top);
+        // printf("\nApós pop de escopo.\n");
+        // print_scope_stack(g_scope_stack_top);
+    }
 }
 
 // Insere símbolo no escopo atual
 SymbolNode *insert_symbol(Symbol s) {
     if (!g_scope_stack_top) return NULL;
 
+    // const char *nature_str = (s.nature == LITERAL) ? "LITERAL" :
+    //                         (s.nature == IDENTIFICADOR) ? "IDENTIFICADOR" : "FUNCAO";
+    // const char *type_str = get_label_type(s.type);
+    // printf("\n\nInserindo símbolo '%s' no escopo atual. Natureza: %s. Tipo: %s\n", s.lexical_value->value, nature_str, type_str);
     SymbolNode *node = calloc(1, sizeof(SymbolNode));
     node->symbol = s;
     node->next = g_scope_stack_top->symbols;
@@ -169,39 +179,44 @@ FuncSignature *funcsig_new(int param_count) {
 }
 
 
-void insert_params_into_scope(FuncSignature *sig) {
-    if (!sig || sig->param_count == 0)
-        return;
+// void insert_params_into_scope(FuncSignature *sig) {
+//     if (!sig || sig->param_count == 0)
+//         return;
 
-    for (int i = 0; i < sig->param_count; i++) {
-        Symbol param = make_var_symbol(sig->params[i].name, sig->params[i].type);
-        insert_symbol(param);
-    }
-}
+//     for (int i = 0; i < sig->param_count; i++) {
+//         Symbol param = make_var_symbol(sig->params[i].name, sig->params[i].type);
+//         insert_symbol(param);
+//     }
+// }
 
 // Transforma nó lista_parâmetros da AST em FuncSignature
-FuncSignature *build_func_signature(asd_tree_t *param_list_node) {
-    if (!param_list_node)
+FuncSignature *build_func_signature(struct Param *param_list) {
+    if (!param_list)
         return funcsig_new(0);
 
-    // Conta quantos parâmetros há
+    // Count parameters
     int count = 0;
-    for (asd_tree_t *p = param_list_node; p != NULL; 
-         p = (p->number_of_children > 1 ? p->children[1] : NULL))
+    struct Param *p;
+    for (p = param_list; p != NULL; p = p->prev) {
         count++;
-
+    }
+  
     FuncSignature *sig = funcsig_new(count);
+    
+    // Copy parameters from linked list to array
+    int i = count - 1;  // Start from the end since our list is in reverse order
+    for (p = param_list; p != NULL; p = p->prev) {
+        sig->params[i].name = strdup(p->name);
+        sig->params[i].type = p->type;
+        i--;
+    }
 
-    int i = 0;
-    for (asd_tree_t *p = param_list_node; p != NULL; 
-         p = (p->number_of_children > 1 ? p->children[1] : NULL)) {
-
-        // O nó do tipo é sempre o primeiro filho
-        asd_tree_t *type_node = p->children[0];
-        sig->params[i].name = strdup(p->label);
-        sig->params[i].type = 
-            (strcmp(type_node->label, "inteiro") == 0) ? INT : FLOAT;
-        i++;
+    // Free the linked list since we've copied it
+    while (param_list) {
+        p = param_list->prev;
+        free(param_list->name);
+        free(param_list);
+        param_list = p;
     }
 
     return sig;
@@ -219,99 +234,6 @@ void funcsig_free(FuncSignature *sig) {
     free(sig);
 }
 
-// Type infer_expr_type(asd_tree_t *node) {
-//     if (!node) return -1; 
-    
-//     // Literal
-//     if (node->payload && node->payload->type == TK_LI_INTEIRO)
-//         return INT;
-//     if (node->payload && node->payload->type == TK_LI_DECIMAL)
-//         return FLOAT;
-    
-//     // Variável
-//     if (node->payload && node->payload->type == TK_ID) {
-//         SymbolNode *sym = find_symbol(node->payload->value);
-//         if (!sym) return -1; 
-//         return sym->symbol.type;
-//     }
-    
-//     // Operadores unários (+, -): preserva o tipo do operando
-//     // NOTA: Precisa verificar ANTES dos binários, pois compartilham os mesmos labels!
-//     // Unário tem 1 filho, binário tem 2 filhos
-//     if ((strcmp(node->label, "+") == 0 || strcmp(node->label, "-") == 0) 
-//         && node->number_of_children == 1) {
-//         Type operand = infer_expr_type(node->children[0]);
-//         if (operand == -1) return -1;
-//         return operand; // Preserva o tipo do operando
-//     }
-    
-//     // Operador unário de negação lógica (!): retorna INT (0 ou 1)
-//     if (strcmp(node->label, "!") == 0) {
-//         if (node->number_of_children < 1) return -1;
-//         Type operand = infer_expr_type(node->children[0]);
-//         if (operand == -1) return -1;
-//         return INT; // Negação lógica retorna inteiro (boolean)
-//     }
-    
-//     // Expressões binárias aritméticas (+, -, *, /): ambos operandos devem ter o mesmo tipo
-//     if (strcmp(node->label, "+") == 0 || strcmp(node->label, "-") == 0 ||
-//         strcmp(node->label, "*") == 0 || strcmp(node->label, "/") == 0) {
-//         if (node->number_of_children < 2) return -1;
-//         Type left = infer_expr_type(node->children[0]);
-//         Type right = infer_expr_type(node->children[1]);
-//         if (left == -1 || right == -1 || left != right) return -1;
-//         return left; // Retorna o tipo dos operandos (são iguais)
-//     }
-    
-//     // Modulo (%): ambos operandos devem ser INT
-//     if (strcmp(node->label, "%") == 0) {
-//         if (node->number_of_children < 2) return -1;
-//         Type left = infer_expr_type(node->children[0]);
-//         Type right = infer_expr_type(node->children[1]);
-//         if (left != INT || right != INT) return -1;
-//         return INT;
-//     }
-    
-//     // Operadores relacionais (<, >, <=, >=): comparam operandos do mesmo tipo, retornam INT
-//     if (strcmp(node->label, "<") == 0 || strcmp(node->label, ">") == 0 ||
-//         strcmp(node->label, "<=") == 0 || strcmp(node->label, ">=") == 0) {
-//         if (node->number_of_children < 2) return -1;
-//         Type left = infer_expr_type(node->children[0]);
-//         Type right = infer_expr_type(node->children[1]);
-//         if (left == -1 || right == -1 || left != right) return -1;
-//         return INT; // Operações relacionais retornam "boolean" (INT)
-//     }
-    
-//     // Operadores de igualdade (==, !=): comparam operandos do mesmo tipo, retornam INT
-//     if (strcmp(node->label, "==") == 0 || strcmp(node->label, "!=") == 0) {
-//         if (node->number_of_children < 2) return -1;
-//         Type left = infer_expr_type(node->children[0]);
-//         Type right = infer_expr_type(node->children[1]);
-//         if (left == -1 || right == -1 || left != right) return -1;
-//         return INT; // Operações de igualdade retornam "boolean" (INT)
-//     }
-    
-//     // Operadores lógicos (&, |): operandos devem ter o mesmo tipo, retornam INT
-//     if (strcmp(node->label, "&") == 0 || strcmp(node->label, "|") == 0) {
-//         if (node->number_of_children < 2) return -1;
-//         Type left = infer_expr_type(node->children[0]);
-//         Type right = infer_expr_type(node->children[1]);
-//         if (left == -1 || right == -1 || left != right) return -1;
-//         return INT; // Operações lógicas retornam "boolean" (INT)
-//     }
-    
-//     // Chamada de função: retorna o tipo de retorno da função
-//     if (strncmp(node->label, "call ", 5) == 0) {
-//         SymbolNode *fsym = find_symbol(node->label + 5); // após "call "
-//         if (!fsym || fsym->symbol.nature != FUNCAO) return -1;
-//         return fsym->symbol.type; // Tipo de retorno da função
-//     }
-    
-//     // Parênteses: apenas passa o tipo da expressão interna
-//     // (Não precisa tratar separadamente se a AST já remove os parênteses)
-    
-//     return -1; // Tipo desconhecido ou nó inválido
-// }
 
 // int validate_call_args(FuncSignature *sig, asd_tree_t *args, int line, const char *func_name) {
 //     int argc = 0;
@@ -342,3 +264,40 @@ void funcsig_free(FuncSignature *sig) {
 //     free(arg_arr);
 //     return 1;
 // }
+
+struct Param *param_new(const char *name, Type type) {
+    struct Param *p = calloc(1, sizeof(Param));
+    if (!p) return NULL;
+    p->name = strdup(name);
+    p->type = type;
+    p->prev = NULL;
+    return p;
+}
+
+void print_scope_stack(Scope *top) {
+    int level = 0;
+    for (Scope *scope = top; scope != NULL; scope = scope->prev) {
+        printf("Escopo nível %d:\n", level);
+        for (SymbolNode *sym_node = scope->symbols; sym_node != NULL; sym_node = sym_node->next) {
+            Symbol *sym = &sym_node->symbol;
+            const char *nature_str = (sym->nature == LITERAL) ? "LITERAL" :
+                                     (sym->nature == IDENTIFICADOR) ? "IDENTIFICADOR" : "FUNCAO";
+            const char *type_str = get_label_type(sym->type);
+            printf("  Símbolo: %s, Natureza: %s, Tipo: %s\n",
+                   sym->lexical_value ? sym->lexical_value->value : "(sem nome)",
+                   nature_str,
+                   type_str);
+            if (sym->nature == FUNCAO && sym->signature) {
+                printf("    Assinatura da função: %d parâmetros\n", sym->signature->param_count);
+                for (int i = 0; i < sym->signature->param_count; ++i) {
+                    const char *param_type_str = get_label_type(sym->signature->params[i].type);
+                    printf("      Parâmetro %d: Nome: %s, Tipo: %s\n",
+                           i + 1,
+                           sym->signature->params[i].name,
+                           param_type_str);
+                }
+            }
+        }
+        level++;
+    }
+}

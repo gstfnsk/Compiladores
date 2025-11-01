@@ -18,6 +18,7 @@ typedef enum {
 typedef struct Param {
     char *name; // Nome do parâmetro
     Type type; // Tipo
+    struct Param *prev; // Parâmetro anterior na lista 
 } Param;
 
 typedef struct FuncSignature {
@@ -50,14 +51,15 @@ void create_symbol_table();
 void destroy_symbol_table();
 void push_scope();
 void pop_scope();
+void print_scope_stack(Scope *top);
 
 SymbolNode *insert_symbol(Symbol s);
 SymbolNode *find_symbol(const char *name);
 Symbol make_function_symbol(const char *name, Type return_type, FuncSignature *sig);
+FuncSignature *build_func_signature(struct Param *param_list);
 Symbol make_var_symbol(const char *name, Type type);
 FuncSignature *funcsig_new(int param_count);
-FuncSignature *build_func_signature(asd_tree_t *param_list_node);
 void funcsig_free(FuncSignature *sig);
-void insert_params_into_scope(FuncSignature *sig);
+struct Param *param_new(const char *name, Type type);
 
 #endif //_SYMBOL_TABLE_H_
