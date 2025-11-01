@@ -233,8 +233,8 @@ de comandos simples. Um bloco de comandos é considerado como um comando único 
 e pode ser utilizado em qualquer construção que aceite um comando simples. */
 /* bloco_comandos: '[' ']'; */
 
-bloco_comandos: '[' escopo_inicio_bloco comandos_simples_seq escopo_fim_bloco ']' {
-   $$ = $3;
+bloco_comandos: '[' comandos_simples_seq ']' {
+   $$ = $2;
 }; 
 
 comandos_simples_seq: %empty { $$ = NULL; 
