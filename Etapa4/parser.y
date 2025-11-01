@@ -7,9 +7,11 @@
 #include "errors.h"
 #include "asd.h"
 #include "symbol_table.h"
+#include "types.h"
 extern asd_tree_t *arvore;
 int yylex(void);
 void yyerror (char const *mensagem);
+int get_line_number(void);
 %}
 
 %define parse.error verbose
@@ -125,7 +127,7 @@ cabecalho: TK_ID TK_SETA TK_INTEIRO lista_parametros TK_ATRIB {
         YYABORT;
     }
     FuncSignature *sig = build_func_signature($4);
-    Symbol func = make_function_symbol($1->value, INTEIRO, sig); // Faz a função virar um símbolo
+    Symbol func = make_function_symbol($1->value, INT, sig); // Faz a função virar um símbolo
     insert_symbol(func); // Insere no escopo atual (global)
     
     push_scope();
@@ -147,7 +149,7 @@ cabecalho: TK_ID TK_SETA TK_DECIMAL lista_parametros TK_ATRIB {
         YYABORT;
     }
     FuncSignature *sig = build_func_signature($4);
-    Symbol func = make_function_symbol($1->value, DECIMAL, sig); // Faz a função virar um símbolo
+    Symbol func = make_function_symbol($1->value, FLOAT, sig); // Faz a função virar um símbolo
     insert_symbol(func); // Insere no escopo atual (global)
     // Parâmetros já estão inseridos no escopo no momento da leitura
     push_scope();
@@ -193,7 +195,7 @@ parametro: TK_ID TK_ATRIB TK_DECIMAL {
         throw_already_declared_error($1->line_number, $1->value);
         YYABORT;
     }
-    Symbol param = make_var_symbol($1->value, DECIMAL);
+    Symbol param = make_var_symbol($1->value, FLOAT);
     insert_symbol(param);
     // TODO: adicionar argumento em func signature?
     free($1->value);
@@ -206,7 +208,7 @@ parametro: TK_ID TK_ATRIB TK_INTEIRO {
         throw_already_declared_error($1->line_number, $1->value);
         YYABORT;
     }
-    Symbol param = make_var_symbol($1->value, INTEIRO);
+    Symbol param = make_var_symbol($1->value, INT);
     insert_symbol(param);
     // TODO: adicionar argumento em func signature?
     free($1->value);
@@ -280,7 +282,7 @@ declaracao_variavel_global: TK_VAR TK_ID TK_ATRIB TK_DECIMAL {
         YYABORT;
     }
 
-    Symbol var_symbol = make_var_symbol($2->value, DECIMAL);
+    Symbol var_symbol = make_var_symbol($2->value, FLOAT);
     insert_symbol(var_symbol);
 
     free($2->value);
@@ -295,7 +297,7 @@ declaracao_variavel_global: TK_VAR TK_ID TK_ATRIB TK_INTEIRO {
         YYABORT;
     }
 
-    Symbol var_symbol = make_var_symbol($2->value, INTEIRO);
+    Symbol var_symbol = make_var_symbol($2->value, INT);
     insert_symbol(var_symbol);
 
 	free($2->value);
@@ -312,6 +314,7 @@ seja seguida do token TK_COM e de um literal.
 Um literal pode ser ou o token TK_LI_INTEIRO ou o token TK_LI_DECIMAL. */
 declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_DECIMAL TK_COM TK_LI_DECIMAL {
 	$$ = asd_new("com");
+    $$->type = FLOAT;
     if ($2) {
         SymbolNode *s_exists = find_symbol($2->value);
 
@@ -320,7 +323,7 @@ declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_DECIMAL TK_COM TK_LI_DECIMAL {
             YYABORT;
         }
 
-        Symbol var_symbol = make_var_symbol($2->value, DECIMAL);
+        Symbol var_symbol = make_var_symbol($2->value, FLOAT);
         insert_symbol(var_symbol);
 
         asd_add_child($$, asd_new($2->value));
@@ -329,14 +332,16 @@ declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_DECIMAL TK_COM TK_LI_DECIMAL {
         free($2);
     }
     if ($6) {
-        //TODO: Verificar se o tipo do literal (TK_LI_INTEIRO ou TK_LI_DECIMAL) corresponde ao tipo declarado para a variável.     
-        asd_add_child($$, asd_new($6->value));
+        asd_tree_t *literal_node = asd_new($6->value);
+        literal_node->type = FLOAT; // Define o tipo do literal como FLOAT
+        asd_add_child($$, literal_node);
         $$->payload = $6;
     }
 };
 
 declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_INTEIRO TK_COM TK_LI_INTEIRO {
 	$$ = asd_new("com");
+    $$->type = INT;
     if ($2) {
         SymbolNode *s_exists = find_symbol($2->value);
 
@@ -345,7 +350,7 @@ declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_INTEIRO TK_COM TK_LI_INTEIRO {
             YYABORT;
         }
 
-        Symbol var_symbol = make_var_symbol($2->value, INTEIRO);
+        Symbol var_symbol = make_var_symbol($2->value, INT);
         insert_symbol(var_symbol);
 
         asd_add_child($$, asd_new($2->value));
@@ -354,8 +359,9 @@ declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_INTEIRO TK_COM TK_LI_INTEIRO {
         free($2);
     }
     if ($6) {
-        //TODO: Verificar se o tipo do literal (TK_LI_INTEIRO ou TK_LI_DECIMAL) corresponde ao tipo declarado para a variável.
-        asd_add_child($$, asd_new($6->value));
+        asd_tree_t *literal_node = asd_new($6->value);
+        literal_node->type = INT; // Define o tipo do literal como INT
+        asd_add_child($$, literal_node);
         $$->payload = $6;
     }
 };
@@ -367,7 +373,7 @@ declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_DECIMAL {
         YYABORT;
     }
 
-    Symbol var_symbol = make_var_symbol($2->value, INTEIRO);
+    Symbol var_symbol = make_var_symbol($2->value, INT);
     insert_symbol(var_symbol);
 
     free($2->value);
@@ -382,7 +388,7 @@ declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_INTEIRO {
         YYABORT;
     }
 
-    Symbol var_symbol = make_var_symbol($2->value, INTEIRO);
+    Symbol var_symbol = make_var_symbol($2->value, INT);
     insert_symbol(var_symbol);
 
 	free($2->value);
@@ -460,11 +466,15 @@ seguido do token TK_ATRIB e terminado ou pelo token TK_DECIMAL ou pelo token TK_
 comando_retorno: TK_RETORNA expressao TK_ATRIB TK_DECIMAL{
     // TODO: Verificar se o tipo da expressao do retorno é compatível com o tipo de retorno da função atual.
 	$$ = asd_new("retorna");
-    if($2){ asd_add_child($$, $2); }
+    $$->type = FLOAT;
+    if($2){ 
+        
+        asd_add_child($$, $2); }
 };
 comando_retorno: TK_RETORNA expressao TK_ATRIB TK_INTEIRO {
     // TODO: Verificar se o tipo da expressao do retorno é compatível com o tipo de retorno da função atual.
 	$$ = asd_new("retorna");
+    $$->type = INT;
     if($2){ asd_add_child($$, $2); }
 };
 
@@ -499,30 +509,50 @@ expressao: operacao_binaria_or { $$ = $1; };
 
 /* Precedência 7 */
 operacao_binaria_or: operacao_binaria_or '|' operacao_binaria_and {
-        $$ = asd_new("|");
-        if($1){ asd_add_child($$, $1); }
-        if($3){ asd_add_child($$, $3); }
+    $$ = asd_new("|");
+    if ($1->type != $3->type) {
+        throw_type_mismatch_error(get_line_number(), $1->label, get_label_type($1->type), $3->label, get_label_type($3->type));
+        YYABORT;
+    }
+    $$->type = $1->type;
+    asd_add_child($$, $1);
+    asd_add_child($$, $3);
 };
 operacao_binaria_or: operacao_binaria_and { $$ = $1; };
 
 /* Precedência 6 */
 operacao_binaria_and: operacao_binaria_and '&' operacao_binaria_igualdade {
     $$ = asd_new("&");
-    if($1){ asd_add_child($$, $1); }
-    if($3){ asd_add_child($$, $3); }
+    if ($1->type != $3->type) {
+        throw_type_mismatch_error(get_line_number(), $1->label, get_label_type($1->type), $3->label, get_label_type($3->type));
+        YYABORT;
+    }
+    $$->type = $1->type;
+    asd_add_child($$, $1);
+    asd_add_child($$, $3);
 };
 operacao_binaria_and: operacao_binaria_igualdade { $$ = $1; }; 
 
 /* Precedência 5 */
 operacao_binaria_igualdade: operacao_binaria_igualdade TK_OC_EQ operacao_binaria_relacional {
     $$ = asd_new("==");
-    if($1){ asd_add_child($$, $1); }
-    if($3){ asd_add_child($$, $3); }
+    if ($1->type != $3->type) {
+        throw_type_mismatch_error(get_line_number(), $1->label, get_label_type($1->type), $3->label, get_label_type($3->type));
+        YYABORT;
+    }
+    $$->type = $1->type;
+    asd_add_child($$, $1);
+    asd_add_child($$, $3);
 };
 operacao_binaria_igualdade: operacao_binaria_igualdade TK_OC_NE operacao_binaria_relacional {
     $$ = asd_new("!=");
-    if($1){ asd_add_child($$, $1); }
-    if($3){ asd_add_child($$, $3); }
+    if ($1->type != $3->type) {
+        throw_type_mismatch_error(get_line_number(), $1->label, get_label_type($1->type), $3->label, get_label_type($3->type));
+        YYABORT;
+    }
+    $$->type = $1->type;
+    asd_add_child($$, $1);
+    asd_add_child($$, $3);
 
 };
 operacao_binaria_igualdade: operacao_binaria_relacional { $$ = $1; };
@@ -530,36 +560,66 @@ operacao_binaria_igualdade: operacao_binaria_relacional { $$ = $1; };
 /* Precedência 4 */
 operacao_binaria_relacional: operacao_binaria_relacional '<' operacao_binaria_soma_sub {
     $$ = asd_new("<");
-    if($1){ asd_add_child($$, $1); }
-    if($3){ asd_add_child($$, $3); }
+    if ($1->type != $3->type) {
+        throw_type_mismatch_error(get_line_number(), $1->label, get_label_type($1->type), $3->label, get_label_type($3->type));
+        YYABORT;
+    }
+    $$->type = $1->type;
+    asd_add_child($$, $1);
+    asd_add_child($$, $3);
 };
 operacao_binaria_relacional: operacao_binaria_relacional '>' operacao_binaria_soma_sub {
     $$ = asd_new(">");
-    if($1){ asd_add_child($$, $1); }
-    if($3){ asd_add_child($$, $3); }
+    if ($1->type != $3->type) {
+        throw_type_mismatch_error(get_line_number(), $1->label, get_label_type($1->type), $3->label, get_label_type($3->type));
+        YYABORT;
+    }
+    $$->type = $1->type;
+    asd_add_child($$, $1);
+    asd_add_child($$, $3);
 };
 operacao_binaria_relacional: operacao_binaria_relacional TK_OC_LE operacao_binaria_soma_sub {
     $$ = asd_new("<=");
-    if($1){ asd_add_child($$, $1); }
-    if($3){ asd_add_child($$, $3); }
+    if ($1->type != $3->type) {
+        throw_type_mismatch_error(get_line_number(), $1->label, get_label_type($1->type), $3->label, get_label_type($3->type));
+        YYABORT;
+    }
+    $$->type = $1->type;
+    asd_add_child($$, $1);
+    asd_add_child($$, $3);
 };
 operacao_binaria_relacional: operacao_binaria_relacional TK_OC_GE operacao_binaria_soma_sub {
     $$ = asd_new(">=");
-    if($1){ asd_add_child($$, $1); }
-    if($3){ asd_add_child($$, $3); }
+    if ($1->type != $3->type) {
+        throw_type_mismatch_error(get_line_number(), $1->label, get_label_type($1->type), $3->label, get_label_type($3->type));
+        YYABORT;
+    }
+    $$->type = $1->type;
+    asd_add_child($$, $1);
+    asd_add_child($$, $3);
 };
 operacao_binaria_relacional: operacao_binaria_soma_sub { $$ = $1; };
 
 /* Precedência 3 */
 operacao_binaria_soma_sub: operacao_binaria_soma_sub '+' operacao_binaria_mult_div {
     $$ = asd_new("+");
-    if($1){ asd_add_child($$, $1); }
-    if($3){ asd_add_child($$, $3); }
+    if ($1->type != $3->type) {
+        throw_type_mismatch_error(get_line_number(), $1->label, get_label_type($1->type), $3->label, get_label_type($3->type));
+        YYABORT;
+    }
+    $$->type = $1->type;
+    asd_add_child($$, $1);
+    asd_add_child($$, $3);
 };
 operacao_binaria_soma_sub: operacao_binaria_soma_sub '-' operacao_binaria_mult_div {
     $$ = asd_new("-");
-    if($1){ asd_add_child($$, $1); }
-    if($3){ asd_add_child($$, $3); }
+    if ($1->type != $3->type) {
+        throw_type_mismatch_error(get_line_number(), $1->label, get_label_type($1->type), $3->label, get_label_type($3->type));
+        YYABORT;
+    }
+    $$->type = $1->type;
+    asd_add_child($$, $1);
+    asd_add_child($$, $3);
 };
 operacao_binaria_soma_sub: operacao_binaria_mult_div { $$ = $1; };
 
@@ -567,33 +627,51 @@ operacao_binaria_soma_sub: operacao_binaria_mult_div { $$ = $1; };
 operacao_binaria_mult_div: operacao_unaria { $$ = $1; } ;
 operacao_binaria_mult_div: operacao_binaria_mult_div '*' operacao_unaria {
     $$ = asd_new("*");
-    if($1){ asd_add_child($$, $1); }
-    if($3){ asd_add_child($$, $3); }
+    if ($1->type != $3->type) {
+        throw_type_mismatch_error(get_line_number(), $1->label, get_label_type($1->type), $3->label, get_label_type($3->type));
+        YYABORT;
+    }
+    $$->type = $1->type;
+    asd_add_child($$, $1);
+    asd_add_child($$, $3);
 };
 operacao_binaria_mult_div: operacao_binaria_mult_div '/' operacao_unaria {
     $$ = asd_new("/");
-    if($1){ asd_add_child($$, $1); }
-    if($3){ asd_add_child($$, $3); }
+    if ($1->type != $3->type) {
+        throw_type_mismatch_error(get_line_number(), $1->label, get_label_type($1->type), $3->label, get_label_type($3->type));
+        YYABORT;
+    }
+    $$->type = $1->type;
+    asd_add_child($$, $1);
+    asd_add_child($$, $3);
 };
 operacao_binaria_mult_div: operacao_binaria_mult_div '%' operacao_unaria {
     $$ = asd_new("%");
-    if($1){ asd_add_child($$, $1); }
-    if($3){ asd_add_child($$, $3); }
+    if ($1->type != $3->type) {
+        throw_type_mismatch_error(get_line_number(), $1->label, get_label_type($1->type), $3->label, get_label_type($3->type));
+        YYABORT;
+    }
+    $$->type = $1->type;
+    asd_add_child($$, $1);
+    asd_add_child($$, $3);
 };
 
 /* Precedência 1 */
 operacao_unaria: operando { $$ = $1; };
 operacao_unaria: '+' operacao_unaria {
     $$ = asd_new("+");
-    if($2){ asd_add_child($$, $2); }
+    $$->type = $2->type;
+    asd_add_child($$, $2);
 };
 operacao_unaria: '-' operacao_unaria {
     $$ = asd_new("-");
-    if($2){ asd_add_child($$, $2); }
+    $$->type = $2->type;
+    asd_add_child($$, $2);
 };
 operacao_unaria: '!' operacao_unaria {
     $$ = asd_new("!");
-    if($2){ asd_add_child($$, $2); }
+    $$->type = $2->type;
+    asd_add_child($$, $2);
 };
 
 /* Precedência 0 */
@@ -617,10 +695,12 @@ operando: TK_ID {
 };
 operando: TK_LI_INTEIRO { 
     $$ = asd_new($1->value);
+    $$->type = INT;
     $$->payload = $1;
 };
 operando: TK_LI_DECIMAL {
     $$ = asd_new($1->value);
+    $$->type = FLOAT;
     $$->payload = $1;
 };
 operando: chamada_funcao { $$ = $1; };
@@ -630,8 +710,6 @@ operando: '(' expressao ')' { $$ = $2; };
 uma associatividade ou precedência diferente daquela tradicional.  */
 
 %%
-
-int get_line_number(void);
 
 void yyerror (char const *mensagem)
 {
