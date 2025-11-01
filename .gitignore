@@ -60,7 +60,6 @@ parser.tab.h
 lex.yy.c
 *.o
 a.out
-etapa4
 *.exe
 *.out
 scanner.lex.c
