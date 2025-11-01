@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "asd.h"
+#include "types.h"
 
 asd_tree_t *asd_new(const char *label)
 {
@@ -78,7 +79,7 @@ static void _asd_print_graphviz (FILE *foutput, asd_tree_t *tree)
 {
   int i;
   if (tree != NULL){
-    fprintf(foutput, "  %ld [ label=\"%s\" ];\n", (long)tree, tree->label);
+    fprintf(foutput, "  %ld [ label=\"%s %s\" ];\n", (long)tree, tree->label, get_label_type(tree->type));
     for (i = 0; i < tree->number_of_children; i++){
       fprintf(foutput, "  %ld -> %ld;\n", (long)tree, (long)tree->children[i]);
       _asd_print_graphviz(foutput, tree->children[i]);
