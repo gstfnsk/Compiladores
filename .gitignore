@@ -53,3 +53,15 @@ dkms.conf
 
 # debug information files
 *.dwo
+
+*.dot
+parser.tab.c
+parser.tab.h
+lex.yy.c
+*.o
+a.out
+etapa4
+*.exe
+*.out
+scanner.lex.c
+.DS_Store
