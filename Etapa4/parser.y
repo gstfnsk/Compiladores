@@ -268,13 +268,19 @@ declaracao_variavel: TK_VAR TK_ID TK_ATRIB tipo TK_COM TK_LI_DECIMAL {
 
         asd_tree_t *literal_node = asd_new($2->value);
         asd_add_child($$, literal_node);
-        $$->payload = $2;
+
+        // O valor de $2 foi copiado para o nó, podemos liberar a memória.
+        free($2->value);
+        free($2);
     }
     if ($6) {
         asd_tree_t *literal_node = asd_new($6->value);
         literal_node->type = FLOAT; // Define o tipo do literal como FLOAT
         asd_add_child($$, literal_node);
-        $$->payload = $6;
+
+        // O valor de $6 foi copiado para o nó, podemos liberar a memória.
+        free($6->value);
+        free($6);
     }
 };
 
@@ -299,13 +305,19 @@ declaracao_variavel: TK_VAR TK_ID TK_ATRIB tipo TK_COM TK_LI_INTEIRO {
 
         asd_tree_t *literal_node = asd_new($2->value);
         asd_add_child($$, literal_node);
-        $$->payload = $2;
+
+        // O valor de $2 foi copiado para o nó, podemos liberar a memória.
+        free($2->value);
+        free($2);
     }
     if ($6) {
         asd_tree_t *literal_node = asd_new($6->value);
         literal_node->type = INT; // Define o tipo do literal como INT
         asd_add_child($$, literal_node);
-        $$->payload = $6;
+
+        // O valor de $6 foi copiado para o nó, podemos liberar a memória.
+        free($6->value);
+        free($6);
     }
 };
 declaracao_variavel: TK_VAR TK_ID TK_ATRIB tipo {
@@ -351,7 +363,11 @@ comando_atribuicao: TK_ID TK_ATRIB expressao {
     var_node->type = s->symbol.type; // Define o tipo do nó da variável
     if($1) { asd_add_child($$, var_node); }
     if($3) { asd_add_child($$, $3); }
-    $$->payload = $1;
+
+    // $1 é usado para criar var_node, então não deve ser o payload principal.
+    // O valor de $1 (string) já foi copiado para var_node->label. Liberamos o lexical_value.
+    free($1->value);
+    free($1);
 };
 
 /* Chamada de Função: 
@@ -397,7 +413,9 @@ chamada_funcao: TK_ID '(' lista_argumentos ')' {
         $$->type = s->symbol.type; // Define o tipo de retorno da chamada de função
          // Testa se os argumentos coincidem com o declarado
          
-        $$->payload = $1;
+        // O nome da função já foi copiado para o label do nó. Liberamos o lexical_value.
+        free($1->value);
+        free($1);
     };
 };
 
@@ -665,18 +683,23 @@ operando: TK_ID {
     }
 
     $$ = asd_new($1->value);
-    $$->payload = $1;
+
     $$->type = s->symbol.type;
+    // O valor de $1 (string) já foi copiado para o label do nó. Liberamos o lexical_value.
+    free($1->value);
+    free($1);
 };
 operando: TK_LI_INTEIRO { 
     $$ = asd_new($1->value);
     $$->type = INT;
-    $$->payload = $1;
+    free($1->value);
+    free($1);
 };
 operando: TK_LI_DECIMAL {
     $$ = asd_new($1->value);
     $$->type = FLOAT;
-    $$->payload = $1;
+    free($1->value);
+    free($1);
 };
 operando: chamada_funcao { $$ = $1; };
 operando: '(' expressao ')' { $$ = $2; };
