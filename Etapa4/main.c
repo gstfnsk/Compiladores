@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include "asd.h"
+#include "symbol_table.h"
 extern int yyparse(void);
 extern int yylex_destroy(void);
 asd_tree_t *arvore = NULL;
@@ -13,5 +14,6 @@ int main (int argc, char **argv)
   asd_print_graphviz(arvore);
   asd_free(arvore);
   yylex_destroy();
+  destroy_stack();
   return ret;
 }

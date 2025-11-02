@@ -9,50 +9,58 @@
 #include "asd.h"
 #include "types.h"
 
-typedef enum {
+typedef enum
+{
     LITERAL,
     IDENTIFICADOR,
     FUNCAO
 } Nature;
 
-typedef struct Param {
-    char *name; // Nome do parâmetro
-    Type type; // Tipo
-    struct Param *next; // Parâmetro anterior na lista 
+typedef struct Param
+{
+    char *name;         // Nome do parâmetro
+    Type type;          // Tipo
+    struct Param *next; // Parâmetro anterior na lista
 } Param;
 
-typedef struct FuncSignature {
+typedef struct FuncSignature
+{
     int param_count; // Quantidade de parâmetros
-    Param *params;  // Vetor de structs Param
+    Param *params;   // Vetor de structs Param
 } FuncSignature;
 
-typedef struct Arg {
-    Type type; // Tipo do argumento
+typedef struct Arg
+{
+    Type type;        // Tipo do argumento
     struct Arg *next; // Próximo argumento na lista
 } Arg;
 
-typedef struct ArgList {
+typedef struct ArgList
+{
     int arg_count; // Quantidade de argumentos
-    Arg *args; // Vetor de structs Arg
+    Arg *args;     // Vetor de structs Arg
 } ArgList;
 
-typedef struct Symbol {
+typedef struct Symbol
+{
     Nature nature;
     Type type;
     FuncSignature *signature; // Se não for função é NULL
     lexical_value_t *lexical_value;
 } Symbol;
 
-// Nó em uma lista encadeada de símbolos dentro de um escopo. Isso implementa uma 
+// Nó em uma lista encadeada de símbolos dentro de um escopo. Isso implementa uma
 // tabela de símbolos como uma lista encadeada simples.
-typedef struct SymbolNode {
+typedef struct SymbolNode
+{
     Symbol symbol;
     struct SymbolNode *next;
 } SymbolNode;
 
-typedef struct Scope {
-    SymbolNode *symbols;         // Topo de uma lista encadeada simples de símbolos neste escopo.
-    struct Scope *prev;          // O escopo anterior na pilha de escopos.
+typedef struct Scope
+{
+    SymbolNode *symbols; // Topo de uma lista encadeada simples de símbolos neste escopo.
+    struct Scope *prev;  // O escopo anterior na pilha de escopos.
 } Scope;
 
 void destroy_stack();
@@ -72,6 +80,6 @@ void param_free(struct Param *p);
 struct Arg *arg_new(Type type);
 struct ArgList *argslist_new(int arg_count);
 void arg_free(struct Arg *arg);
-
+void arglist_free(struct ArgList *arglist);
 
 #endif //_SYMBOL_TABLE_H_
