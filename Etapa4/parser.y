@@ -440,6 +440,10 @@ A condicional consiste no token TK_SE seguido de uma expressão entre parêntese
 e então por um bloco de comandos obrigatório. Após este bloco, podemos opcionalmente ter o token
 TK_SENAO que, quando aparece, é seguido obrigatoriamente por um bloco de comandos. */
 construcoes_fluxo_controle: TK_SE '(' expressao ')' bloco_comandos {
+    if ($3->type != INT) {
+        throw_type_mismatch_error(get_line_number(), "condicional 'se'", get_label_type(INT), $3->label, get_label_type($3->type));
+        YYABORT;
+    }
     $$ = asd_new("se");
     $$->type = $3->type;
     asd_add_child($$, $3);
@@ -447,6 +451,10 @@ construcoes_fluxo_controle: TK_SE '(' expressao ')' bloco_comandos {
 };
 
 construcoes_fluxo_controle: TK_SE '(' expressao ')' bloco_comandos TK_SENAO bloco_comandos {
+	if ($3->type != INT) {
+        throw_type_mismatch_error(get_line_number(), "condicional 'se'", get_label_type(INT), $3->label, get_label_type($3->type));
+        YYABORT;
+    }
 	$$ = asd_new("se");
     $$->type = $3->type;
     asd_add_child($$, $3);
@@ -457,6 +465,10 @@ construcoes_fluxo_controle: TK_SE '(' expressao ')' bloco_comandos TK_SENAO bloc
 /* Temos apenas uma construção de repetição que é o token TK_ENQUANTO 
 seguido de uma expressão entre parênteses e de um bloco de comandos. */
 construcoes_fluxo_controle: TK_ENQUANTO '(' expressao ')' bloco_comandos {
+	if ($3->type != INT) {
+        throw_type_mismatch_error(get_line_number(), "condicional 'enquanto'", get_label_type(INT), $3->label, get_label_type($3->type));
+        YYABORT;
+    }
 	$$ = asd_new("enquanto");
     $$->type = $3->type;
     asd_add_child($$, $3);
