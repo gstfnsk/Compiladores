@@ -418,7 +418,10 @@ lista_argumentos: argumento {
 lista_argumentos: %empty { $$ = argslist_new(0); };
 
 /* Um argumento é uma expressão. */
-argumento: expressao { $$ = arg_new($1->type); };
+argumento: expressao { 
+    $$ = arg_new($1->type); 
+    asd_free($1);
+};
 /* Comando de Retorno: 
 Trata-se do token TK_RETORNA seguido de uma expressão, 
 seguido do token TK_ATRIB e terminado ou pelo token TK_DECIMAL ou pelo token TK_INTEIRO. */
