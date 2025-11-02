@@ -8,5 +8,6 @@ etapa4
 *.exe
 *.out
 scanner.lex.c
+*.tgz
 
 
