@@ -43,3 +43,8 @@ void throw_mismatch_symbol_table_type_error(int line, const char *input){ // Add
     printf("[ERR_WRONG_TYPE_ARGS] Na linha %i.\n--> Tipo dos argumento incompatível com o declarado anteriormente em \"%s\".\n", line, input);
     exit(ERR_WRONG_TYPE_ARGS);
 }
+
+void throw_mismatch_return_type_error(int line, const char *input){ // Add const
+    printf("[ERR_WRONG_TYPE] Na linha %i.\n--> Tipo de retorno incompatível com o declarado anteriormente em \"%s\".\n", line, input);
+    exit(ERR_WRONG_TYPE);
+}

@@ -126,7 +126,7 @@ token TK_ATRIB. */
 tipo: TK_INTEIRO { $$ = INT; };
 tipo: TK_DECIMAL { $$ = FLOAT; };
 
-definicao_funcao: TK_ID TK_SETA tipo escopo_inicio lista_parametros TK_ATRIB corpo {
+definicao_funcao: TK_ID TK_SETA tipo escopo_inicio lista_parametros TK_ATRIB { set_current_return_type($3); } corpo {
     SymbolNode *s_exists = find_symbol($1->value);
     if (s_exists) {
         throw_already_declared_error($1->line_number, $1->value);
@@ -139,7 +139,7 @@ definicao_funcao: TK_ID TK_SETA tipo escopo_inicio lista_parametros TK_ATRIB cor
     // Constrói nó da AST
     $$ = asd_new($1->value);
     $$->type = $3; // Define o tipo de retorno da função
-    asd_add_child($$, $7);
+    asd_add_child($$, $8);
 
     free($1->value);
     free($1);
@@ -420,10 +420,14 @@ argumento: expressao { $$ = arg_new($1->type); };
 Trata-se do token TK_RETORNA seguido de uma expressão, 
 seguido do token TK_ATRIB e terminado ou pelo token TK_DECIMAL ou pelo token TK_INTEIRO. */
 comando_retorno: TK_RETORNA expressao TK_ATRIB tipo {
-    // TODO: Verificar se o tipo da expressao do retorno é compatível com o tipo de retorno da função atual.
 	$$ = asd_new("retorna");
     $$->type = $4;
     asd_add_child($$, $2);
+    type_t current_return_type = get_current_return_type();
+    if (current_return_type != $4) {
+        throw_mismatch_return_type_error(get_line_number(), "retorna");
+        YYABORT;
+    }
 };
 
 /* Comandos de Controle de Fluxo: 

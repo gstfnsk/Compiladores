@@ -8,6 +8,8 @@
 #include "asd.h"
 #include "types.h"
 
+Type g_current_return_type = VOID; // Valor padrão
+
 asd_tree_t *asd_new(const char *label)
 {
   asd_tree_t *ret = NULL;
@@ -100,3 +102,12 @@ void asd_print_graphviz(asd_tree_t *tree)
     printf("Erro: %s recebeu parâmetro tree = %p.\n", __FUNCTION__, tree);
   }
 }
+
+
+void set_current_return_type(Type type) {
+    g_current_return_type = type;
+};
+
+Type get_current_return_type(void) {
+    return g_current_return_type;
+};

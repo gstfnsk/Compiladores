@@ -19,3 +19,4 @@ void throw_type_mismatch_error(int line, char *input1, const char *type1, char *
 void throw_missing_args_error(int line, char *input); // Caso na hora da chamada da função houver um número menor de argumentos que o necessário
 void throw_excess_args_error(int line, char *input); // Caso houver um número maior de argumentos que o necessário
 void throw_mismatch_symbol_table_type_error(int line, const char *input); // Caso o número de argumentos seja correto, mas os tipos dos argumentos sejam incompatıveis com os tipos registrados na tabela de sımbolos
+void throw_mismatch_return_type_error(int line, const char *input); // Caso o tipo de retorno da função năo seja compatível com o declarado na tabela de sımbolos

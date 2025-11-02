@@ -45,4 +45,9 @@ void asd_print(asd_tree_t *tree);
  * Função asd_print_graphviz, idem, em formato DOT
  */
 void asd_print_graphviz (asd_tree_t *tree);
+
+void set_current_return_type(Type type);
+
+Type get_current_return_type(void);
+
 #endif //_ASD_H_

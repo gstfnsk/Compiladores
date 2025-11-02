@@ -226,37 +226,6 @@ void funcsig_free(FuncSignature *sig) {
     free(sig);
 }
 
-
-// int validate_call_args(FuncSignature *sig, Param *args, int line, const char *func_name) {
-//     int argc = 0;
-//     asd_tree_t **arg_arr = NULL;
-//     // Collect all arguments into an array:
-//     if (!args) argc = 0;
-//     else {
-//         argc = args->number_of_children + 1;
-//         arg_arr = malloc(argc * sizeof(asd_tree_t*));
-//         arg_arr[0] = args;
-//         for (int i = 1; i < argc; ++i) {
-//             arg_arr[i] = args->children[i-1];
-//         }
-//     }
-//     if (argc < sig->param_count) {
-//         throw_missing_args_error(line, (char*)func_name); return 0;
-//     }
-//     if (argc > sig->param_count) {
-//         throw_excess_args_error(line, (char*)func_name); return 0;
-//     }
-//     for (int i = 0; i < argc; ++i) {
-//         Type given = infer_expr_type(arg_arr[i]);
-//         Type wanted = sig->params[i].type;
-//         if (given != wanted) {
-//             throw_mismatch_symbol_table_type_error(line, func_name); return 0;
-//         }
-//     }
-//     free(arg_arr);
-//     return 1;
-// }
-
 struct Param *param_new(const char *name, Type type) {
     struct Param *p = calloc(1, sizeof(Param));
     if (!p) return NULL;
