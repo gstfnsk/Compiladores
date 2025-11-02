@@ -18,13 +18,23 @@ typedef enum {
 typedef struct Param {
     char *name; // Nome do parâmetro
     Type type; // Tipo
-    struct Param *prev; // Parâmetro anterior na lista 
+    struct Param *next; // Parâmetro anterior na lista 
 } Param;
 
 typedef struct FuncSignature {
     int param_count; // Quantidade de parâmetros
     Param *params;  // Vetor de structs Param
 } FuncSignature;
+
+typedef struct Arg {
+    Type type; // Tipo do argumento
+    struct Arg *next; // Próximo argumento na lista
+} Arg;
+
+typedef struct ArgList {
+    int arg_count; // Quantidade de argumentos
+    Arg *args; // Vetor de structs Arg
+} ArgList;
 
 typedef struct Symbol {
     Nature nature;
@@ -61,5 +71,10 @@ Symbol make_var_symbol(const char *name, Type type);
 FuncSignature *funcsig_new(int param_count);
 void funcsig_free(FuncSignature *sig);
 struct Param *param_new(const char *name, Type type);
+void param_free(struct Param *p);
+struct Arg *arg_new(Type type);
+struct ArgList *argslist_new(int arg_count);
+void arg_free(struct Arg *arg);
+
 
 #endif //_SYMBOL_TABLE_H_

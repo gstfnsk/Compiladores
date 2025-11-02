@@ -168,26 +168,18 @@ FuncSignature *funcsig_new(int param_count) {
     if (!sig) return NULL;
 
     sig->param_count = param_count; // Salva o número de parâmetros no campo da struct
-    if (param_count > 0) 
+    if (param_count > 0) {
         sig->params = calloc(param_count, sizeof(Param)); // Aloca um vetor contínuo de param_count elementos do tipo Param
 
-    if (!sig->params) {
-        free(sig);
-        return NULL;
+        if (!sig->params) {
+            free(sig);
+            return NULL;
+        }
+    } else {
+        sig->params = NULL; // Se não houver parâmetros, seta o ponteiro como NULL
     }
     return sig;
 }
-
-
-// void insert_params_into_scope(FuncSignature *sig) {
-//     if (!sig || sig->param_count == 0)
-//         return;
-
-//     for (int i = 0; i < sig->param_count; i++) {
-//         Symbol param = make_var_symbol(sig->params[i].name, sig->params[i].type);
-//         insert_symbol(param);
-//     }
-// }
 
 // Transforma nó lista_parâmetros da AST em FuncSignature
 FuncSignature *build_func_signature(struct Param *param_list) {
@@ -197,7 +189,7 @@ FuncSignature *build_func_signature(struct Param *param_list) {
     // Count parameters
     int count = 0;
     struct Param *p;
-    for (p = param_list; p != NULL; p = p->prev) {
+    for (p = param_list; p != NULL; p = p->next) {
         count++;
     }
   
@@ -205,7 +197,7 @@ FuncSignature *build_func_signature(struct Param *param_list) {
     
     // Copy parameters from linked list to array
     int i = count - 1;  // Start from the end since our list is in reverse order
-    for (p = param_list; p != NULL; p = p->prev) {
+    for (p = param_list; p != NULL; p = p->next) {
         sig->params[i].name = strdup(p->name);
         sig->params[i].type = p->type;
         i--;
@@ -213,7 +205,7 @@ FuncSignature *build_func_signature(struct Param *param_list) {
 
     // Free the linked list since we've copied it
     while (param_list) {
-        p = param_list->prev;
+        p = param_list->next;
         free(param_list->name);
         free(param_list);
         param_list = p;
@@ -235,7 +227,7 @@ void funcsig_free(FuncSignature *sig) {
 }
 
 
-// int validate_call_args(FuncSignature *sig, asd_tree_t *args, int line, const char *func_name) {
+// int validate_call_args(FuncSignature *sig, Param *args, int line, const char *func_name) {
 //     int argc = 0;
 //     asd_tree_t **arg_arr = NULL;
 //     // Collect all arguments into an array:
@@ -270,8 +262,34 @@ struct Param *param_new(const char *name, Type type) {
     if (!p) return NULL;
     p->name = strdup(name);
     p->type = type;
-    p->prev = NULL;
+    p->next = NULL;
     return p;
+}
+
+void param_free(struct Param *p) {
+    if (!p) return;
+    free(p->name);
+    free(p);
+}
+
+struct Arg *arg_new(Type type)
+{
+    struct Arg *arg = calloc(1, sizeof(Arg));
+    if (!arg) return NULL;
+    arg->type = type;
+    arg->next = NULL;
+    return arg;
+}
+
+struct ArgList *argslist_new(int arg_count) {
+    struct ArgList *argslist = calloc(1, sizeof(ArgList));
+    if (!argslist) {
+        printf("Erro de alocação de memória para ArgList\n");
+        return NULL;
+    }
+    argslist->arg_count = arg_count;
+    argslist->args = NULL;
+    return argslist;
 }
 
 void print_scope_stack(Scope *top) {

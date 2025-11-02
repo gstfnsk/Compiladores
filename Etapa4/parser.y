@@ -38,6 +38,8 @@ int get_line_number(void);
     typedef struct asd_tree asd_tree_t;
     typedef struct lexical_value lexical_value_t;
     typedef struct Param param_t;
+    typedef struct ArgList args_list_t;
+    typedef struct Arg arg_t;
     #include "types.h"
     typedef Type type_t;
 }
@@ -46,12 +48,17 @@ int get_line_number(void);
 	lexical_value_t *lexical_value;
 	asd_tree_t *node;
     param_t *param;
+    args_list_t *arg_list;
+    arg_t *arg;
     type_t type;
 }
 
 %token <lexical_value> TK_ID TK_LI_INTEIRO TK_LI_DECIMAL
 
 %type <param> parametro lista_parametros lista_parametros_nao_vazia 
+
+%type <arg_list> lista_argumentos
+%type <arg> argumento
 
 %type <type> tipo
 
@@ -61,8 +68,8 @@ int get_line_number(void);
 %type <node> comandos_simples comandos_simples_seq comando_atribuicao chamada_funcao
 %type <node> comando_retorno construcoes_fluxo_controle expressao declaracao_variavel
 %type <node> operacao_binaria_or operacao_binaria_and operacao_binaria_igualdade
-%type <node> operacao_binaria_relacional operacao_binaria_soma_sub lista_argumentos
-%type <node> operacao_binaria_mult_div operacao_unaria operando argumento
+%type <node> operacao_binaria_relacional operacao_binaria_soma_sub
+%type <node> operacao_binaria_mult_div operacao_unaria operando 
 %%
 
 /* Um programa na linguagem é composto por uma lista opcional de elementos. 
@@ -110,14 +117,6 @@ elemento: definicao_funcao { $$ = $1; };
 /* Definição de Função: Ela possui um cabeçalho e um corpo. */
 // TODO: implementar escopo_funcao_fim
 // Parâmetros são variáveis locais do escopo da função, já inicializadas
-// definicao_funcao: cabecalho corpo escopo_funcao_fim {
-/* definicao_funcao: cabecalho corpo {
-    if ($1) { $$ = $1; } // adiciona o cabeçalho
-    if ($2) { asd_add_child($$, $2); }  // adiciona o corpo
-}; */
-
-/* tipo_retorno: TK_DECIMAL { $$ = $1; };
-tipo_retorno: TK_INTEIRO { $$ = $1; }; */
 
 /* O cabeçalho consiste no token TK_ID seguido do token TK_SETA
 seguido ou do token TK_DECIMAL ou do token TK_INTEIRO, 
@@ -146,26 +145,6 @@ definicao_funcao: TK_ID TK_SETA tipo escopo_inicio lista_parametros TK_ATRIB cor
     free($1);
 };
 
-/* definicao_funcao: TK_ID TK_SETA TK_DECIMAL escopo_inicio lista_parametros TK_ATRIB corpo {
-    SymbolNode *s_exists = find_symbol($1->value);
-    if (s_exists) {
-        throw_already_declared_error($1->line_number, $1->value);
-        YYABORT;
-    }
-    FuncSignature *sig = build_func_signature($5);
-    Symbol func = make_function_symbol($1->value, FLOAT, sig); // Faz a função virar um símbolo
-    insert_symbol(func); // Insere no escopo atual (global)
-    // Parâmetros já estão inseridos no escopo no momento da leitura
-
-
-    // Constrói nó da AST
-    $$ = asd_new($1->value);
-    asd_add_child($$, $7);
-
-    free($1->value);
-    free($1);
-}; */
-
 /* A lista de parâmetros, quando presente, consiste no token opcional TK_COM
 seguido de uma lista, separada por vírgula, de parâmetros.  */
 lista_parametros: %empty { 
@@ -183,7 +162,7 @@ lista_parametros_nao_vazia: parametro {
     $$ = $1; 
 };
 lista_parametros_nao_vazia: parametro ',' lista_parametros_nao_vazia {
-    $1->prev = $3;
+    $1->next = $3;
     $$ = $1;
  };
 
@@ -202,20 +181,6 @@ parametro: TK_ID TK_ATRIB tipo {
     free($1);
     
 };
-/* parametro: TK_ID TK_ATRIB TK_INTEIRO {
-    SymbolNode *s_exists = find_symbol($1->value);
-    if (s_exists) {
-        throw_already_declared_error($1->line_number, $1->value);
-        YYABORT;
-    }
-    Symbol param = make_var_symbol($1->value, INT);
-    insert_symbol(param);
-    // TODO: adicionar argumento em func signature?
-    $$ = param_new($1->value, INT);
-    free($1->value);
-    free($1);
-    
-}; */
 
 /*  O corpo de uma função é um bloco de comandos */
 corpo: bloco_comandos_funcao { $$ = $1; };
@@ -275,21 +240,6 @@ declaracao_variavel_global: TK_VAR TK_ID TK_ATRIB tipo {
     $$ = NULL;
 };
 
-/* declaracao_variavel_global: TK_VAR TK_ID TK_ATRIB TK_INTEIRO {
-    SymbolNode *s_exists = find_symbol($2->value);
-    if (s_exists) {
-        throw_already_declared_error($2->line_number, $2->value);
-        YYABORT;
-    }
-
-    Symbol var_symbol = make_var_symbol($2->value, INT);
-    insert_symbol(var_symbol);
-
-	free($2->value);
-    free($2);
-    $$ = NULL;
-}; */
-
 /* Declaração de Variável: 
 Consiste no token TK_VAR seguido do token TK_ID, 
 que é por sua vez seguido do token TK_ATRIB e enfim seguido do tipo. 
@@ -311,7 +261,10 @@ declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_DECIMAL TK_COM TK_LI_DECIMAL {
         Symbol var_symbol = make_var_symbol($2->value, FLOAT);
         insert_symbol(var_symbol);
 
-        asd_add_child($$, asd_new($2->value));
+        // TODO: remover isso antes de commitar
+        asd_tree_t *literal_node = asd_new($2->value);
+        literal_node->type = FLOAT; // Define o tipo do nó da variável como FLOAT
+        asd_add_child($$, literal_node);
         $$->payload = $2;
         free($2->value);
         free($2);
@@ -338,7 +291,10 @@ declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_INTEIRO TK_COM TK_LI_INTEIRO {
         Symbol var_symbol = make_var_symbol($2->value, INT);
         insert_symbol(var_symbol);
 
-        asd_add_child($$, asd_new($2->value));
+        // TODO: remover isso antes de commitar
+        asd_tree_t *literal_node = asd_new($2->value);
+        literal_node->type = INT; // Define o tipo do nó da variável como INT
+        asd_add_child($$, literal_node);
         $$->payload = $2;
         free($2->value);
         free($2);
@@ -366,28 +322,10 @@ declaracao_variavel: TK_VAR TK_ID TK_ATRIB tipo {
     $$ = NULL;
 };
 
-/* declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_INTEIRO { 
-    SymbolNode *s_exists = find_symbol($2->value);
-
-    if (s_exists) {
-        throw_already_declared_error($2->line_number, $2->value);
-        YYABORT;
-    }
-
-    Symbol var_symbol = make_var_symbol($2->value, INT);
-    insert_symbol(var_symbol);
-
-	free($2->value);
-    free($2);
-    $$ = NULL;
-}; */
-
 /* Comando de Atribuição: 
 O comando de atribuição consiste em um token TK_ID, 
 seguido do token TK_ATRIB e enfim seguido por uma expressão. */
 comando_atribuicao: TK_ID TK_ATRIB expressao {
-    // TODO: implementar sistema de inferência de tipos: Verificar se o tipo da expressao à direita é compatível com o tipo do TK_ID à esquerda.
-    // TODO: checar se TK_ID existe
     SymbolNode *s = find_symbol($1->value);
     if (!s) {
         throw_undeclared_error($1->line_number, $1->value);
@@ -399,8 +337,17 @@ comando_atribuicao: TK_ID TK_ATRIB expressao {
         YYABORT;
     }
 
+    if (s->symbol.type != $3->type) {
+        throw_type_mismatch_error($1->line_number, $1->value, get_label_type(s->symbol.type), $3->label, get_label_type($3->type));
+        YYABORT;
+    }
+
 	$$ = asd_new(":="); 
-    if($1) { asd_add_child($$, asd_new($1->value)); }
+    $$->type = s->symbol.type; // Define o tipo do nó de atribuição
+    // TODO: remover isso antes de commitar
+    asd_tree_t *var_node = asd_new($1->value);
+    var_node->type = s->symbol.type; // Define o tipo do nó da variável
+    if($1) { asd_add_child($$, var_node); }
     if($3) { asd_add_child($$, $3); }
     $$->payload = $1;
 };
@@ -420,33 +367,44 @@ chamada_funcao: TK_ID '(' lista_argumentos ')' {
             throw_var_used_as_func_error($1->line_number, $1->value);
             YYABORT;
         }
+        if ($3->arg_count < s->symbol.signature->param_count) {
+            throw_missing_args_error($1->line_number, $1->value);
+            YYABORT;
+        }
+        if ($3->arg_count > s->symbol.signature->param_count) {
+            throw_excess_args_error($1->line_number, $1->value);
+            YYABORT;
+        }
 
+        // printf("Chegamos aqui\n");
         char nome[256];
         snprintf(nome, sizeof(nome), "call %s", $1->value);
         $$ = asd_new(nome);
         $$->type = s->symbol.type; // Define o tipo de retorno da chamada de função
-        if($3){ 
-            // Testa se os argumentos coincidem com o declarado
-            // if($3 && !validate_call_args(s->symbol.signature, $3, $1->line_number, $1->value)) {
-            //     YYABORT;
-            // }
-            asd_add_child($$, $3); }
+         // Testa se os argumentos coincidem com o declarado
+         
         $$->payload = $1;
     };
 };
 
 lista_argumentos: argumento ',' lista_argumentos {
-	$$ = $1;
-    if($3){ asd_add_child($$, $3); }
+    args_list_t *args_list = $3;
+    $1->next = args_list->args;
+    args_list->args = $1;
+    args_list->arg_count += 1;
+    $$ = args_list;
 };
+
 lista_argumentos: argumento {
-	$$ = $1;
+    args_list_t *args_list = argslist_new(1);
+    args_list->args = $1;
+	$$ = args_list;
 };
-lista_argumentos: %empty { $$ = NULL; };
+
+lista_argumentos: %empty { $$ = argslist_new(0); };
 
 /* Um argumento é uma expressão. */
-argumento: expressao { $$ = $1; }; 
-
+argumento: expressao { $$ = arg_new($1->type); };
 /* Comando de Retorno: 
 Trata-se do token TK_RETORNA seguido de uma expressão, 
 seguido do token TK_ATRIB e terminado ou pelo token TK_DECIMAL ou pelo token TK_INTEIRO. */
@@ -457,37 +415,34 @@ comando_retorno: TK_RETORNA expressao TK_ATRIB tipo {
     asd_add_child($$, $2);
 };
 
-/* comando_retorno: TK_RETORNA expressao TK_ATRIB TK_INTEIRO {
-    // TODO: Verificar se o tipo da expressao do retorno é compatível com o tipo de retorno da função atual.
-	$$ = asd_new("retorna");
-    $$->type = INT;
-    if($2){ asd_add_child($$, $2); }
-}; */
-
 /* Comandos de Controle de Fluxo: 
 A linguagem possui uma construção condicional e uma
 construção iterativa para controle estruturado de fluxo. 
 A condicional consiste no token TK_SE seguido de uma expressão entre parênteses 
 e então por um bloco de comandos obrigatório. Após este bloco, podemos opcionalmente ter o token
 TK_SENAO que, quando aparece, é seguido obrigatoriamente por um bloco de comandos. */
-construcoes_fluxo_controle: TK_SE '('expressao ')' bloco_comandos {
+construcoes_fluxo_controle: TK_SE '(' expressao ')' bloco_comandos {
     $$ = asd_new("se");
-    if($3){ asd_add_child($$, $3); }
-    if($5){ asd_add_child($$, $5); }
+    $$->type = $3->type;
+    asd_add_child($$, $3);
+    asd_add_child($$, $5);
 };
-construcoes_fluxo_controle: TK_SE '('expressao ')' bloco_comandos TK_SENAO bloco_comandos {
+
+construcoes_fluxo_controle: TK_SE '(' expressao ')' bloco_comandos TK_SENAO bloco_comandos {
 	$$ = asd_new("se");
-    if($3){ asd_add_child($$, $3); }
-    if($5){ asd_add_child($$, $5); }
-    if($7){ asd_add_child($$, $7); }
+    $$->type = $3->type;
+    asd_add_child($$, $3);
+    asd_add_child($$, $5); 
+    asd_add_child($$, $7);
 };
 
 /* Temos apenas uma construção de repetição que é o token TK_ENQUANTO 
 seguido de uma expressão entre parênteses e de um bloco de comandos. */
-construcoes_fluxo_controle: TK_ENQUANTO '('expressao ')' bloco_comandos {
+construcoes_fluxo_controle: TK_ENQUANTO '(' expressao ')' bloco_comandos {
 	$$ = asd_new("enquanto");
-    if($3){ asd_add_child($$, $3); }
-    if($5){ asd_add_child($$, $5); }
+    $$->type = $3->type;
+    asd_add_child($$, $3);
+    asd_add_child($$, $5);
 };
 
 /* Expressões envolvem operandos e operadores, sendo este opcional. */
