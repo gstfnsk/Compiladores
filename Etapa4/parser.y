@@ -38,17 +38,22 @@ int get_line_number(void);
     typedef struct asd_tree asd_tree_t;
     typedef struct lexical_value lexical_value_t;
     typedef struct Param param_t;
+    #include "types.h"
+    typedef Type type_t;
 }
 
 %union {
 	lexical_value_t *lexical_value;
 	asd_tree_t *node;
     param_t *param;
+    type_t type;
 }
 
 %token <lexical_value> TK_ID TK_LI_INTEIRO TK_LI_DECIMAL
 
 %type <param> parametro lista_parametros lista_parametros_nao_vazia 
+
+%type <type> tipo
 
 %type <node> programa lista elemento definicao_funcao declaracao_variavel_global corpo
 %type <node> escopo_inicio escopo_fim
@@ -118,28 +123,30 @@ tipo_retorno: TK_INTEIRO { $$ = $1; }; */
 seguido ou do token TK_DECIMAL ou do token TK_INTEIRO, 
 seguido por uma lista opcional de parâmetros seguido do
 token TK_ATRIB. */
-// TODO: implementar escopo_funcao_inicio
-// cabecalho: TK_ID TK_SETA tipo_retorno escopo_funcao_inicio lista_parametros TK_ATRIB {
 
-definicao_funcao: TK_ID TK_SETA TK_INTEIRO escopo_inicio lista_parametros TK_ATRIB corpo {
+tipo: TK_INTEIRO { $$ = INT; };
+tipo: TK_DECIMAL { $$ = FLOAT; };
+
+definicao_funcao: TK_ID TK_SETA tipo escopo_inicio lista_parametros TK_ATRIB corpo {
     SymbolNode *s_exists = find_symbol($1->value);
     if (s_exists) {
         throw_already_declared_error($1->line_number, $1->value);
         YYABORT;
     }
     FuncSignature *sig = build_func_signature($5);
-    Symbol func = make_function_symbol($1->value, INT, sig); // Faz a função virar um símbolo
+    Symbol func = make_function_symbol($1->value, $3, sig); // Faz a função virar um símbolo
     insert_symbol(func); // Insere no escopo atual (global)
     
     // Constrói nó da AST
     $$ = asd_new($1->value);
+    $$->type = $3; // Define o tipo de retorno da função
     asd_add_child($$, $7);
 
     free($1->value);
     free($1);
 };
 
-definicao_funcao: TK_ID TK_SETA TK_DECIMAL escopo_inicio lista_parametros TK_ATRIB corpo {
+/* definicao_funcao: TK_ID TK_SETA TK_DECIMAL escopo_inicio lista_parametros TK_ATRIB corpo {
     SymbolNode *s_exists = find_symbol($1->value);
     if (s_exists) {
         throw_already_declared_error($1->line_number, $1->value);
@@ -157,7 +164,7 @@ definicao_funcao: TK_ID TK_SETA TK_DECIMAL escopo_inicio lista_parametros TK_ATR
 
     free($1->value);
     free($1);
-};
+}; */
 
 /* A lista de parâmetros, quando presente, consiste no token opcional TK_COM
 seguido de uma lista, separada por vírgula, de parâmetros.  */
@@ -182,21 +189,20 @@ lista_parametros_nao_vazia: parametro ',' lista_parametros_nao_vazia {
 
 /* Cada parâmetro consiste no token TK_ID seguido do token TK_ATRIB
 seguido ou do token TK_INTEIRO ou do token TK_DECIMAL. */
-parametro: TK_ID TK_ATRIB TK_DECIMAL {
+parametro: TK_ID TK_ATRIB tipo {
     SymbolNode *s_exists = find_symbol($1->value);
     if (s_exists) {
         throw_already_declared_error($1->line_number, $1->value);
         YYABORT;
     }
-    Symbol param = make_var_symbol($1->value, FLOAT);
+    Symbol param = make_var_symbol($1->value, $3);
     insert_symbol(param);
-    // TODO: adicionar argumento em func signature?
-    $$ = param_new($1->value, FLOAT);
+    $$ = param_new($1->value, $3);
     free($1->value);
     free($1);
     
 };
-parametro: TK_ID TK_ATRIB TK_INTEIRO {
+/* parametro: TK_ID TK_ATRIB TK_INTEIRO {
     SymbolNode *s_exists = find_symbol($1->value);
     if (s_exists) {
         throw_already_declared_error($1->line_number, $1->value);
@@ -209,7 +215,7 @@ parametro: TK_ID TK_ATRIB TK_INTEIRO {
     free($1->value);
     free($1);
     
-};
+}; */
 
 /*  O corpo de uma função é um bloco de comandos */
 corpo: bloco_comandos_funcao { $$ = $1; };
@@ -254,14 +260,14 @@ comandos_simples_seq: comandos_simples comandos_simples_seq {
 /* Declaração de variável: 
 Esta declaração é idêntica ao comando simples de declaração de variável
 sendo que a única e importante diferença é que esse elemento não pode receber valores de inicialização. */
-declaracao_variavel_global: TK_VAR TK_ID TK_ATRIB TK_DECIMAL {
+declaracao_variavel_global: TK_VAR TK_ID TK_ATRIB tipo {
     SymbolNode *s_exists = find_symbol($2->value);
     if (s_exists) {
         throw_already_declared_error($2->line_number, $2->value);
         YYABORT;
     }
 
-    Symbol var_symbol = make_var_symbol($2->value, FLOAT);
+    Symbol var_symbol = make_var_symbol($2->value, $4);
     insert_symbol(var_symbol);
 
     free($2->value);
@@ -269,7 +275,7 @@ declaracao_variavel_global: TK_VAR TK_ID TK_ATRIB TK_DECIMAL {
     $$ = NULL;
 };
 
-declaracao_variavel_global: TK_VAR TK_ID TK_ATRIB TK_INTEIRO {
+/* declaracao_variavel_global: TK_VAR TK_ID TK_ATRIB TK_INTEIRO {
     SymbolNode *s_exists = find_symbol($2->value);
     if (s_exists) {
         throw_already_declared_error($2->line_number, $2->value);
@@ -282,7 +288,7 @@ declaracao_variavel_global: TK_VAR TK_ID TK_ATRIB TK_INTEIRO {
 	free($2->value);
     free($2);
     $$ = NULL;
-};
+}; */
 
 /* Declaração de Variável: 
 Consiste no token TK_VAR seguido do token TK_ID, 
@@ -344,7 +350,7 @@ declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_INTEIRO TK_COM TK_LI_INTEIRO {
         $$->payload = $6;
     }
 };
-declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_DECIMAL {
+declaracao_variavel: TK_VAR TK_ID TK_ATRIB tipo {
     SymbolNode *s_exists = find_symbol($2->value);
 
     if (s_exists) {
@@ -352,14 +358,15 @@ declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_DECIMAL {
         YYABORT;
     }
 
-    Symbol var_symbol = make_var_symbol($2->value, INT);
+    Symbol var_symbol = make_var_symbol($2->value, $4);
     insert_symbol(var_symbol);
 
     free($2->value);
     free($2);
     $$ = NULL;
 };
-declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_INTEIRO { 
+
+/* declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_INTEIRO { 
     SymbolNode *s_exists = find_symbol($2->value);
 
     if (s_exists) {
@@ -373,7 +380,7 @@ declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_INTEIRO {
 	free($2->value);
     free($2);
     $$ = NULL;
-};
+}; */
 
 /* Comando de Atribuição: 
 O comando de atribuição consiste em um token TK_ID, 
@@ -443,20 +450,19 @@ argumento: expressao { $$ = $1; };
 /* Comando de Retorno: 
 Trata-se do token TK_RETORNA seguido de uma expressão, 
 seguido do token TK_ATRIB e terminado ou pelo token TK_DECIMAL ou pelo token TK_INTEIRO. */
-comando_retorno: TK_RETORNA expressao TK_ATRIB TK_DECIMAL{
+comando_retorno: TK_RETORNA expressao TK_ATRIB tipo {
     // TODO: Verificar se o tipo da expressao do retorno é compatível com o tipo de retorno da função atual.
 	$$ = asd_new("retorna");
-    $$->type = FLOAT;
-    if($2){ 
-        
-        asd_add_child($$, $2); }
+    $$->type = $4;
+    asd_add_child($$, $2);
 };
-comando_retorno: TK_RETORNA expressao TK_ATRIB TK_INTEIRO {
+
+/* comando_retorno: TK_RETORNA expressao TK_ATRIB TK_INTEIRO {
     // TODO: Verificar se o tipo da expressao do retorno é compatível com o tipo de retorno da função atual.
 	$$ = asd_new("retorna");
     $$->type = INT;
     if($2){ asd_add_child($$, $2); }
-};
+}; */
 
 /* Comandos de Controle de Fluxo: 
 A linguagem possui uma construção condicional e uma
