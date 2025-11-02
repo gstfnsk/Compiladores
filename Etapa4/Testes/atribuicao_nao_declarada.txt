@@ -1,6 +1,0 @@
-soma_e_multiplica -> inteiro com a := inteiro, b := inteiro :=
-[
-    resultado_decimal := 3
-
-    retorna 0 := inteiro
-];

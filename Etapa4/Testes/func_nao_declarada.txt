@@ -1,7 +1,0 @@
-funcao_constante -> decimal :=
-[
-    var resultado_decimal := decimal com 1.0
-    resultado_decimal := var_usada_como_func(contador, contador + 1)
-
-    retorna 3.14 := decimal
-];

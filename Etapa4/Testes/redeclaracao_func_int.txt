@@ -1,9 +1,0 @@
-funcao_inteiro -> inteiro :=
-[
-    retorna 3 := inteiro
-],
-
-funcao_inteiro -> inteiro :=
-[
-    retorna 3 := inteiro
-];

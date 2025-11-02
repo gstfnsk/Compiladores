@@ -1,7 +1,0 @@
-soma_e_multiplica -> inteiro com a := inteiro, b := inteiro :=
-[
-    var resultado_decimal := inteiro
-    resultado_decimal := nao_declarado * 3
-
-    retorna 0 := inteiro
-];

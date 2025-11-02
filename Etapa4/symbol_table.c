@@ -49,14 +49,6 @@ void destroy_stack(void) {
         pop_scope();
 }
 
-void create_symbol_table(void) {
-
-};
-
-void destroy_symbol_table(void) {
-
-}
-
 void push_scope(void) {
     // printf("\n\n---------------------------------------------------------------------------\n");
     // printf("Push de escopo.\n");
