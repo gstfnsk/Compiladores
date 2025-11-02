@@ -247,7 +247,7 @@ O tipo pode ser ou o token TK_DECIMAL ou o token TK_INTEIRO.
 Uma variável pode ser opcionalmente inicializada caso sua declaração
 seja seguida do token TK_COM e de um literal. 
 Um literal pode ser ou o token TK_LI_INTEIRO ou o token TK_LI_DECIMAL. */
-declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_DECIMAL TK_COM TK_LI_DECIMAL {
+declaracao_variavel: TK_VAR TK_ID TK_ATRIB tipo TK_COM TK_LI_DECIMAL {
 	$$ = asd_new("com");
     $$->type = FLOAT;
     if ($2) {
@@ -258,16 +258,17 @@ declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_DECIMAL TK_COM TK_LI_DECIMAL {
             YYABORT;
         }
 
+        if ($4 != FLOAT) {
+            throw_type_mismatch_error($2->line_number, $2->value, "FLOAT", $6->value, get_label_type($6->type));
+            YYABORT;
+        }
+
         Symbol var_symbol = make_var_symbol($2->value, FLOAT);
         insert_symbol(var_symbol);
 
-        // TODO: remover isso antes de commitar
         asd_tree_t *literal_node = asd_new($2->value);
-        literal_node->type = FLOAT; // Define o tipo do nó da variável como FLOAT
         asd_add_child($$, literal_node);
         $$->payload = $2;
-        free($2->value);
-        free($2);
     }
     if ($6) {
         asd_tree_t *literal_node = asd_new($6->value);
@@ -277,7 +278,7 @@ declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_DECIMAL TK_COM TK_LI_DECIMAL {
     }
 };
 
-declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_INTEIRO TK_COM TK_LI_INTEIRO {
+declaracao_variavel: TK_VAR TK_ID TK_ATRIB tipo TK_COM TK_LI_INTEIRO {
 	$$ = asd_new("com");
     $$->type = INT;
     if ($2) {
@@ -288,16 +289,17 @@ declaracao_variavel: TK_VAR TK_ID TK_ATRIB TK_INTEIRO TK_COM TK_LI_INTEIRO {
             YYABORT;
         }
 
+        if ($4 != INT) {
+            throw_type_mismatch_error($2->line_number, $2->value, "INT", $6->value, get_label_type($6->type));
+            YYABORT;
+        }
+
         Symbol var_symbol = make_var_symbol($2->value, INT);
         insert_symbol(var_symbol);
 
-        // TODO: remover isso antes de commitar
         asd_tree_t *literal_node = asd_new($2->value);
-        literal_node->type = INT; // Define o tipo do nó da variável como INT
         asd_add_child($$, literal_node);
         $$->payload = $2;
-        free($2->value);
-        free($2);
     }
     if ($6) {
         asd_tree_t *literal_node = asd_new($6->value);
@@ -387,6 +389,7 @@ chamada_funcao: TK_ID '(' lista_argumentos ')' {
             }
             arg = arg->next;
         }
+        arglist_free($3);
 
         char nome[256];
         snprintf(nome, sizeof(nome), "call %s", $1->value);
