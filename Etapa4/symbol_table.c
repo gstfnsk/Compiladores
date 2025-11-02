@@ -186,7 +186,7 @@ FuncSignature *build_func_signature(struct Param *param_list) {
     if (!param_list)
         return funcsig_new(0);
 
-    // Count parameters
+    // Conta parâmetros
     int count = 0;
     struct Param *p;
     for (p = param_list; p != NULL; p = p->next) {
@@ -195,15 +195,15 @@ FuncSignature *build_func_signature(struct Param *param_list) {
   
     FuncSignature *sig = funcsig_new(count);
     
-    // Copy parameters from linked list to array
-    int i = count - 1;  // Start from the end since our list is in reverse order
+    // Copia parâmetros para o vetor
+    int i = 0;  
     for (p = param_list; p != NULL; p = p->next) {
         sig->params[i].name = strdup(p->name);
         sig->params[i].type = p->type;
-        i--;
+        i++;
     }
 
-    // Free the linked list since we've copied it
+    // Libera lista encadeada original
     while (param_list) {
         p = param_list->next;
         free(param_list->name);

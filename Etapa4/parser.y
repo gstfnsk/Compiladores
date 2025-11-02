@@ -367,6 +367,7 @@ chamada_funcao: TK_ID '(' lista_argumentos ')' {
             throw_var_used_as_func_error($1->line_number, $1->value);
             YYABORT;
         }
+        // Compara o número de argumentos fornecidos com o número de parâmetros esperados
         if ($3->arg_count < s->symbol.signature->param_count) {
             throw_missing_args_error($1->line_number, $1->value);
             YYABORT;
@@ -376,7 +377,17 @@ chamada_funcao: TK_ID '(' lista_argumentos ')' {
             YYABORT;
         }
 
-        // printf("Chegamos aqui\n");
+        // Verifica se os tipos dos argumentos coincidem com os tipos dos parâmetros
+        arg_t *arg = $3->args;
+        for (int i = 0; i < s->symbol.signature->param_count; i++) {
+           
+            if (arg->type != s->symbol.signature->params[i].type) {
+                throw_mismatch_symbol_table_type_error($1->line_number, $1->value);
+                YYABORT;
+            }
+            arg = arg->next;
+        }
+
         char nome[256];
         snprintf(nome, sizeof(nome), "call %s", $1->value);
         $$ = asd_new(nome);
