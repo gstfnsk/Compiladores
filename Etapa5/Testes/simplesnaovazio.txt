@@ -1,0 +1,1 @@
+ex_func1 -> inteiro ex_parametro_sem_com := inteiro := [ ];

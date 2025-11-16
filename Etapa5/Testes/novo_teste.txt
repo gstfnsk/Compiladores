@@ -1,0 +1,19 @@
+funcao -> inteiro com a := decimal, b := decimal, c := inteiro := [
+    retorna a := inteiro
+],
+
+main -> decimal := [
+    funcao(3.1, 3.1, 3)
+    se (1 > 2) [
+        nova -> inteiro := [
+            retorna 1 := inteiro
+        ]
+    ]
+    senao [
+        retorna 1.0 := decimal
+    ]
+    retorna 1.0 := decimal
+    
+]
+
+;
