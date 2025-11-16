@@ -660,7 +660,7 @@ operacao_binaria_soma_sub: operacao_binaria_soma_sub '-' operacao_binaria_mult_d
 operacao_binaria_soma_sub: operacao_binaria_mult_div { $$ = $1; };
 
 /* Precedência 2 */
-operacao_binaria_mult_div: operacao_unaria { $$ = $1; } ;
+operacao_binaria_mult_div: operacao_unaria { $$ = $1; };
 operacao_binaria_mult_div: operacao_binaria_mult_div '*' operacao_unaria {
     $$ = asd_new("*");
     if ($1->type != $3->type) {
