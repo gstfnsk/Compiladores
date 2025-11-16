@@ -139,13 +139,7 @@ definicao_funcao: TK_ID TK_SETA tipo {
 } escopo_inicio lista_parametros TK_ATRIB {
     // Agora que os parâmetros foram processados, encontramos o símbolo da função
     // e finalmente anexamos a assinatura completa a ele.
-    SymbolNode *s_func = find_symbol($1->value);
-    // Se já existe uma assinatura (pode acontecer em casos de declarações de 
-    // variável e função com o mesmo nome), libera a memória da antiga antes 
-    // de atribuir a nova.
-    if (s_func->symbol.signature) {
-        funcsig_free(s_func->symbol.signature);
-    }
+    SymbolNode *s_func = find_function_symbol($1->value);
     s_func->symbol.signature = build_func_signature($6);
     set_current_return_type($3);
 } corpo {

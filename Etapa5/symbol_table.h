@@ -70,6 +70,7 @@ void print_scope_stack(Scope *top);
 
 SymbolNode *insert_symbol(Symbol s);
 SymbolNode *find_symbol(const char *name);
+SymbolNode *find_function_symbol(const char *name);
 Symbol make_function_symbol(const char *name, Type return_type, FuncSignature *sig);
 FuncSignature *build_func_signature(struct Param *param_list);
 Symbol make_var_symbol(const char *name, Type type);
