@@ -1,4 +1,6 @@
-//ERR_UNDECLARED
+// Objetivo: garantir que variáveis declaradas dentro de bloco aninhado não existem fora dele.
+// Esperado: ERR_UNDECLARED em 'b := 2', pois 'b' foi declarada apenas dentro do bloco interno.
+
 f -> inteiro := [
   [
     var b := inteiro

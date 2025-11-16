@@ -1,4 +1,6 @@
-//ERR_UNDECLARED
+// Objetivo: garantir que variáveis declaradas dentro de 'enquanto' não vazam para fora do laço.
+// Esperado: ERR_UNDECLARED em 'b := 2', pois 'b' existe apenas dentro do laço.
+
 f -> inteiro := [
   var c := inteiro
   enquanto (c) [

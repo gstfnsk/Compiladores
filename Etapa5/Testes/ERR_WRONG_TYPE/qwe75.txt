@@ -1,4 +1,6 @@
-//ERR_WRONG_TYPE
+// Objetivo: Detectar operação de igualdade (==) entre tipos incompatíveis (inteiro e decimal).
+// Esperado: ERR_WRONG_TYPE na expressão a==b, pois a linguagem não permite comparações mistas.
+
 f -> inteiro := [
   var a := inteiro
   var b := decimal

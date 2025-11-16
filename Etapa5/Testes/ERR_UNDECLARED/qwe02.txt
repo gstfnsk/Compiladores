@@ -1,4 +1,6 @@
-//ERR_UNDECLARED
+// Objetivo: garantir que funções devem estar declaradas antes do uso, mesmo com argumentos válidos.
+// Esperado: ERR_UNDECLARED na chamada 'a(b)', pois 'a' não existe.
+
 f -> inteiro := [
   var b := inteiro
   a(b)

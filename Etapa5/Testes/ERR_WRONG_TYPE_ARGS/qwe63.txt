@@ -1,4 +1,6 @@
-//ERR_WRONG_TYPE_ARGS
+// Objetivo: Detectar a passagem de uma expressão de igualdade inteiro (x == y) para uma função (h) que espera um argumento decimal.
+// Esperado: ERR_WRONG_TYPE_ARGS na chamada h(x == y), pois o resultado da expressão é inteiro, mas o parâmetro a é decimal.
+
 h -> inteiro com a := decimal := [],
 f -> inteiro := [
   var x := inteiro

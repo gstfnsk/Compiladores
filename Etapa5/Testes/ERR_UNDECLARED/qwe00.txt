@@ -1,4 +1,6 @@
-//ERR_UNDECLARED
+// Objetivo: verificar uso de variável não declarada antes da atribuição.
+// Esperado: ERR_UNDECLARED na linha 'a := 2', pois 'a' não foi declarada.
+
 f -> inteiro := [
   a := 2
 ];

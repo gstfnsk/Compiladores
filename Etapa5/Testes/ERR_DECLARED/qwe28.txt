@@ -1,3 +1,5 @@
-//ERR_DECLARED
+// Objetivo: verificar que não é permitido declarar duas funções com o mesmo nome, mesmo com assinaturas diferentes.
+// Esperado: ERR_DECLARED na segunda declaração de 'f', pois já existe uma função com este nome no escopo global.
+
 f -> inteiro := [],
 f -> inteiro com a := inteiro := [];

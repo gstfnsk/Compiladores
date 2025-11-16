@@ -1,4 +1,6 @@
-//ERR_DECLARED
+// Objetivo: detectar redeclaração de variável dentro do bloco 'senao'.
+// Esperado: ERR_DECLARED na segunda declaração 'var b := inteiro', pois 'b' já existe naquele escopo interno.
+
 f -> inteiro := [
   var c := inteiro
   se (c) []senao[

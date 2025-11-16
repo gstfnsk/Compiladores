@@ -1,4 +1,6 @@
-//ERR_DECLARED
+// Objetivo: verificar redeclaração de variável dentro de um laço 'enquanto'.
+// Esperado: ERR_DECLARED na segunda linha 'var b := inteiro', pois o nome já foi usado no mesmo bloco.
+
 f -> inteiro := [
   var c := inteiro
   enquanto (c) [

@@ -1,3 +1,6 @@
+// Objetivo: testar recursão com passagem de parâmetro, garantindo que a função use corretamente seu argumento.
+// Esperado: sem erro — 'f(a)' é válido, e 'a' está declarado como inteiro no próprio cabeçalho da função.
+
 f -> inteiro com a := inteiro := [
   f(a)
 ];

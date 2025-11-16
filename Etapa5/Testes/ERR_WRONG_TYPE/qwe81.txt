@@ -1,4 +1,6 @@
-//ERR_WRONG_TYPE
+// Objetivo: Verificar a checagem de tipo em atribuições (inteiro e decimal) dentro de blocos se/senao separados.
+// Esperado: ERR_WRONG_TYPE (Conforme a pasta. O código  testa atribuições inteiro := inteiro e decimal := decimal em ramos diferentes).
+
 f -> inteiro := [
   var c := inteiro
   se (c) [

@@ -1,4 +1,6 @@
-//ERR_UNDECLARED
+// Objetivo: verificar visibilidade de variáveis declaradas dentro de 'senao'.
+// Esperado: ERR_UNDECLARED em 'b := 2', pois 'b' só foi declarada no 'senao'.
+
 f -> inteiro := [
   var c := inteiro
   se (c) []senao[

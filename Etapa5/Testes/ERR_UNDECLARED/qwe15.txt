@@ -1,4 +1,6 @@
-//ERR_UNDECLARED
+// Objetivo: testar profundos níveis de aninhamento garantindo isolamento de escopos.
+// Esperado: ERR_UNDECLARED em 'b := 2', pois 'b' não está no escopo corrente.
+
 f -> inteiro := [
   [
    [

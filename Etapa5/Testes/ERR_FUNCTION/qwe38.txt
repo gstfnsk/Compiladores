@@ -1,4 +1,6 @@
-//ERR_FUNCTION
+// Objetivo: impedir atribuição para nome de função dentro de seu próprio corpo.
+// Esperado: ERR_FUNCTION na linha 'f := 2', pois 'f' é função e não variável.
+
 f -> inteiro := [
   f := 2
 ];

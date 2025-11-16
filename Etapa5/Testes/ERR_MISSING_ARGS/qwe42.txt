@@ -1,4 +1,6 @@
-//ERR_MISSING_ARGS
+// Objetivo: detectar chamada sem argumentos quando a função requer um parâmetro.
+// Esperado: ERR_MISSING_ARGS na linha 'h()', pois 'h' exige o parâmetro 'a'.
+
 h -> inteiro com a := inteiro := [],
 f -> inteiro := [
   h()

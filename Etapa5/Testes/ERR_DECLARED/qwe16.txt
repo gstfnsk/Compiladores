@@ -1,4 +1,6 @@
-//ERR_DECLARED
+// Objetivo: detectar redeclaração de variável global com o mesmo nome.
+// Esperado: ERR_DECLARED na segunda ocorrência de 'var b := inteiro', pois 'b' já havia sido declarada no escopo global.
+
 var b := inteiro,
 f -> inteiro := [],
 var b := inteiro;

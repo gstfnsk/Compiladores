@@ -1,4 +1,6 @@
-//ERR_FUNCTION
+// Objetivo: impedir atribuição ao nome de função, mesmo quando outra função está em escopo.
+// Esperado: ERR_FUNCTION na linha 'g := 2', pois 'g' é função e não variável.
+
 g -> inteiro := [],
 f -> inteiro := [
   g := 2

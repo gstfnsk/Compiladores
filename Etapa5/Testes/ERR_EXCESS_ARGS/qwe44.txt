@@ -1,4 +1,6 @@
-//ERR_EXCESS_ARGS
+// Objetivo: detectar chamada com argumentos em excesso em função sem parâmetros.
+// Esperado: ERR_EXCESS_ARGS na linha 'f(a)', pois 'f' não recebe nenhum parâmetro.
+
 f -> inteiro := [
   var a := inteiro
   f(a)

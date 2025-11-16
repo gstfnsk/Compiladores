@@ -1,0 +1,9 @@
+// Objetivo: testar acesso à variável global 'b' dentro de múltiplos blocos aninhados.
+// Esperado: sem erro — mesmo com forte aninhamento, escopos internos ainda podem acessar variáveis globais.
+
+var b := inteiro,
+f -> inteiro := [
+  [[[[
+     b := 2
+  ]]]]
+];

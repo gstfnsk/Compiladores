@@ -1,4 +1,6 @@
-//ERR_WRONG_TYPE
+// Objetivo: Detectar incompatibilidade entre o tipo do valor de retorno (decimal) e o tipo de retorno da função (inteiro).
+// Esperado: ERR_WRONG_TYPE na linha retorna 2.0 := decimal, pois a função f espera inteiro.
+
 f -> inteiro := [
   retorna 2.0 := decimal
 ];

@@ -1,0 +1,8 @@
+// Objetivo: testar chamada de função com passagem de parâmetro corretamente tipado.
+// Esperado: sem erro — 'f' espera um inteiro e 'b' é declarado como inteiro antes da chamada.
+
+f -> inteiro com a := inteiro := [],
+g -> inteiro := [
+  var b := inteiro
+  f(b)
+];

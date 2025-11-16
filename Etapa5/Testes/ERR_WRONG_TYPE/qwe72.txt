@@ -1,4 +1,6 @@
-//ERR_WRONG_TYPE
+// Objetivo: Detectar operação aritmética (soma) entre tipos incompatíveis (inteiro e decimal).
+// Esperado: ERR_WRONG_TYPE na expressão a+b, pois a linguagem não permite operações mistas de inteiro e decimal.
+
 f -> inteiro := [
   var a := inteiro
   var b := decimal

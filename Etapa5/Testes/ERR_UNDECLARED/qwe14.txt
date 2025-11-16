@@ -1,4 +1,6 @@
-//ERR_UNDECLARED
+// Objetivo: testar escopos altamente aninhados e visibilidade correta de variáveis.
+// Esperado: ERR_UNDECLARED em 'b := 2', pois 'b' está declarada em bloco mais interno.
+
 f -> inteiro := [
   [
     [

@@ -1,4 +1,6 @@
-//ERR_WRONG_TYPE
+// Objetivo: Detectar a atribuição do resultado de uma expressão decimal (b+b) a uma variável inteiro (a).
+// Esperado: ERR_WRONG_TYPE na linha a := b+b, pois a expressão resulta em decimal e a é inteiro.
+
 f -> inteiro := [
   var a := inteiro
   var b := decimal

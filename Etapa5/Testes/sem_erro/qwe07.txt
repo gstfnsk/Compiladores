@@ -1,0 +1,10 @@
+// Objetivo: testar atribuição à variável global 'b' dentro de um laço 'enquanto'.
+// Esperado: sem erro — 'b' está declarada no escopo global e pode ser modificada dentro do laço.
+
+var b := inteiro,
+f -> inteiro := [
+  var c := inteiro
+  enquanto (c) [
+     b := 2
+  ]
+];

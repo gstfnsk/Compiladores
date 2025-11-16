@@ -1,4 +1,6 @@
-//ERR_WRONG_TYPE_ARGS
+// Objetivo: Detectar a passagem de uma variável decimal (b) para uma função (h) que espera um parâmetro inteiro.
+// Esperado: ERR_WRONG_TYPE_ARGS na chamada h(b), pois o tipo do argumento (decimal) não corresponde ao tipo do parâmetro (inteiro).
+
 h -> inteiro com a := inteiro := [],
 f -> inteiro := [
   var b := decimal

@@ -1,4 +1,6 @@
-//ERR_WRONG_TYPE_ARGS
+// Objetivo: Detectar um erro de tipo no segundo argumento (y) quando os tipos dos parâmetros são mistos (esperado decimal, inteiro).
+// Esperado: ERR_WRONG_TYPE_ARGS na chamada h(x, y), pois o segundo parâmetro b é inteiro, mas o argumento y é decimal.
+
 h -> inteiro com a := decimal, b := inteiro := [],
 f -> inteiro := [
   var x := decimal

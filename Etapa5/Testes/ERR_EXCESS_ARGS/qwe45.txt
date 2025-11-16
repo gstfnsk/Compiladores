@@ -1,4 +1,6 @@
-//ERR_EXCESS_ARGS
+// Objetivo: garantir que o analisador detecta quantidade de argumentos maior do que a declaração permite.
+// Esperado: ERR_EXCESS_ARGS na linha 'f(a, a)', pois 'f' não recebe parâmetros.
+
 f -> inteiro := [
   var a := inteiro
   f(a, a)

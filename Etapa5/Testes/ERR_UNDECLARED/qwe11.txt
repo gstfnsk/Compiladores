@@ -1,4 +1,6 @@
-//ERR_UNDECLARED
+// Objetivo: verificar visibilidade de variáveis declaradas dentro de 'se'.
+// Esperado: ERR_UNDECLARED em 'b := 2', pois 'b' existe apenas dentro do bloco do 'se'.
+
 f -> inteiro := [
   var c := inteiro
   se (c) [

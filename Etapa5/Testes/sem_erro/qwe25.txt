@@ -1,0 +1,4 @@
+// Objetivo: testar declaração de função com parâmetro cujo nome coincide com o nome da própria função.
+// Esperado: sem erro — parâmetros podem ter o mesmo nome da função sem causar conflito de escopo.
+
+f -> inteiro com f := inteiro := [];

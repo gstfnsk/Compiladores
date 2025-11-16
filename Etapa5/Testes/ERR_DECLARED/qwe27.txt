@@ -1,3 +1,5 @@
-//ERR_DECLARED
+// Objetivo: detectar redeclaração de função no escopo global.
+// Esperado: ERR_DECLARED na segunda ocorrência de 'f -> inteiro := []', pois a função já havia sido declarada.
+
 f -> inteiro := [],
 f -> inteiro := [];
