@@ -334,9 +334,13 @@ declaracao_variavel: TK_VAR TK_ID TK_ATRIB tipo {
     Symbol var_symbol = make_var_symbol($2->value, $4);
     insert_symbol(var_symbol);
 
+    char label[256];
+    snprintf(label, sizeof(label), "var %s", $2->value);
+    $$ = asd_new(label);
+    $$->type = $4;
+
     free($2->value);
     free($2);
-    $$ = NULL;
 };
 
 /* Comando de Atribuição: 
@@ -518,6 +522,11 @@ construcoes_fluxo_controle: TK_SE '(' expressao ')' bloco_comandos {
 construcoes_fluxo_controle: TK_SE '(' expressao ')' bloco_comandos TK_SENAO bloco_comandos {
 	if ($3->type != INT) {
         throw_type_mismatch_error(get_line_number(), "se condition", "INT", $3->label, get_label_type($3->type));
+        YYABORT;
+    }
+
+    if ($5 && $7 && $5->type != $7->type) {
+        throw_type_mismatch_error(get_line_number(), "se block", get_label_type($5->type), "senao block", get_label_type($7->type));
         YYABORT;
     }
 
