@@ -3,7 +3,7 @@
 # 00289108 - Giulia Chimini Stefainski
 
 # Nome do executável
-EXEC = etapa4
+EXEC = etapa5
 
 # Arquivos
 PARSER = parser.y
