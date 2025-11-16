@@ -483,6 +483,13 @@ seguido do token TK_ATRIB e terminado ou pelo token TK_DECIMAL ou pelo token TK_
 comando_retorno: TK_RETORNA expressao TK_ATRIB tipo {
 	$$ = asd_new("retorna");
     $$->type = $4;
+
+    if ($2->type != $4) {
+        // O tipo da expressão não corresponde ao tipo especificado na declaração de retorno.
+        throw_type_mismatch_error(get_line_number(), $2->label, get_label_type($2->type), "retorna", get_label_type($4));
+        YYABORT;
+    }
+
     asd_add_child($$, $2);
     type_t current_return_type = get_current_return_type();
     if (current_return_type != $4) {
