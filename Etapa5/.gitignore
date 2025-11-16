@@ -4,7 +4,7 @@ parser.tab.h
 lex.yy.c
 *.o
 a.out
-etapa4
+etapa5
 *.exe
 *.out
 scanner.lex.c
