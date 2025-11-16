@@ -1,5 +1,8 @@
-// Objetivo: Verificar a checagem de tipo em atribuições (inteiro e decimal) dentro de blocos se/senao separados.
-// Esperado: ERR_WRONG_TYPE (Conforme a pasta. O código  testa atribuições inteiro := inteiro e decimal := decimal em ramos diferentes).
+// Objetivo: Testar a regra que exige tipos compatíveis entre os blocos 'se' e 'senao'.
+// Esperado: ERR_WRONG_TYPE. Conforme a regra, o tipo de um bloco é determinado pelo seu 'primeiro comando'.
+//           O primeiro comando do bloco 'se' é 'var a := inteiro', definindo o tipo do bloco como 'inteiro'.
+//           O primeiro comando do bloco 'senao' é 'var b := decimal', definindo o tipo como 'decimal'.
+//           Como 'inteiro' e 'decimal' são incompatíveis, o comando falha.
 
 f -> inteiro := [
   var c := inteiro

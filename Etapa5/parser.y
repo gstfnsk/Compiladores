@@ -325,14 +325,21 @@ declaracao_variavel: TK_VAR TK_ID TK_ATRIB tipo TK_COM TK_LI_INTEIRO {
     }
 };
 declaracao_variavel: TK_VAR TK_ID TK_ATRIB tipo {
+    // Procura por um símbolo com o mesmo nome, na mesma natureza (variável) e no mesmo escopo.
     SymbolNode *s_exists = find_symbol($2->value);
     if (s_exists && s_exists->symbol.nature == IDENTIFICADOR) {
+    if (s_exists && s_exists->symbol.nature == IDENTIFICADOR && s_exists->symbol.scope == g_scope_stack_top) {
         throw_already_declared_error($2->line_number, $2->value);
         YYABORT;
     }
 
     Symbol var_symbol = make_var_symbol($2->value, $4);
     insert_symbol(var_symbol);
+
+    char label[256];
+    snprintf(label, sizeof(label), "var %s", $2->value);
+    $$ = asd_new(label);
+    $$->type = $4;
 
     free($2->value);
     free($2);
@@ -520,6 +527,11 @@ construcoes_fluxo_controle: TK_SE '(' expressao ')' bloco_comandos TK_SENAO bloc
         throw_type_mismatch_error(get_line_number(), "se condition", "INT", $3->label, get_label_type($3->type));
         YYABORT;
     }
+    if ($5 && $7 && $5->type != $7->type) {
+        throw_type_mismatch_error(get_line_number(), "se block", get_label_type($5->type), "senao block", get_label_type($7->type));
+        YYABORT;
+    }
+
 	$$ = asd_new("se");
     $$->type = $3->type;
     asd_add_child($$, $3);
@@ -660,7 +672,8 @@ operacao_binaria_soma_sub: operacao_binaria_soma_sub '-' operacao_binaria_mult_d
 operacao_binaria_soma_sub: operacao_binaria_mult_div { $$ = $1; };
 
 /* Precedência 2 */
-operacao_binaria_mult_div: operacao_unaria { $$ = $1; };
+soperacao_binaria_mult_div: operacao_unaria { $$ = $1; };
+teoperacao_binaria_mult_div: operacao_unaria { $$ = $1; };
 operacao_binaria_mult_div: operacao_binaria_mult_div '*' operacao_unaria {
     $$ = asd_new("*");
     if ($1->type != $3->type) {
