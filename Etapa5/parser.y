@@ -128,7 +128,7 @@ tipo: TK_DECIMAL { $$ = FLOAT; };
 
 definicao_funcao: TK_ID TK_SETA tipo {
     SymbolNode *s_exists = find_symbol($1->value);
-    if (s_exists) {
+    if (s_exists && s_exists->symbol.nature == FUNCAO) {
         throw_already_declared_error($1->line_number, $1->value);
         YYABORT;
     }
@@ -176,7 +176,7 @@ lista_parametros_nao_vazia: parametro ',' lista_parametros_nao_vazia {
 seguido ou do token TK_INTEIRO ou do token TK_DECIMAL. */
 parametro: TK_ID TK_ATRIB tipo {
     SymbolNode *s_exists = find_symbol($1->value);
-    if (s_exists) {
+    if (s_exists && s_exists->symbol.nature == IDENTIFICADOR) {
         throw_already_declared_error($1->line_number, $1->value);
         YYABORT;
     }
@@ -233,7 +233,7 @@ Esta declaração é idêntica ao comando simples de declaração de variável
 sendo que a única e importante diferença é que esse elemento não pode receber valores de inicialização. */
 declaracao_variavel_global: TK_VAR TK_ID TK_ATRIB tipo {
     SymbolNode *s_exists = find_symbol($2->value);
-    if (s_exists) {
+    if (s_exists && s_exists->symbol.nature == IDENTIFICADOR) {
         throw_already_declared_error($2->line_number, $2->value);
         YYABORT;
     }
@@ -258,8 +258,7 @@ declaracao_variavel: TK_VAR TK_ID TK_ATRIB tipo TK_COM TK_LI_DECIMAL {
     $$->type = FLOAT;
     if ($2) {
         SymbolNode *s_exists = find_symbol($2->value);
-
-        if (s_exists) {
+        if (s_exists && s_exists->symbol.nature == IDENTIFICADOR) {
             throw_already_declared_error($2->line_number, $2->value);
             YYABORT;
         }
@@ -295,8 +294,7 @@ declaracao_variavel: TK_VAR TK_ID TK_ATRIB tipo TK_COM TK_LI_INTEIRO {
     $$->type = INT;
     if ($2) {
         SymbolNode *s_exists = find_symbol($2->value);
-
-        if (s_exists) {
+        if (s_exists && s_exists->symbol.nature == IDENTIFICADOR) {
             throw_already_declared_error($2->line_number, $2->value);
             YYABORT;
         }
@@ -328,8 +326,7 @@ declaracao_variavel: TK_VAR TK_ID TK_ATRIB tipo TK_COM TK_LI_INTEIRO {
 };
 declaracao_variavel: TK_VAR TK_ID TK_ATRIB tipo {
     SymbolNode *s_exists = find_symbol($2->value);
-
-    if (s_exists) {
+    if (s_exists && s_exists->symbol.nature == IDENTIFICADOR) {
         throw_already_declared_error($2->line_number, $2->value);
         YYABORT;
     }
