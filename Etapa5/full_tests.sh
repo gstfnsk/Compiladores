@@ -2,7 +2,7 @@
 
 # --- Configuration ---
 # The executable to run
-EXECUTABLE="./etapa4"
+EXECUTABLE="./etapa5"
 
 # The directory containing test subfolders
 TEST_DIR="Testes"
