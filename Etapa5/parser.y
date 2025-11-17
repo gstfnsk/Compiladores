@@ -334,9 +334,13 @@ declaracao_variavel: TK_VAR TK_ID TK_ATRIB tipo {
     Symbol var_symbol = make_var_symbol($2->value, $4);
     insert_symbol(var_symbol);
 
+    char label[256];
+    snprintf(label, sizeof(label), "var %s", $2->value);
+    $$ = asd_new(label);
+    $$->type = $4;
+
     free($2->value);
     free($2);
-    $$ = NULL;
 };
 
 /* Comando de Atribuição: 
@@ -483,6 +487,13 @@ seguido do token TK_ATRIB e terminado ou pelo token TK_DECIMAL ou pelo token TK_
 comando_retorno: TK_RETORNA expressao TK_ATRIB tipo {
 	$$ = asd_new("retorna");
     $$->type = $4;
+
+    if ($2->type != $4) {
+        // O tipo da expressão não corresponde ao tipo especificado na declaração de retorno.
+        throw_type_mismatch_error(get_line_number(), $2->label, get_label_type($2->type), "retorna", get_label_type($4));
+        YYABORT;
+    }
+
     asd_add_child($$, $2);
     type_t current_return_type = get_current_return_type();
     if (current_return_type != $4) {
@@ -498,6 +509,10 @@ A condicional consiste no token TK_SE seguido de uma expressão entre parêntese
 e então por um bloco de comandos obrigatório. Após este bloco, podemos opcionalmente ter o token
 TK_SENAO que, quando aparece, é seguido obrigatoriamente por um bloco de comandos. */
 construcoes_fluxo_controle: TK_SE '(' expressao ')' bloco_comandos {
+    if ($3->type != INT) {
+        throw_type_mismatch_error(get_line_number(), "se condition", "INT", $3->label, get_label_type($3->type));
+        YYABORT;
+    }
     $$ = asd_new("se");
     $$->type = $3->type;
     asd_add_child($$, $3);
@@ -505,6 +520,16 @@ construcoes_fluxo_controle: TK_SE '(' expressao ')' bloco_comandos {
 };
 
 construcoes_fluxo_controle: TK_SE '(' expressao ')' bloco_comandos TK_SENAO bloco_comandos {
+	if ($3->type != INT) {
+        throw_type_mismatch_error(get_line_number(), "se condition", "INT", $3->label, get_label_type($3->type));
+        YYABORT;
+    }
+
+    if ($5 && $7 && $5->type != $7->type) {
+        throw_type_mismatch_error(get_line_number(), "se block", get_label_type($5->type), "senao block", get_label_type($7->type));
+        YYABORT;
+    }
+
 	$$ = asd_new("se");
     $$->type = $3->type;
     asd_add_child($$, $3);
@@ -515,6 +540,10 @@ construcoes_fluxo_controle: TK_SE '(' expressao ')' bloco_comandos TK_SENAO bloc
 /* Temos apenas uma construção de repetição que é o token TK_ENQUANTO 
 seguido de uma expressão entre parênteses e de um bloco de comandos. */
 construcoes_fluxo_controle: TK_ENQUANTO '(' expressao ')' bloco_comandos {
+	if ($3->type != INT) {
+        throw_type_mismatch_error(get_line_number(), "enquanto condition", "INT", $3->label, get_label_type($3->type));
+        YYABORT;
+    }
 	$$ = asd_new("enquanto");
     $$->type = $3->type;
     asd_add_child($$, $3);
@@ -641,7 +670,7 @@ operacao_binaria_soma_sub: operacao_binaria_soma_sub '-' operacao_binaria_mult_d
 operacao_binaria_soma_sub: operacao_binaria_mult_div { $$ = $1; };
 
 /* Precedência 2 */
-operacao_binaria_mult_div: operacao_unaria { $$ = $1; } ;
+operacao_binaria_mult_div: operacao_unaria { $$ = $1; };
 operacao_binaria_mult_div: operacao_binaria_mult_div '*' operacao_unaria {
     $$ = asd_new("*");
     if ($1->type != $3->type) {
