@@ -8,7 +8,7 @@
 #include "asd.h"
 #include "types.h"
 
-Type g_current_return_type = VOID; // Valor padrão
+Type g_current_return_type = INT; // Valor padrão
 
 asd_tree_t *asd_new(const char *label)
 {
