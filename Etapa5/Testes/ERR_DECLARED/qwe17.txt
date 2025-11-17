@@ -1,4 +1,6 @@
-//ERR_DECLARED
+// Objetivo: verificar redeclaração de variável no mesmo bloco interno.
+// Esperado: ERR_DECLARED na segunda linha 'var b := inteiro', pois a variável 'b' já foi declarada no bloco.
+
 f -> inteiro := [
   var b := inteiro
   var b := inteiro  

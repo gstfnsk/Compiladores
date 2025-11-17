@@ -1,4 +1,6 @@
-//ERR_DECLARED
+// Objetivo: garantir que blocos aninhados respeitam regra de redeclaração no mesmo nível.
+// Esperado: ERR_DECLARED na segunda declaração de 'var b := inteiro', dentro do mesmo bloco aninhado.
+
 f -> inteiro := [
   [[[[
     var b := inteiro

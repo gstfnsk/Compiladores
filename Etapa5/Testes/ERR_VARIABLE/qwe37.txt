@@ -1,4 +1,6 @@
-//ERR_VARIABLE
+// Objetivo: Detectar a tentativa de usar o resultado da chamada de uma variável local (b) em uma atribuição.
+// Esperado: ERR_VARIABLE na expressão b(), pois b é uma variável local e não pode ser chamada.
+
 f -> inteiro := [
   var b := inteiro
   var a := inteiro

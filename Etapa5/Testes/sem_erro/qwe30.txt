@@ -1,0 +1,7 @@
+// Objetivo: testar chamada válida a outra função declarada previamente no escopo global.
+// Esperado: sem erro — a função 'f' está declarada antes de ser chamada dentro do corpo de 'g'.
+
+f -> inteiro := [],
+g -> inteiro := [
+  f()
+];

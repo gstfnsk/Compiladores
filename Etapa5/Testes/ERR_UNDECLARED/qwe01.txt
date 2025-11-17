@@ -1,4 +1,6 @@
-//ERR_UNDECLARED
+// Objetivo: detectar chamada de função não declarada.
+// Esperado: ERR_UNDECLARED na linha 'a()', pois 'a' não existe em nenhum escopo.
+
 f -> inteiro := [
   a()
 ];

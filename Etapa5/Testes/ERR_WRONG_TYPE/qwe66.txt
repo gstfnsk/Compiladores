@@ -1,4 +1,6 @@
-//ERR_WRONG_TYPE
+// Objetivo: Detectar incompatibilidade entre o tipo de retorno da função (inteiro) e o tipo (decimal) especificado no comando retorna para uma expressão.
+// Esperado: ERR_WRONG_TYPE na linha retorna a+a := decimal, pois a função f espera um retorno inteiro.
+
 f -> inteiro := [
   var a := inteiro
   retorna a+a := decimal

@@ -1,4 +1,6 @@
-//ERR_WRONG_TYPE
+// Objetivo: Detectar a atribuição de um valor decimal (2.0) a uma variável declarada como inteiro (a).
+// Esperado: ERR_WRONG_TYPE na linha a := 2.0, pois a é inteiro.
+
 f -> inteiro := [
   var a := inteiro
   a := 2.0

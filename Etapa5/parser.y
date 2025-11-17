@@ -126,21 +126,24 @@ token TK_ATRIB. */
 tipo: TK_INTEIRO { $$ = INT; };
 tipo: TK_DECIMAL { $$ = FLOAT; };
 
-definicao_funcao: TK_ID TK_SETA tipo escopo_inicio lista_parametros TK_ATRIB { set_current_return_type($3); } corpo {
+definicao_funcao: TK_ID TK_SETA tipo {
     SymbolNode *s_exists = find_symbol($1->value);
     if (s_exists) {
         throw_already_declared_error($1->line_number, $1->value);
         YYABORT;
     }
-    FuncSignature *sig = build_func_signature($5);
-    Symbol func = make_function_symbol($1->value, $3, sig); // Faz a função virar um símbolo
-    insert_symbol(func); // Insere no escopo atual (global)
-    
+    // O símbolo da função é inserido antes de processar os parâmetros e o corpo
+    // para permitir a recursão. A assinatura será preenchida depois.
+    Symbol func = make_function_symbol($1->value, $3, NULL); 
+    insert_symbol(func);
+} escopo_inicio lista_parametros TK_ATRIB { set_current_return_type($3); } corpo {
+    SymbolNode *s_func = find_symbol($1->value); // Encontra o símbolo recém-adicionado
+    s_func->symbol.signature = build_func_signature($6); // Constrói e anexa a assinatura
+
     // Constrói nó da AST
     $$ = asd_new($1->value);
     $$->type = $3; // Define o tipo de retorno da função
-    asd_add_child($$, $8);
-
+    asd_add_child($$, $9);
     free($1->value);
     free($1);
 };
@@ -385,25 +388,30 @@ chamada_funcao: TK_ID '(' lista_argumentos ')' {
             throw_var_used_as_func_error($1->line_number, $1->value);
             YYABORT;
         }
-        // Compara o número de argumentos fornecidos com o número de parâmetros esperados
-        if ($3->arg_count < s->symbol.signature->param_count) {
-            throw_missing_args_error($1->line_number, $1->value);
-            YYABORT;
-        }
-        if ($3->arg_count > s->symbol.signature->param_count) {
-            throw_excess_args_error($1->line_number, $1->value);
-            YYABORT;
-        }
 
-        // Verifica se os tipos dos argumentos coincidem com os tipos dos parâmetros
-        arg_t *arg = $3->args;
-        for (int i = 0; i < s->symbol.signature->param_count; i++) {
-           
-            if (arg->type != s->symbol.signature->params[i].type) {
-                throw_mismatch_symbol_table_type_error($1->line_number, $1->value);
+        // Se a assinatura é nula, uma chamada recursiva está sendo parseada.
+        // A verificação será feita implicitamente depois, quando a assinatura for construída.
+        if (s->symbol.signature) {
+            // Compara o número de argumentos fornecidos com o número de parâmetros esperados
+            if ($3->arg_count < s->symbol.signature->param_count) {
+                throw_missing_args_error($1->line_number, $1->value);
                 YYABORT;
             }
-            arg = arg->next;
+            if ($3->arg_count > s->symbol.signature->param_count) {
+                throw_excess_args_error($1->line_number, $1->value);
+                YYABORT;
+            }
+
+            // Verifica se os tipos dos argumentos coincidem com os tipos dos parâmetros
+            arg_t *arg = $3->args;
+            for (int i = 0; i < s->symbol.signature->param_count; i++) {
+
+                if (arg->type != s->symbol.signature->params[i].type) {
+                    throw_mismatch_symbol_table_type_error($1->line_number, $1->value);
+                    YYABORT;
+                }
+                arg = arg->next;
+            }
         }
         arglist_free($3);
 

@@ -1,4 +1,6 @@
-//ERR_UNDECLARED
+// Objetivo: impedir uso de identificador não declarado em atribuição.
+// Esperado: ERR_UNDECLARED na linha 'b := a', pois 'a' não foi declarado.
+
 f -> inteiro := [
   var b := inteiro
   b := a

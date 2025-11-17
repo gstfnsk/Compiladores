@@ -1,4 +1,6 @@
-//ERR_FUNCTION
+// Objetivo: impedir passagem de função como argumento sem chamada adequada.
+// Esperado: ERR_FUNCTION na chamada 'h(g)', pois 'g' é função e deveria ter sido chamada ou substituída por valor.
+
 h -> inteiro com a := inteiro := [],
 g -> inteiro := [],
 f -> inteiro := [

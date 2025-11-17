@@ -1,0 +1,7 @@
+// Objetivo: testar atribuição válida a uma variável global acessada dentro do corpo da função.
+// Esperado: sem erro — a variável global 'b' está declarada e pode ser utilizada e modificada em 'f'.
+
+var b := inteiro,
+f -> inteiro := [
+  b := 2
+];

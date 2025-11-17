@@ -1,4 +1,6 @@
-//ERR_FUNCTION
+// Objetivo: detectar uso de identificador de função como valor em atribuição.
+// Esperado: ERR_FUNCTION na linha 'a := g', pois 'g' é função e não pode ser usado como valor.
+
 g -> inteiro := [],
 f -> inteiro := [
   var a := inteiro

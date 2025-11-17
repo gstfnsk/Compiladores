@@ -45,7 +45,7 @@ void asd_free(asd_tree_t *tree)
   }
   else
   {
-    printf("Erro: %s recebeu parâmetro tree = %p.\n", __FUNCTION__, tree);
+    // printf("Erro: %s recebeu parâmetro tree = %p.\n", __FUNCTION__, tree);
   }
 }
 
@@ -59,7 +59,7 @@ void asd_add_child(asd_tree_t *tree, asd_tree_t *child)
   }
   else
   {
-    printf("Erro: %s recebeu parâmetro tree = %p / %p.\n", __FUNCTION__, tree, child);
+    // printf("Erro: %s recebeu parâmetro tree = %p / %p.\n", __FUNCTION__, tree, child);
   }
 }
 
@@ -76,7 +76,7 @@ static void _asd_print(FILE *foutput, asd_tree_t *tree, int profundidade)
   }
   else
   {
-    printf("Erro: %s recebeu parâmetro tree = %p.\n", __FUNCTION__, tree);
+    // printf("Erro: %s recebeu parâmetro tree = %p.\n", __FUNCTION__, tree);
   }
 }
 
@@ -89,7 +89,7 @@ void asd_print(asd_tree_t *tree)
   }
   else
   {
-    printf("Erro: %s recebeu parâmetro tree = %p.\n", __FUNCTION__, tree);
+    // printf("Erro: %s recebeu parâmetro tree = %p.\n", __FUNCTION__, tree);
   }
 }
 
@@ -107,7 +107,7 @@ static void _asd_print_graphviz(FILE *foutput, asd_tree_t *tree)
   }
   else
   {
-    printf("Erro: %s recebeu parâmetro tree = %p.\n", __FUNCTION__, tree);
+    // printf("Erro: %s recebeu parâmetro tree = %p.\n", __FUNCTION__, tree);
   }
 }
 
@@ -122,7 +122,7 @@ void asd_print_graphviz(asd_tree_t *tree)
   }
   else
   {
-    printf("Erro: %s recebeu parâmetro tree = %p.\n", __FUNCTION__, tree);
+    // printf("Erro: %s recebeu parâmetro tree = %p.\n", __FUNCTION__, tree);
   }
 }
 

@@ -1,4 +1,6 @@
-//ERR_WRONG_TYPE
+// Objetivo: Detectar uma operação com tipos incompatíveis (inteiro e decimal) dentro de uma expressão complexa.
+// Esperado: ERR_WRONG_TYPE na sub-expressão a+b, pois mistura tipos incompatíveis.
+
 f -> inteiro := [
   var a := inteiro
   var b := decimal

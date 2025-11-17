@@ -1,0 +1,10 @@
+// Objetivo: testar atribuição à variável global 'b' dentro de um bloco 'se'.
+// Esperado: sem erro — 'b' é global e acessível no bloco interno do comando 'se'.
+
+var b := inteiro,
+f -> inteiro := [
+  var c := inteiro
+  se (c) [
+     b := 2
+  ]
+];

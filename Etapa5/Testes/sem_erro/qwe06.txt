@@ -1,0 +1,11 @@
+// Objetivo: testar atribuição à variável global 'b' dentro do bloco 'senao'.
+// Esperado: sem erro — 'b' é global e pode ser utilizada normalmente no ramo 'senao'.
+
+var b := inteiro,
+f -> inteiro := [
+  var c := inteiro
+  se (c) [
+  ]senao[
+     b := 2
+  ]
+];

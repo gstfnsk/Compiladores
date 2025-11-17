@@ -1,0 +1,9 @@
+// Objetivo: testar acesso e atribuição à variável global 'b' dentro de um bloco simples.
+// Esperado: sem erro — blocos não criam novo escopo para variáveis globais; 'b' continua acessível.
+
+var b := inteiro,
+f -> inteiro := [
+  [
+     b := 2
+  ]
+];

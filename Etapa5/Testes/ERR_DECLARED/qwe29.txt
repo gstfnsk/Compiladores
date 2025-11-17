@@ -1,3 +1,5 @@
-//ERR_DECLARED
+// Objetivo: detectar redeclaração de função com parâmetros depois de outra função de mesmo nome.
+// Esperado: ERR_DECLARED na segunda declaração de 'f', pois o identificador já é usado para outra função.
+
 f -> inteiro com a := inteiro := [],
 f -> inteiro := [];

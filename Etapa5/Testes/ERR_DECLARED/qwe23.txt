@@ -1,2 +1,4 @@
-//ERR_DECLARED
+// Objetivo: impedir que parâmetros de função sejam declarados com nomes repetidos.
+// Esperado: ERR_DECLARED no terceiro parâmetro 'a := inteiro', pois 'a' já foi declarado na lista de parâmetros.
+
 f -> inteiro com a := inteiro, b := inteiro, a := inteiro := [];

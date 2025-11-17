@@ -1,0 +1,6 @@
+// Objetivo: testar declaração de variável local com o mesmo nome da função.
+// Esperado: sem erro — o identificador local 'f' sombreia a função apenas no escopo interno, o que é permitido.
+
+f -> inteiro := [
+  var f := inteiro
+];

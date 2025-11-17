@@ -1,4 +1,6 @@
-//ERR_VARIABLE
+// Objetivo: Detectar a tentativa de chamar uma variável global (b) como se fosse uma função.
+// Esperado: ERR_VARIABLE na linha b(), pois b foi declarado como uma variável (inteiro) e não como função.
+
 var b := inteiro,
 f -> inteiro := [
   b()

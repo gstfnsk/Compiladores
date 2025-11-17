@@ -1,4 +1,6 @@
-//ERR_DECLARED
+// Objetivo: detectar quando uma variável local sombreia um parâmetro da função.
+// Esperado: ERR_DECLARED na linha 'var b := inteiro', pois 'b' já foi declarado como parâmetro da função.
+
 f -> inteiro com a := inteiro, b := inteiro := [
   var b := inteiro
 ];

@@ -1,4 +1,6 @@
-//ERR_WRONG_TYPE
+// Objetivo: Detectar o uso de uma variável decimal (b) como expressão de condição em um comando se (dentro de um senao).
+// Esperado: ERR_WRONG_TYPE na linha se(b), pois a condição espera um tipo inteiro, mas b é decimal.
+
 f -> inteiro := [
   var c := inteiro
   se (c) [
