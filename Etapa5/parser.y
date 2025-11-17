@@ -416,12 +416,7 @@ chamada_funcao: TK_ID '(' lista_argumentos ')' {
                 }
                 arg = arg->next;
             }
-        } else {
-            // Se a assinatura for nula neste ponto, é um erro de análise,
-            // pois a reestruturação da regra definicao_funcao garante que ela deve existir.
-            // Isso indica um problema interno do compilador, não um erro do usuário.
-            yyerror("Internal compiler error: function signature not found during call validation.");
-        }
+        } 
         arglist_free($3);
 
         char nome[256];
