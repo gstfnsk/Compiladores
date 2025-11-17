@@ -1,8 +1,7 @@
 #ifndef _TYPES_H_
 #define _TYPES_H_
 
-typedef enum {
-    VOID,
+typedef enum { 
     INT,
     FLOAT,
 } Type;
