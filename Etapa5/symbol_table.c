@@ -140,6 +140,25 @@ SymbolNode *find_symbol(const char *name)
     return NULL;
 }
 
+// Busca símbolo de função por nome, subindo na pilha de escopos
+SymbolNode *find_function_symbol(const char *name)
+{
+    for (Scope *scope = g_scope_stack_top; scope != NULL; scope = scope->prev)
+    {
+        for (SymbolNode *n = scope->symbols; n != NULL; n = n->next)
+        {
+            if (n->symbol.lexical_value && n->symbol.lexical_value->value)
+            {
+                if (strcmp(n->symbol.lexical_value->value, name) == 0 && n->symbol.nature == FUNCAO)
+                {
+                    return n;
+                }
+            }
+        }
+    }
+    return NULL;
+}
+
 // Transforma função em "Símbolo"
 Symbol make_function_symbol(const char *name, Type return_type, FuncSignature *sig)
 {
