@@ -136,10 +136,13 @@ definicao_funcao: TK_ID TK_SETA tipo {
     // para permitir a recursão. A assinatura será preenchida depois.
     Symbol func = make_function_symbol($1->value, $3, NULL); 
     insert_symbol(func);
-} escopo_inicio lista_parametros TK_ATRIB { set_current_return_type($3); } corpo {
-    SymbolNode *s_func = find_symbol($1->value); // Encontra o símbolo recém-adicionado
-    s_func->symbol.signature = build_func_signature($6); // Constrói e anexa a assinatura
-
+} escopo_inicio lista_parametros TK_ATRIB {
+    // Agora que os parâmetros foram processados, encontramos o símbolo da função
+    // e finalmente anexamos a assinatura completa a ele.
+    SymbolNode *s_func = find_symbol($1->value);
+    s_func->symbol.signature = build_func_signature($6);
+    set_current_return_type($3);
+} corpo {
     // Constrói nó da AST
     $$ = asd_new($1->value);
     $$->type = $3; // Define o tipo de retorno da função
@@ -412,6 +415,11 @@ chamada_funcao: TK_ID '(' lista_argumentos ')' {
                 }
                 arg = arg->next;
             }
+        } else {
+            // Se a assinatura for nula neste ponto, é um erro de análise,
+            // pois a reestruturação da regra definicao_funcao garante que ela deve existir.
+            // Isso indica um problema interno do compilador, não um erro do usuário.
+            yyerror("Internal compiler error: function signature not found during call validation.");
         }
         arglist_free($3);
 
@@ -425,6 +433,30 @@ chamada_funcao: TK_ID '(' lista_argumentos ')' {
         free($1->value);
         free($1);
     };
+};
+
+chamada_funcao: TK_ID '(' ')' {
+    if($1){
+        SymbolNode *s = find_symbol($1->value);
+        if (!s) {
+            throw_undeclared_error($1->line_number, $1->value);
+            YYABORT;
+        }
+        if (s->symbol.nature != FUNCAO) {
+            throw_var_used_as_func_error($1->line_number, $1->value);
+            YYABORT;
+        }
+        if (s->symbol.signature && s->symbol.signature->param_count > 0) {
+            throw_missing_args_error($1->line_number, $1->value);
+            YYABORT;
+        }
+        char nome[256];
+        snprintf(nome, sizeof(nome), "call %s", $1->value);
+        $$ = asd_new(nome);
+        $$->type = s->symbol.type;
+        free($1->value);
+        free($1);
+    }
 };
 
 lista_argumentos: argumento ',' lista_argumentos {
