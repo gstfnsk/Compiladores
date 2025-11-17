@@ -7,6 +7,8 @@
 
 #include "types.h"
 
+struct iloc_code;
+
 typedef struct lexical_value {
 		int line_number;
 		int type;
@@ -19,6 +21,7 @@ typedef struct asd_tree {
   struct asd_tree **children;
   lexical_value_t *payload;
   Type type;
+  struct iloc_code *code;
 } asd_tree_t;
 
 /*
