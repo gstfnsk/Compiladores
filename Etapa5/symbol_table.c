@@ -22,6 +22,7 @@ static void free_symbol_contents(Symbol *s)
     {
         funcsig_free(s->signature);
     }
+    free(s->name);
 }
 
 // Limpa todos os símbolos em uma lista encadeada de símbolos.
