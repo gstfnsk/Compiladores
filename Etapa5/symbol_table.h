@@ -46,7 +46,7 @@ typedef struct Symbol
     Nature nature;
     Type type;
     FuncSignature *signature; // Se não for função é NULL
-    lexical_value_t *lexical_value;
+    char *name;
 } Symbol;
 
 // Nó em uma lista encadeada de símbolos dentro de um escopo. Isso implementa uma
@@ -66,7 +66,7 @@ typedef struct Scope
 void destroy_stack();
 void push_scope();
 void pop_scope();
-void print_scope_stack(Scope *top);
+// void print_scope_stack(Scope *top);
 
 SymbolNode *insert_symbol(Symbol s);
 SymbolNode *find_symbol(const char *name);
