@@ -30,6 +30,7 @@ const char* opcode_to_string[] = {
     "add", "sub", "mult", "div",
     "addI", "subI", "rsubI", "multI", "divI", "rdivI",
     "lshift", "lshiftI", "rshift", "rshiftI",
+    "and", "or", "andI", "orI", "xori",
     "load", "loadAI", "loadA0",
     "store", "storeAI", "storeAO",
     "loadI",
@@ -138,4 +139,29 @@ void print_iloc_code(iloc_code* code) {
         }
         printf("\n");
     }
+}
+
+void free_iloc_code(iloc_code* code) {
+    if (!code) return;
+
+    iloc_operation* current = code->head;
+    while (current != NULL) {
+        iloc_operation* next = current->next;
+
+        if (current->label) free(current->label);
+
+        for (int i = 0; i < 3; i++) {
+            if (current->args[i]) free(current->args[i]);
+        }
+
+        for (int i = 0; i < 3; i++) {
+            if (current->dest[i]) free(current->dest[i]);
+        }
+
+        free(current);
+        current = next;
+    }
+
+    // Finalmente, libera a própria estrutura de código
+    free(code);
 }
