@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include "asd.h"
 #include "types.h"
+#include "iloc.h"
 
 Type g_current_return_type = INT; // Valor padrão
 
