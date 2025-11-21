@@ -1,0 +1,26 @@
+// Objetivo: Testar a geração de código para operações aritméticas básicas e atribuições.
+// Apenas o tipo 'inteiro' é considerado, conforme a especificação.
+//
+// Comportamento esperado:
+// 1. Variáveis 'a', 'b', 'c', 'd', 'e' são declaradas.
+// 2. 'a' é inicializada com 10.
+// 3. 'b' é inicializada com 2.
+// 4. 'c' recebe o resultado de a + b (12).
+// 5. 'd' recebe o resultado de c - a (2).
+// 6. 'e' recebe o resultado de c * d (24).
+// 7. 'a' recebe o resultado de e / b (12).
+//
+// Ao final, o simulador ILOC deve mostrar os valores finais das variáveis na memória.
+
+main -> inteiro := [
+  var a := inteiro com 10
+  var b := inteiro com 2
+  var c := inteiro
+  var d := inteiro
+  var e := inteiro
+
+  c := a + b
+  d := c - a
+  e := c * d
+  a := e / b
+];
