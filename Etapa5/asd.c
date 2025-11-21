@@ -35,6 +35,11 @@ void asd_free(asd_tree_t *tree)
       free(tree->payload);
     }
 
+    if (tree->code != NULL)
+    {
+      free_iloc_code(tree->code);
+    }
+
     for (i = 0; i < tree->number_of_children; i++)
     {
       asd_free(tree->children[i]);
