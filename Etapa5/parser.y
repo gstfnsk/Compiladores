@@ -469,8 +469,6 @@ lista_argumentos: argumento {
 	$$ = args_list;
 };
 
-lista_argumentos: %empty { $$ = argslist_new(0); };
-
 /* Um argumento é uma expressão. */
 argumento: expressao { 
     $$ = arg_new($1->type); 
