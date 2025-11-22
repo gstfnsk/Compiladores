@@ -165,3 +165,23 @@ void free_iloc_code(iloc_code* code) {
     // Finalmente, libera a própria estrutura de código
     free(code);
 }
+
+void finalize_code_generation(asd_tree_t *main_node) {
+    if (!main_node) {
+        return;
+    }
+
+    // Garante que o nó principal tenha uma lista de código para anexar.
+    if (!main_node->code) {
+        main_node->code = calloc(1, sizeof(iloc_code));
+        if (!main_node->code) return; // Falha na alocação
+    }
+
+    // Adiciona um rótulo final para referência, se necessário.
+    iloc_operation* nop_op = create_iloc_op("L_end", NOP, NULL, NULL, NULL, NULL, NULL, NULL);
+    append_op(main_node->code, nop_op);
+
+    // Adiciona a instrução de parada (HALT), representada por um 'nop' no simulador.
+    iloc_operation* halt_op = create_iloc_op(NULL, NOP, NULL, NULL, NULL, NULL, NULL, NULL);
+    append_op(main_node->code, halt_op);
+}

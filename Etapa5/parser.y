@@ -8,6 +8,7 @@
 #include "asd.h"
 #include "symbol_table.h"
 #include "types.h"
+#include "iloc.h"
 extern asd_tree_t *arvore;
 int yylex(void);
 void yyerror (char const *mensagem);
@@ -75,13 +76,16 @@ int get_line_number(void);
 /* Um programa na linguagem é composto por uma lista opcional de elementos. 
 Os elementos da lista são separados pelo operador vírgula 
 e a lista é terminada pelo operador ponto-e-vírgula. */
-programa: escopo_inicio lista escopo_fim ';' {
-    if ($2)  { arvore = $2; }
+programa: escopo_inicio lista escopo_fim ';' { 
+    // Se não houver elementos, cria um nó raiz vazio.
+    arvore = $2 ? $2 : asd_new("program");
+    // Adiciona as instruções finais ao código ILOC gerado.
+    finalize_code_generation(arvore);
 };
 
-// programa: %empty {
 programa: ';' {
-    arvore = NULL; 
+    arvore = asd_new("program"); 
+    finalize_code_generation(arvore);
 }; 
 
 // TODO: implementar escopo_inicio e escopo_fim
