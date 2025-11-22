@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include "asd.h"
 #include "types.h"
+#include "iloc.h"
 
 Type g_current_return_type = INT; // Valor padrão
 
@@ -33,6 +34,11 @@ void asd_free(asd_tree_t *tree)
     {
       free(tree->payload->value);
       free(tree->payload);
+    }
+
+    if (tree->code != NULL)
+    {
+      free_iloc_code(tree->code);
     }
 
     for (i = 0; i < tree->number_of_children; i++)

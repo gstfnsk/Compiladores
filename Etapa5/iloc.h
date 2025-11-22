@@ -15,6 +15,9 @@ typedef enum iloc_op_code {
     ADDI, SUBI, RSUBI, MULTI, DIVI, RDIVI,
     // Shifts
     LSHIFT, LSHIFTI, RSHIFT, RSHIFTI,
+    // Operações lógicas
+    AND, OR,
+    ANDI, ORI, XORI,
     // Operações de memória
     LOAD, LOADAI, LOADA0,
     STORE, STOREAI, STOREA0,
@@ -62,5 +65,8 @@ iloc_code* concat_code(iloc_code* code1, iloc_code* code2);
 
 // Imprime o código ILOC na saída padrão
 void print_iloc_code(iloc_code* code);
+
+// Libera a memória de uma lista de código ILOC
+void free_iloc_code(iloc_code* code);
 
 #endif //_ILOC_H_
