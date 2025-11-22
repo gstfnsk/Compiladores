@@ -18,16 +18,11 @@ static void free_symbol_contents(Symbol *s)
     if (!s)
         return;
 
-    if (s->lexical_value)
-    {
-        free(s->lexical_value->value);
-        free(s->lexical_value);
-    }
-
     if (s->nature == FUNCAO && s->signature)
     {
         funcsig_free(s->signature);
     }
+    free(s->name);
 }
 
 // Limpa todos os símbolos em uma lista encadeada de símbolos.
@@ -103,38 +98,15 @@ SymbolNode *insert_symbol(Symbol s)
 }
 
 // Busca símbolo por nome, subindo na pilha de escopos
-// SymbolNode *find_symbol(const char *name) {
-//     printf("[DEBUG] find_symbol: Buscando por '%s'\n", name);
-//     int scope_level = 0; // Para debug, para saber em qual nível de escopo estamos
-//     for (Scope *scope = g_scope_stack_top; scope != NULL; scope = scope->prev) {
-//         printf("[DEBUG] find_symbol: Verificando escopo nível %d\n", scope_level);
-//         for (SymbolNode *n = scope->symbols; n != NULL; n = n->next) {
-//             if (n->symbol.lexical_value && n->symbol.lexical_value->value) {
-//                 printf("[DEBUG] find_symbol:   Comparando com '%s'\n", n->symbol.lexical_value->value);
-//                 if (strcmp(n->symbol.lexical_value->value, name) == 0) {
-//                     printf("[DEBUG] find_symbol: Símbolo '%s' encontrado no escopo %d.\n", name, scope_level);
-//                     return n;
-//                 }
-//             }
-//         }
-//         scope_level++;
-//     }
-//     printf("[DEBUG] find_symbol: Símbolo '%s' não encontrado em nenhum escopo.\n", name);
-//     return NULL;
-// }
-
-// Busca símbolo por nome, subindo na pilha de escopos
 SymbolNode *find_symbol(const char *name)
 {
     for (Scope *scope = g_scope_stack_top; scope != NULL; scope = scope->prev)
     {
         for (SymbolNode *n = scope->symbols; n != NULL; n = n->next)
         {
-            if (n->symbol.lexical_value && n->symbol.lexical_value->value)
-            {
-                if (strcmp(n->symbol.lexical_value->value, name) == 0)
-                    return n;
-            }
+            if (strcmp(n->symbol.name, name) == 0)
+                return n;
+            
         }
     }
     return NULL;
@@ -147,12 +119,9 @@ SymbolNode *find_function_symbol(const char *name)
     {
         for (SymbolNode *n = scope->symbols; n != NULL; n = n->next)
         {
-            if (n->symbol.lexical_value && n->symbol.lexical_value->value)
+            if (strcmp(n->symbol.name, name) == 0 && n->symbol.nature == FUNCAO)
             {
-                if (strcmp(n->symbol.lexical_value->value, name) == 0 && n->symbol.nature == FUNCAO)
-                {
-                    return n;
-                }
+                return n;
             }
         }
     }
@@ -167,13 +136,7 @@ Symbol make_function_symbol(const char *name, Type return_type, FuncSignature *s
     s.type = return_type;
     s.signature = sig;
 
-    // Cria cópia do valor léxico para ter ele persistente
-    // mesmo que o token original seja liberado
-    s.lexical_value = calloc(1, sizeof(lexical_value_t));
-    s.lexical_value->value = strdup(name);
-    s.lexical_value->line_number = 0; // TODO: ver como preencher
-    s.lexical_value->type = 0;        // idem
-
+    s.name = strdup(name);
     return s;
 }
 
@@ -184,11 +147,8 @@ Symbol make_var_symbol(const char *name, Type type)
     s.nature = IDENTIFICADOR;
     s.type = type;
     s.signature = NULL;
-
-    s.lexical_value = calloc(1, sizeof(lexical_value_t));
-    s.lexical_value->value = strdup(name);
-    s.lexical_value->line_number = 0;
-    s.lexical_value->type = 0;
+    
+    s.name = strdup(name);
     return s;
 }
 
@@ -329,35 +289,35 @@ struct ArgList *argslist_new(int arg_count)
     return argslist;
 }
 
-void print_scope_stack(Scope *top)
-{
-    int level = 0;
-    for (Scope *scope = top; scope != NULL; scope = scope->prev)
-    {
-        printf("Escopo nível %d:\n", level);
-        for (SymbolNode *sym_node = scope->symbols; sym_node != NULL; sym_node = sym_node->next)
-        {
-            Symbol *sym = &sym_node->symbol;
-            const char *nature_str = (sym->nature == LITERAL) ? "LITERAL" : (sym->nature == IDENTIFICADOR) ? "IDENTIFICADOR"
-                                                                                                           : "FUNCAO";
-            const char *type_str = get_label_type(sym->type);
-            printf("  Símbolo: %s, Natureza: %s, Tipo: %s\n",
-                   sym->lexical_value ? sym->lexical_value->value : "(sem nome)",
-                   nature_str,
-                   type_str);
-            if (sym->nature == FUNCAO && sym->signature)
-            {
-                printf("    Assinatura da função: %d parâmetros\n", sym->signature->param_count);
-                for (int i = 0; i < sym->signature->param_count; ++i)
-                {
-                    const char *param_type_str = get_label_type(sym->signature->params[i].type);
-                    printf("      Parâmetro %d: Nome: %s, Tipo: %s\n",
-                           i + 1,
-                           sym->signature->params[i].name,
-                           param_type_str);
-                }
-            }
-        }
-        level++;
-    }
-}
+// void print_scope_stack(Scope *top)
+// {
+//     int level = 0;
+//     for (Scope *scope = top; scope != NULL; scope = scope->prev)
+//     {
+//         printf("Escopo nível %d:\n", level);
+//         for (SymbolNode *sym_node = scope->symbols; sym_node != NULL; sym_node = sym_node->next)
+//         {
+//             Symbol *sym = &sym_node->symbol;
+//             const char *nature_str = (sym->nature == LITERAL) ? "LITERAL" : (sym->nature == IDENTIFICADOR) ? "IDENTIFICADOR"
+//                                                                                                            : "FUNCAO";
+//             const char *type_str = get_label_type(sym->type);
+//             printf("  Símbolo: %s, Natureza: %s, Tipo: %s\n",
+//                    sym->lexical_value ? sym->lexical_value->value : "(sem nome)",
+//                    nature_str,
+//                    type_str);
+//             if (sym->nature == FUNCAO && sym->signature)
+//             {
+//                 printf("    Assinatura da função: %d parâmetros\n", sym->signature->param_count);
+//                 for (int i = 0; i < sym->signature->param_count; ++i)
+//                 {
+//                     const char *param_type_str = get_label_type(sym->signature->params[i].type);
+//                     printf("      Parâmetro %d: Nome: %s, Tipo: %s\n",
+//                            i + 1,
+//                            sym->signature->params[i].name,
+//                            param_type_str);
+//                 }
+//             }
+//         }
+//         level++;
+//     }
+// }
