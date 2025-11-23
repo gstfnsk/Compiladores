@@ -7,7 +7,8 @@
 
 #include "types.h"
 
-struct iloc_code;
+// Forward declaration to break circular dependency with iloc.h
+struct iloc_code; 
 
 typedef struct lexical_value {
 		int line_number;
@@ -22,6 +23,7 @@ typedef struct asd_tree {
   lexical_value_t *payload;
   Type type;
   struct iloc_code *code;
+  char *temp_reg;
 } asd_tree_t;
 
 /*

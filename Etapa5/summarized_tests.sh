@@ -13,6 +13,12 @@ GREEN='\033[0;32m'
 NC='\033[0m' # No Color
 # --- End Configuration ---
 
+# --- Counters ---
+total_tests=0
+passed_tests=0
+failed_tests=0
+# --- End Counters ---
+
 
 # 1. Check if the executable exists
 if [ ! -f "$EXECUTABLE" ]; then
@@ -36,6 +42,7 @@ for test_file in "$TEST_DIR"/ERR_*/*.txt "$TEST_DIR"/sem_erro/*.txt; do
     
     # Check if the file actually exists
     if [ -f "$test_file" ]; then
+        ((total_tests++))
         echo "============================================================"
         echo "Running test: $test_file"
         echo "============================================================"
@@ -54,9 +61,11 @@ for test_file in "$TEST_DIR"/ERR_*/*.txt "$TEST_DIR"/sem_erro/*.txt; do
             if [[ "$last_line" == "--> "* ]]; then
                 # This is a FAILURE case
                 echo -e "${RED}Test FAILED${NC}"
+                ((failed_tests++))
             else
                 # This is a SUCCESS case
                 echo -e "${GREEN}Test PASSED${NC}"
+                ((passed_tests++))
             fi
 
         else
@@ -76,9 +85,11 @@ for test_file in "$TEST_DIR"/ERR_*/*.txt "$TEST_DIR"/sem_erro/*.txt; do
             if [[ "$first_line" == "$expected_prefix"* ]]; then
                 # This is a SUCCESS case
                 echo -e "${GREEN}Test PASSED${NC}"
+                ((passed_tests++))
             else
                 # This is a FAILURE case
                 echo -e "${RED}Test FAILED${NC}"
+                ((failed_tests++))
             fi
         fi
         
@@ -89,4 +100,9 @@ for test_file in "$TEST_DIR"/ERR_*/*.txt "$TEST_DIR"/sem_erro/*.txt; do
 done
 
 echo "============================================================"
-echo "All tests finished."
+echo "Test Summary"
+echo "============================================================"
+echo -e "Total tests run: ${total_tests}"
+echo -e "  - ${GREEN}Passed: ${passed_tests}${NC}"
+echo -e "  - ${RED}Failed: ${failed_tests}${NC}"
+echo "============================================================"
