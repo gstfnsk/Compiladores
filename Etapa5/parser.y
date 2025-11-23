@@ -102,6 +102,17 @@ lista: elemento ',' lista {
     if ($1 && $3) {
         $$ = $1;
         asd_add_child($1, $3); 
+
+        // Propaga/concatena o código entre os elementos da lista
+        if ($1->code && $3->code) {
+            concat_code($1->code, $3->code);
+            $3->code = NULL;
+        } else if (!$1->code && $3->code) {
+            $1->code = $3->code;
+            $3->code = NULL;
+        }
+        // se só $1 tem código, não precisamos fazer nada
+
     } else if ($1) {
         $$ = $1;
     } else { 
@@ -450,13 +461,28 @@ chamada_funcao: TK_ID '(' lista_argumentos ')' {
                 arg = arg->next;
             }
         } 
+        
+        iloc_code *args_code = NULL;
+        arg_t *curr_arg = $3->args;
+        while (curr_arg) {
+            if (curr_arg->code) {
+                if (args_code) {
+                    concat_code(args_code, curr_arg->code);
+                } else {
+                    args_code = curr_arg->code;
+                }
+                curr_arg->code = NULL; // Evita double free
+            }
+            curr_arg = curr_arg->next;
+        }
+
         arglist_free($3);
 
         char nome[256];
         snprintf(nome, sizeof(nome), "call %s", $1->value);
         $$ = asd_new(nome);
         $$->type = s->symbol.type; // Define o tipo de retorno da chamada de função
-         // Testa se os argumentos coincidem com o declarado
+        $$->code = args_code; // Anexa o código dos argumentos à chamada de função
          
         // O nome da função já foi copiado para o label do nó. Liberamos o lexical_value.
         free($1->value);
@@ -505,6 +531,11 @@ lista_argumentos: argumento {
 /* Um argumento é uma expressão. */
 argumento: expressao { 
     $$ = arg_new($1->type); 
+    
+    $$->code = $1->code; // Salva o código da expressão
+    $$->temp_reg = $1->temp_reg; // Salva o registrador temporário da expressão
+    $1->code = NULL; // Evita double free
+
     asd_free($1);
 };
 /* Comando de Retorno: 
@@ -521,6 +552,12 @@ comando_retorno: TK_RETORNA expressao TK_ATRIB tipo {
     }
 
     asd_add_child($$, $2);
+
+    $$->code = $2->code;         // Herda o código da expressão (ex: loadI 1 => r0)
+    $$->temp_reg = $2->temp_reg; // Herda o registrador temporário da expressão
+    $2->code = NULL;             // Evita double free
+    $2->temp_reg = NULL;         // Evita double free
+
     type_t current_return_type = get_current_return_type();
     if (current_return_type != $4) {
         throw_mismatch_return_type_error(get_line_number(), "retorna");
@@ -729,11 +766,8 @@ operacao_unaria: '-' operacao_unaria {
     char *zero_reg = new_temporary();
     char *result_reg = new_temporary();
 
-    iloc_operation *load_zero = create_iloc_op(NULL, LOADI, "0", NULL, NULL, zero_reg, NULL, NULL);
-    append_op($$->code, load_zero);
-
-    iloc_operation *sub_op = create_iloc_op(NULL, SUB, zero_reg, child->temp_reg, NULL, result_reg, NULL, NULL);
-    append_op($$->code, sub_op);
+    iloc_operation *rsub_op = create_iloc_op(NULL, RSUBI, child->temp_reg, "0", NULL, result_reg, NULL, NULL);
+    append_op($$->code, rsub_op);
 
     free(zero_reg);
 
