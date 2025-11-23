@@ -13,7 +13,8 @@
 // A variável global com o topo da pilha de escopos. Se é nulo, significa que a pilha está vazia.
 Scope *g_scope_stack_top = NULL;
 
-static int g_global_offset_count = 0;
+static int g_global_offset_count = 0; // para variáveis globais (rbss)
+static int g_local_offset_count  = 0; // para variáveis locais por função (rfp)
 
 static void free_symbol_contents(Symbol *s)
 {
@@ -65,6 +66,11 @@ void push_scope(void)
     g_scope_stack_top = s;
     // printf("\nApós push de escopo.\n");
     // print_scope_stack(g_scope_stack_top);
+
+    if (s->prev != NULL && s->prev->prev == NULL)
+    {
+        g_local_offset_count = 0;
+    }
 }
 
 void pop_scope(void)
@@ -151,7 +157,18 @@ Symbol make_var_symbol(const char *name, Type type)
     s.signature = NULL;
     
     s.name = strdup(name);
-    s.offset = g_global_offset_count++;
+
+    if (g_scope_stack_top != NULL && g_scope_stack_top->prev == NULL)
+    {
+        // Escopo global: variável global (base rbss)
+        s.offset = g_global_offset_count++;
+    }
+    else
+    {
+        // Escopos não globais: variável local (base rfp)
+        s.offset = g_local_offset_count++;
+    }
+
     return s;
 }
 
