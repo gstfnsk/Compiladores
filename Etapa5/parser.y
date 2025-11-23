@@ -228,6 +228,17 @@ comandos_simples_seq: comandos_simples comandos_simples_seq {
     if ($1 && $2) {
         asd_add_child($1, $2);
         $$ = $1;
+
+        if ($1->code && $2->code) {
+            concat_code($1->code, $2->code);
+            // Movemos o valor de $2->code e liberamos a referência.
+            $2->code = NULL;
+        } else if (!$1->code && $2->code) {
+            $1->code = $2->code;
+            $2->code = NULL;
+        }
+        // Se apenas $1 tem código, não fazemos nada
+
     } else if ($1) {
         $$ = $1;
     } else {
@@ -532,6 +543,45 @@ construcoes_fluxo_controle: TK_SE '(' expressao ')' bloco_comandos {
     $$->type = $3->type;
     asd_add_child($$, $3);
     asd_add_child($$, $5);
+
+    // Inicializa o código ILOC do nó "se" com o código da expressão condicional
+    $$->code = $3->code;
+    $3->code = NULL;
+
+    if (!$$->code) {
+        $$->code = calloc(1, sizeof(iloc_code));
+    }
+
+    // Labels: L0 (then), L1 (if posterior), L2 (nop extra)
+    char *label_true  = new_label(); // L0
+    char *label_false = new_label(); // L1
+    char *label_end   = new_label(); // L2
+
+    // cbr r_cond -> L0, L1
+    iloc_operation *cbr_op = create_iloc_op(NULL, CBR, $3->temp_reg, NULL, NULL, label_true, label_false, NULL);
+    append_op($$->code, cbr_op);
+
+    // L0: nop
+    iloc_operation *then_label = create_iloc_op(label_true, NOP, NULL, NULL, NULL, NULL, NULL, NULL);
+    append_op($$->code, then_label);
+
+    // Then-block code
+    if ($5 && $5->code) {
+        concat_code($$->code, $5->code);
+        $5->code = NULL;
+    }
+
+    // L1: nop
+    iloc_operation *false_label = create_iloc_op(label_false, NOP, NULL, NULL, NULL, NULL, NULL, NULL);
+    append_op($$->code, false_label);
+
+    // L2: nop
+    iloc_operation *end_label = create_iloc_op(label_end, NOP, NULL, NULL, NULL, NULL, NULL, NULL);
+    append_op($$->code, end_label);
+
+    free(label_true);
+    free(label_false);
+    free(label_end);
 };
 
 construcoes_fluxo_controle: TK_SE '(' expressao ')' bloco_comandos TK_SENAO bloco_comandos {
