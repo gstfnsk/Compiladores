@@ -42,6 +42,11 @@ void asd_free(asd_tree_t *tree)
       free_iloc_code(tree->code);
     }
 
+    if (tree->temp_reg != NULL)
+    {
+      free(tree->temp_reg);
+    }
+
     for (i = 0; i < tree->number_of_children; i++)
     {
       asd_free(tree->children[i]);
@@ -132,53 +137,6 @@ void asd_print_graphviz(asd_tree_t *tree)
     // printf("Erro: %s recebeu parâmetro tree = %p.\n", __FUNCTION__, tree);
   }
 }
-
-asd_tree_t* handle_binary_op(const char* op_label, iloc_op_code op_code, asd_tree_t* child1, asd_tree_t* child2, int line_number) {
-    if (child1->type != child2->type) {
-        throw_type_mismatch_error(line_number, child1->label, get_label_type(child1->type), child2->label, get_label_type(child2->type));
-
-        // Chama YYABORT no parser
-        return NULL; 
-    }
-
-    asd_tree_t* new_node = asd_new(op_label);
-    new_node->type = child1->type;
-    asd_add_child(new_node, child1);
-    asd_add_child(new_node, child2);
-
-    char* temp_reg = new_temporary();
-    iloc_operation* op = create_iloc_op(NULL, op_code, child1->label, child2->label, NULL, temp_reg, NULL, NULL);
-    
-    new_node->code = calloc(1, sizeof(iloc_code));
-
-    // O código dos filhos será agregado no nível da instrução.
-    // Nós apenas adicionamos a operação para este nó específico.
-    append_op(new_node->code, op);
-    new_node->label = temp_reg;
-
-    return new_node;
-}
-
-asd_tree_t* handle_unary_op(const char* op_label, asd_tree_t* child, iloc_operation* op) {
-    asd_tree_t* new_node = asd_new(op_label);
-    new_node->type = child->type;
-    asd_add_child(new_node, child);
-
-    char* temp_reg = new_temporary();
-
-    // O último operando da operação é o registrador de destino.
-    op->dest[0] = temp_reg;
-
-    new_node->code = calloc(1, sizeof(iloc_code));
-    
-    // O código dos filhos será agregado no nível da instrução.
-    // Nós apenas adicionamos a operação para este nó específico.
-    append_op(new_node->code, op);
-    new_node->label = temp_reg;
-
-    return new_node;
-}
-
 
 void set_current_return_type(Type type)
 {
