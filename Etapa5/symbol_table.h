@@ -83,5 +83,6 @@ struct Arg *arg_new(Type type);
 struct ArgList *argslist_new(int arg_count);
 void arg_free(struct Arg *arg);
 void arglist_free(struct ArgList *arglist);
+const char* get_var_base_register(const char* var_name);
 
 #endif //_SYMBOL_TABLE_H_

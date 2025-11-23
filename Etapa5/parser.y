@@ -387,7 +387,8 @@ comando_atribuicao: TK_ID TK_ATRIB expressao {
 
     char offset_str[16];
     sprintf(offset_str, "%d", s->symbol.offset * 4);
-    iloc_operation* store_op = create_iloc_op(NULL, STOREAI, $3->temp_reg, NULL, NULL, "rbss", offset_str, NULL);
+    const char *base_reg = get_var_base_register($1->value);
+    iloc_operation* store_op = create_iloc_op(NULL, STOREAI, $3->temp_reg, NULL, NULL, base_reg, offset_str, NULL);
     append_op($$->code, store_op);
 
     if($3) { asd_add_child($$, $3); }

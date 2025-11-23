@@ -292,6 +292,28 @@ struct ArgList *argslist_new(int arg_count)
     return argslist;
 }
 
+/* Helper que ajuda a determinar se uma variável é local (rfp) ou global (rbss) */
+const char* get_var_base_register(const char* var_name) {
+    extern Scope *g_scope_stack_top;
+    Scope *current = g_scope_stack_top;
+    
+    // Percorre a pilha de escopos
+    while (current != NULL) {
+        for (SymbolNode *n = current->symbols; n != NULL; n = n->next) {
+            if (strcmp(n->symbol.name, var_name) == 0) {
+                // Se o escopo anterior for NULL, é o escopo global
+                if (current->prev == NULL) {
+                    return "rbss";
+                } else {
+                    return "rfp";
+                }
+            }
+        }
+        current = current->prev;
+    }
+    return "rbss"; // Fallback
+}
+
 // void print_scope_stack(Scope *top)
 // {
 //     int level = 0;
