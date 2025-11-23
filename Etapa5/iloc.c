@@ -178,10 +178,10 @@ void finalize_code_generation(asd_tree_t *main_node) {
     }
 
     // Adiciona um rótulo final para referência, se necessário.
-    iloc_operation* nop_op = create_iloc_op("L_end", NOP, NULL, NULL, NULL, NULL, NULL, NULL);
-    append_op(main_node->code, nop_op);
+    // iloc_operation* nop_op = create_iloc_op("L_end", NOP, NULL, NULL, NULL, NULL, NULL, NULL);
+    // append_op(main_node->code, nop_op);
 
     // Adiciona a instrução de parada (HALT), representada por um 'nop' no simulador.
-    iloc_operation* halt_op = create_iloc_op(NULL, NOP, NULL, NULL, NULL, NULL, NULL, NULL);
-    append_op(main_node->code, halt_op);
+    // iloc_operation* halt_op = create_iloc_op(NULL, NOP, NULL, NULL, NULL, NULL, NULL, NULL);
+    // append_op(main_node->code, halt_op);
 }
