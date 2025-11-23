@@ -696,7 +696,7 @@ operacao_binaria_mult_div: operacao_binaria_mult_div '/' operacao_unaria {
     $$ = handle_binary_op("/", DIV, $1, $3, get_line_number());
 };
 operacao_binaria_mult_div: operacao_binaria_mult_div '%' operacao_unaria {
-    $$ = handle_binary_op("%", NOP, $1, $3, get_line_number()); // NOP as placeholder for MOD
+    $$ = handle_binary_op("%", NOP, $1, $3, get_line_number()); // Usa nop de placeholder para o operador %
 };
 
 /* Precedência 1 */
