@@ -11,6 +11,7 @@ RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
+CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
 # --- Counters ---
@@ -66,28 +67,25 @@ for test_file in "$TEST_DIR"/*; do
             continue
         fi
 
-        # Clean up previous output files to ensure "creation" checks are valid
+        # Clean up previous output files
         rm -f "$reference_sim_out" "$my_sim_out"
 
         # STEP 1: Run your compiler
-        # We allow it to run even if it errors, to produce whatever output (or empty)
         "$EXECUTABLE" < "$test_file" > "$my_iloc" 2>/dev/null
         
         # STEP 2: Run simulator on Reference ILOC
-        # Only run if the iloc file exists and is not empty (to mimic your "not created" condition if input is bad)
         if [ -s "$reference_iloc" ]; then
              $SIMULATOR -m -x "$reference_iloc" > "$reference_sim_out" 2>&1
         fi
 
         # STEP 3: Run simulator on My ILOC output
-        # Only run if my_iloc exists and is not empty
         if [ -s "$my_iloc" ]; then
              $SIMULATOR -m -x "$my_iloc" > "$my_sim_out" 2>&1
         fi
 
-        # STEP 4: Compare results based on file existence
+        # STEP 4: Compare results
         
-        # Check existence [ -f returns true if file exists ]
+        # Check existence
         if [ -f "$reference_sim_out" ]; then ref_exists=1; else ref_exists=0; fi
         if [ -f "$my_sim_out" ]; then my_exists=1; else my_exists=0; fi
 
@@ -99,17 +97,30 @@ for test_file in "$TEST_DIR"/*; do
         elif [ $ref_exists -ne $my_exists ]; then
             # One created, one not -> FAIL
             echo -e "${RED}FAILED${NC}"
-            echo -e "  ${YELLOW}-> Mismatch: One simulator output was created, the other was not.${NC}"
+            echo -e "  ${YELLOW}-> Mismatch: One simulator output exists, the other does not.${NC}"
+            # Still list files so you can check which one failed
+            echo -e "  Debug Files:"
+            echo -e "    1. Input Source:   ${CYAN}$test_file${NC}"
+            echo -e "    2. Ref ILOC:       ${CYAN}$reference_iloc${NC}"
+            echo -e "    3. My ILOC:        ${CYAN}$my_iloc${NC}"
+            echo -e "    4. My Sim Output:  ${CYAN}$my_sim_out${NC}"
+            echo -e "    5. Ref Sim Output: ${CYAN}$reference_sim_out${NC}"
             ((failed_tests++))
             
         else
-            # Both created -> Compare content using diff
+            # Both created -> Compare content
             if diff -q "$reference_sim_out" "$my_sim_out" >/dev/null; then
                 echo -e "${GREEN}PASSED${NC}"
                 ((passed_tests++))
             else
                 echo -e "${RED}FAILED${NC}"
-                echo -e "  ${YELLOW}-> Simulation content differs. See ${OUTPUT_DIR}/${test_name}_*.txt${NC}"
+                echo -e "  ${YELLOW}-> Simulation content differs.${NC}"
+                echo -e "  Debug Files:"
+                echo -e "    1. Input Source:   ${CYAN}$test_file${NC}"
+                echo -e "    2. Ref ILOC:       ${CYAN}$reference_iloc${NC}"
+                echo -e "    3. My ILOC:        ${CYAN}$my_iloc${NC}"
+                echo -e "    4. My Sim Output:  ${CYAN}$my_sim_out${NC}"
+                echo -e "    5. Ref Sim Output: ${CYAN}$reference_sim_out${NC}"
                 ((failed_tests++))
             fi
         fi
