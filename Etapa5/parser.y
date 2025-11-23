@@ -228,6 +228,17 @@ comandos_simples_seq: comandos_simples comandos_simples_seq {
     if ($1 && $2) {
         asd_add_child($1, $2);
         $$ = $1;
+
+        if ($1->code && $2->code) {
+            concat_code($1->code, $2->code);
+            // Movemos o valor de $2->code e liberamos a referência.
+            $2->code = NULL;
+        } else if (!$1->code && $2->code) {
+            $1->code = $2->code;
+            $2->code = NULL;
+        }
+        // Se apenas $1 tem código, não fazemos nada
+
     } else if ($1) {
         $$ = $1;
     } else {
@@ -387,7 +398,8 @@ comando_atribuicao: TK_ID TK_ATRIB expressao {
 
     char offset_str[16];
     sprintf(offset_str, "%d", s->symbol.offset * 4);
-    iloc_operation* store_op = create_iloc_op(NULL, STOREAI, $3->temp_reg, NULL, NULL, "rbss", offset_str, NULL);
+    const char *base_reg = get_var_base_register($1->value);
+    iloc_operation* store_op = create_iloc_op(NULL, STOREAI, $3->temp_reg, NULL, NULL, base_reg, offset_str, NULL);
     append_op($$->code, store_op);
 
     if($3) { asd_add_child($$, $3); }
@@ -531,6 +543,8 @@ construcoes_fluxo_controle: TK_SE '(' expressao ')' bloco_comandos {
     $$->type = $3->type;
     asd_add_child($$, $3);
     asd_add_child($$, $5);
+
+    generate_if_code($$, $3, $5);
 };
 
 construcoes_fluxo_controle: TK_SE '(' expressao ')' bloco_comandos TK_SENAO bloco_comandos {
@@ -549,6 +563,8 @@ construcoes_fluxo_controle: TK_SE '(' expressao ')' bloco_comandos TK_SENAO bloc
     asd_add_child($$, $3);
     asd_add_child($$, $5); 
     asd_add_child($$, $7);
+
+    generate_if_else_code($$, $3, $5, $7);
 };
 
 /* Temos apenas uma construção de repetição que é o token TK_ENQUANTO 
@@ -562,6 +578,8 @@ construcoes_fluxo_controle: TK_ENQUANTO '(' expressao ')' bloco_comandos {
     $$->type = $3->type;
     asd_add_child($$, $3);
     asd_add_child($$, $5);
+
+    generate_while_code($$, $3, $5);
 };
 
 /* Expressões envolvem operandos e operadores, sendo este opcional. */
@@ -724,7 +742,8 @@ operando: TK_ID {
     $$->temp_reg = new_temporary();
     char offset_str[16];
     sprintf(offset_str, "%d", s->symbol.offset * 4); // Assumindo 4 bytes para inteiros
-    iloc_operation* op = create_iloc_op(NULL, LOADAI, "rbss", offset_str, NULL, $$->temp_reg, NULL, NULL);
+    const char *base_reg = get_var_base_register($1->value);
+    iloc_operation* op = create_iloc_op(NULL, LOADAI, base_reg, offset_str, NULL, $$->temp_reg, NULL, NULL);
     append_op($$->code, op);
     
     // O valor de $1 (string) já foi copiado para o label do nó. Liberamos o lexical_value.
