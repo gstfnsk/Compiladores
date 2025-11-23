@@ -47,6 +47,7 @@ typedef struct Symbol
     Type type;
     FuncSignature *signature; // Se não for função é NULL
     char *name;
+    int offset;
 } Symbol;
 
 // Nó em uma lista encadeada de símbolos dentro de um escopo. Isso implementa uma

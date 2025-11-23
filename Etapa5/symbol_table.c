@@ -13,6 +13,8 @@
 // A variável global com o topo da pilha de escopos. Se é nulo, significa que a pilha está vazia.
 Scope *g_scope_stack_top = NULL;
 
+static int g_global_offset_count = 0;
+
 static void free_symbol_contents(Symbol *s)
 {
     if (!s)
@@ -149,6 +151,7 @@ Symbol make_var_symbol(const char *name, Type type)
     s.signature = NULL;
     
     s.name = strdup(name);
+    s.offset = g_global_offset_count++;
     return s;
 }
 
