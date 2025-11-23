@@ -725,7 +725,8 @@ operando: TK_ID {
     $$->temp_reg = new_temporary();
     char offset_str[16];
     sprintf(offset_str, "%d", s->symbol.offset * 4); // Assumindo 4 bytes para inteiros
-    iloc_operation* op = create_iloc_op(NULL, LOADAI, "rbss", offset_str, NULL, $$->temp_reg, NULL, NULL);
+    const char *base_reg = get_var_base_register($1->value);
+    iloc_operation* op = create_iloc_op(NULL, LOADAI, base_reg, offset_str, NULL, $$->temp_reg, NULL, NULL);
     append_op($$->code, op);
     
     // O valor de $1 (string) já foi copiado para o label do nó. Liberamos o lexical_value.
