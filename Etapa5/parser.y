@@ -535,7 +535,7 @@ argumento: expressao {
     $$->code = $1->code; // Salva o código da expressão
     $$->temp_reg = $1->temp_reg; // Salva o registrador temporário da expressão
     $1->code = NULL; // Evita double free
-    
+
     asd_free($1);
 };
 /* Comando de Retorno: 
@@ -552,6 +552,12 @@ comando_retorno: TK_RETORNA expressao TK_ATRIB tipo {
     }
 
     asd_add_child($$, $2);
+
+    $$->code = $2->code;         // Herda o código da expressão (ex: loadI 1 => r0)
+    $$->temp_reg = $2->temp_reg; // Herda o registrador temporário da expressão
+    $2->code = NULL;             // Evita double free
+    $2->temp_reg = NULL;         // Evita double free
+
     type_t current_return_type = get_current_return_type();
     if (current_return_type != $4) {
         throw_mismatch_return_type_error(get_line_number(), "retorna");
