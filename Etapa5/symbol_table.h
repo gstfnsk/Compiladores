@@ -32,6 +32,8 @@ typedef struct FuncSignature
 typedef struct Arg
 {
     Type type;        // Tipo do argumento
+    struct iloc_code *code; // Código ILOC para avaliar o argumento
+    char *temp_reg; // Registrador temporário para armazenar o resultado
     struct Arg *next; // Próximo argumento na lista
 } Arg;
 
