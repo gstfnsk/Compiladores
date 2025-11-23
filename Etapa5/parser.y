@@ -405,15 +405,22 @@ comando_atribuicao: TK_ID TK_ATRIB expressao {
     var_node->type = s->symbol.type; // Define o tipo do nó da variável
     asd_add_child($$, var_node);
 
-    // O código da expressão ($3) é o ponto de partida.
-    $$->code = $3->code;
-    $3->code = NULL; // Evita liberação dupla
+     // Gera código ILOC para a atribuição somente se a expressão do lado direito 
+     // produziu código (ou seja, não é apenas um literal decimal).
+    if ($3->code && $3->temp_reg) {
+        // Transferência do código para este nó de atribuição
+        $$->code = $3->code;
+        $3->code = NULL;
 
-    // Cria a operação de store para a variável global.
-    char offset_str[16];
-    sprintf(offset_str, "%d", s->symbol.offset * 4); // Assumindo 4 bytes para inteiros
-    iloc_operation* store_op = create_iloc_op(NULL, STOREAI, $3->temp_reg, "rbss", offset_str, NULL, NULL, NULL);
-    append_op($$->code, store_op);
+        // Gera o storeAI que escreve o resultado de volta para a memória
+        char offset_str[16];
+        sprintf(offset_str, "%d", s->symbol.offset * 4); // 4 bytes por inteiro
+        iloc_operation* store_op = create_iloc_op(NULL, STOREAI, $3->temp_reg, "rbss", offset_str, NULL, NULL, NULL);
+        append_op($$->code, store_op);
+    } else {
+        // Não há código ILOC para esta atribuição (por exemplo, expressão apenas decimal)
+        $$->code = NULL;
+    }
 
     if($3) { asd_add_child($$, $3); }
 
