@@ -112,19 +112,19 @@ void print_iloc_code(iloc_code* code) {
             printf("%s: ", op->label);
         }
         
-        printf("%s ", opcode_to_string[op->opcode]);
+        printf("%s", opcode_to_string[op->opcode]);
         
         int arg_count = 0;
         if (op->args[0]) {
-            printf("%s", op->args[0]);
+            printf(" %s", op->args[0]);
             arg_count++;
         }
         if (op->args[1]) {
-            printf(arg_count > 0 ? ", %s" : "%s", op->args[1]);
+            printf(arg_count > 0 ? ", %s" : " %s", op->args[1]);
             arg_count++;
         }
         if (op->args[2]) {
-            printf(arg_count > 0 ? ", %s" : "%s", op->args[2]);
+            printf(arg_count > 0 ? ", %s" : " %s", op->args[2]);
         }
 
         if (op->dest[0]) {
