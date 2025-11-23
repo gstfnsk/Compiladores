@@ -79,12 +79,11 @@ int get_line_number(void);
 Os elementos da lista são separados pelo operador vírgula 
 e a lista é terminada pelo operador ponto-e-vírgula. */
 programa: escopo_inicio lista escopo_fim ';' { 
-    // Se não houver elementos, cria um nó raiz vazio.
-    arvore = $2 ? $2 : asd_new("program");
+    if ($2) { arvore = $2; }
 };
 
 programa: ';' {
-    arvore = asd_new("program"); 
+    arvore = NULL; 
 }; 
 
 // TODO: implementar escopo_inicio e escopo_fim
@@ -103,17 +102,6 @@ lista: elemento ',' lista {
     if ($1 && $3) {
         $$ = $1;
         asd_add_child($1, $3); 
-
-        // Propaga e concatena o código ILOC dos elementos da lista.
-        if ($1->code) {
-            if ($3->code) {
-                concat_code($1->code, $3->code);
-                $3->code = NULL; // Evita liberação dupla
-            }
-        } else {
-            $1->code = $3->code;
-            $3->code = NULL;
-        }
     } else if ($1) {
         $$ = $1;
     } else { 
@@ -161,6 +149,7 @@ definicao_funcao: TK_ID TK_SETA tipo {
     $$ = asd_new($1->value);
     $$->type = $3; // Define o tipo de retorno da função
     asd_add_child($$, $9);
+
     // Propaga o código gerado no corpo da função para o nó da função.
     $$->code = $9->code;
     $9->code = NULL;
@@ -207,14 +196,7 @@ parametro: TK_ID TK_ATRIB tipo {
 };
 
 /*  O corpo de uma função é um bloco de comandos */
-corpo: bloco_comandos_funcao {
-    $$ = asd_new("corpo");
-    if ($1) {
-        asd_add_child($$, $1);
-        $$->code = $1->code;
-        $1->code = NULL;
-    }
-};
+corpo: bloco_comandos_funcao { $$ = $1; };
 
 /* Os comandos simples da linguagem podem ser:
 bloco de comandos, declaração de variável, comando de atribuição, 
@@ -245,16 +227,6 @@ comandos_simples_seq: %empty { $$ = NULL; };
 comandos_simples_seq: comandos_simples comandos_simples_seq {
     if ($1 && $2) {
         asd_add_child($1, $2);
-        // Concatena o código dos comandos sequenciais.
-        if ($1->code) {
-            if ($2->code) {
-                concat_code($1->code, $2->code);
-                $2->code = NULL;
-            }
-        } else {
-            $1->code = $2->code;
-            $2->code = NULL;
-        }
         $$ = $1;
     } else if ($1) {
         $$ = $1;
