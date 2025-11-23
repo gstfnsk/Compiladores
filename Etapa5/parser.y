@@ -81,13 +81,10 @@ e a lista é terminada pelo operador ponto-e-vírgula. */
 programa: escopo_inicio lista escopo_fim ';' { 
     // Se não houver elementos, cria um nó raiz vazio.
     arvore = $2 ? $2 : asd_new("program");
-    // Adiciona as instruções finais ao código ILOC gerado.
-    finalize_code_generation(arvore);
 };
 
 programa: ';' {
     arvore = asd_new("program"); 
-    finalize_code_generation(arvore);
 }; 
 
 // TODO: implementar escopo_inicio e escopo_fim
@@ -106,6 +103,17 @@ lista: elemento ',' lista {
     if ($1 && $3) {
         $$ = $1;
         asd_add_child($1, $3); 
+
+        // Propaga e concatena o código ILOC dos elementos da lista.
+        if ($1->code) {
+            if ($3->code) {
+                concat_code($1->code, $3->code);
+                $3->code = NULL; // Evita liberação dupla
+            }
+        } else {
+            $1->code = $3->code;
+            $3->code = NULL;
+        }
     } else if ($1) {
         $$ = $1;
     } else { 
@@ -153,6 +161,10 @@ definicao_funcao: TK_ID TK_SETA tipo {
     $$ = asd_new($1->value);
     $$->type = $3; // Define o tipo de retorno da função
     asd_add_child($$, $9);
+    // Propaga o código gerado no corpo da função para o nó da função.
+    $$->code = $9->code;
+    $9->code = NULL;
+
     free($1->value);
     free($1);
 };
@@ -195,7 +207,14 @@ parametro: TK_ID TK_ATRIB tipo {
 };
 
 /*  O corpo de uma função é um bloco de comandos */
-corpo: bloco_comandos_funcao { $$ = $1; };
+corpo: bloco_comandos_funcao {
+    $$ = asd_new("corpo");
+    if ($1) {
+        asd_add_child($$, $1);
+        $$->code = $1->code;
+        $1->code = NULL;
+    }
+};
 
 /* Os comandos simples da linguagem podem ser:
 bloco de comandos, declaração de variável, comando de atribuição, 
@@ -214,18 +233,28 @@ e pode ser utilizado em qualquer construção que aceite um comando simples. */
 /* bloco_comandos: '[' ']'; */
 
 bloco_comandos_funcao: '[' comandos_simples_seq escopo_fim ']' {
-   $$ = $2;
+   $$ = $2 ? $2 : asd_new("bloco_vazio");
 };
 
 bloco_comandos: '[' escopo_inicio comandos_simples_seq escopo_fim ']' {
-   $$ = $3;
+   $$ = $3 ? $3 : asd_new("bloco_vazio");
 };
 
 comandos_simples_seq: %empty { $$ = NULL; };
 
 comandos_simples_seq: comandos_simples comandos_simples_seq {
     if ($1 && $2) {
-        asd_add_child($1, $2); 
+        asd_add_child($1, $2);
+        // Concatena o código dos comandos sequenciais.
+        if ($1->code) {
+            if ($2->code) {
+                concat_code($1->code, $2->code);
+                $2->code = NULL;
+            }
+        } else {
+            $1->code = $2->code;
+            $2->code = NULL;
+        }
         $$ = $1;
     } else if ($1) {
         $$ = $1;
@@ -369,12 +398,23 @@ comando_atribuicao: TK_ID TK_ATRIB expressao {
         YYABORT;
     }
 
-	$$ = asd_new(":="); 
+    $$ = asd_new(":=");
     $$->type = s->symbol.type; // Define o tipo do nó de atribuição
-    // TODO: remover isso antes de commitar
+
     asd_tree_t *var_node = asd_new($1->value);
     var_node->type = s->symbol.type; // Define o tipo do nó da variável
-    if($1) { asd_add_child($$, var_node); }
+    asd_add_child($$, var_node);
+
+    // O código da expressão ($3) é o ponto de partida.
+    $$->code = $3->code;
+    $3->code = NULL; // Evita liberação dupla
+
+    // Cria a operação de store para a variável global.
+    char offset_str[16];
+    sprintf(offset_str, "%d", s->symbol.offset * 4); // Assumindo 4 bytes para inteiros
+    iloc_operation* store_op = create_iloc_op(NULL, STOREAI, $3->temp_reg, "rbss", offset_str, NULL, NULL, NULL);
+    append_op($$->code, store_op);
+
     if($3) { asd_add_child($$, $3); }
 
     // $1 é usado para criar var_node, então não deve ser o payload principal.
@@ -647,58 +687,23 @@ operacao_binaria_relacional: operacao_binaria_soma_sub { $$ = $1; };
 
 /* Precedência 3 */
 operacao_binaria_soma_sub: operacao_binaria_soma_sub '+' operacao_binaria_mult_div {
-    $$ = asd_new("+");
-    if ($1->type != $3->type) {
-        throw_type_mismatch_error(get_line_number(), $1->label, get_label_type($1->type), $3->label, get_label_type($3->type));
-        YYABORT;
-    }
-    $$->type = $1->type;
-    asd_add_child($$, $1);
-    asd_add_child($$, $3);
+    $$ = handle_binary_op("+", ADD, $1, $3, get_line_number());
 };
 operacao_binaria_soma_sub: operacao_binaria_soma_sub '-' operacao_binaria_mult_div {
-    $$ = asd_new("-");
-    if ($1->type != $3->type) {
-        throw_type_mismatch_error(get_line_number(), $1->label, get_label_type($1->type), $3->label, get_label_type($3->type));
-        YYABORT;
-    }
-    $$->type = $1->type;
-    asd_add_child($$, $1);
-    asd_add_child($$, $3);
+    $$ = handle_binary_op("-", SUB, $1, $3, get_line_number());
 };
 operacao_binaria_soma_sub: operacao_binaria_mult_div { $$ = $1; };
 
 /* Precedência 2 */
 operacao_binaria_mult_div: operacao_unaria { $$ = $1; };
 operacao_binaria_mult_div: operacao_binaria_mult_div '*' operacao_unaria {
-    $$ = asd_new("*");
-    if ($1->type != $3->type) {
-        throw_type_mismatch_error(get_line_number(), $1->label, get_label_type($1->type), $3->label, get_label_type($3->type));
-        YYABORT;
-    }
-    $$->type = $1->type;
-    asd_add_child($$, $1);
-    asd_add_child($$, $3);
+    $$ = handle_binary_op("*", MULT, $1, $3, get_line_number());
 };
 operacao_binaria_mult_div: operacao_binaria_mult_div '/' operacao_unaria {
-    $$ = asd_new("/");
-    if ($1->type != $3->type) {
-        throw_type_mismatch_error(get_line_number(), $1->label, get_label_type($1->type), $3->label, get_label_type($3->type));
-        YYABORT;
-    }
-    $$->type = $1->type;
-    asd_add_child($$, $1);
-    asd_add_child($$, $3);
+    $$ = handle_binary_op("/", DIV, $1, $3, get_line_number());
 };
 operacao_binaria_mult_div: operacao_binaria_mult_div '%' operacao_unaria {
-    $$ = asd_new("%");
-    if ($1->type != $3->type) {
-        throw_type_mismatch_error(get_line_number(), $1->label, get_label_type($1->type), $3->label, get_label_type($3->type));
-        YYABORT;
-    }
-    $$->type = $1->type;
-    asd_add_child($$, $1);
-    asd_add_child($$, $3);
+    $$ = handle_binary_op("%", NOP, $1, $3, get_line_number()); // NOP as placeholder for MOD
 };
 
 /* Precedência 1 */
@@ -738,6 +743,15 @@ operando: TK_ID {
     $$ = asd_new($1->value);
 
     $$->type = s->symbol.type;
+
+    // Gera código para carregar a variável em um registrador temporário.
+    $$->code = calloc(1, sizeof(iloc_code));
+    $$->temp_reg = new_temporary();
+    char offset_str[16];
+    sprintf(offset_str, "%d", s->symbol.offset * 4); // Assumindo 4 bytes para inteiros
+    iloc_operation* op = create_iloc_op(NULL, LOADAI, "rbss", offset_str, NULL, $$->temp_reg, NULL, NULL);
+    append_op($$->code, op);
+    
     // O valor de $1 (string) já foi copiado para o label do nó. Liberamos o lexical_value.
     free($1->value);
     free($1);
@@ -745,6 +759,13 @@ operando: TK_ID {
 operando: TK_LI_INTEIRO { 
     $$ = asd_new($1->value);
     $$->type = INT;
+
+    // Gera código ILOC para carregar o literal inteiro em um registrador temporário.
+    $$->code = calloc(1, sizeof(iloc_code));
+    $$->temp_reg = new_temporary();
+    iloc_operation* op = create_iloc_op(NULL, LOADI, $1->value, NULL, NULL, $$->temp_reg, NULL, NULL);
+    append_op($$->code, op);
+
     free($1->value);
     free($1);
 };
