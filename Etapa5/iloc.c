@@ -112,7 +112,7 @@ void print_iloc_code(iloc_code* code) {
             printf("%s: ", op->label);
         }
         
-        printf("\t%s ", opcode_to_string[op->opcode]);
+        printf("%s ", opcode_to_string[op->opcode]);
         
         int arg_count = 0;
         if (op->args[0]) {
