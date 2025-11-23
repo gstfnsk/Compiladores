@@ -6,8 +6,10 @@
 #include<stdio.h>
 #include "errors.h"
 #include "asd.h"
+#include <stdlib.h>
 #include "symbol_table.h"
 #include "types.h"
+#include "codegen.h"
 #include "iloc.h"
 extern asd_tree_t *arvore;
 int yylex(void);
