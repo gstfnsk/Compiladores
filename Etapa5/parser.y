@@ -766,11 +766,8 @@ operacao_unaria: '-' operacao_unaria {
     char *zero_reg = new_temporary();
     char *result_reg = new_temporary();
 
-    iloc_operation *load_zero = create_iloc_op(NULL, LOADI, "0", NULL, NULL, zero_reg, NULL, NULL);
-    append_op($$->code, load_zero);
-
-    iloc_operation *sub_op = create_iloc_op(NULL, SUB, zero_reg, child->temp_reg, NULL, result_reg, NULL, NULL);
-    append_op($$->code, sub_op);
+    iloc_operation *rsub_op = create_iloc_op(NULL, RSUBI, child->temp_reg, "0", NULL, result_reg, NULL, NULL);
+    append_op($$->code, rsub_op);
 
     free(zero_reg);
 
