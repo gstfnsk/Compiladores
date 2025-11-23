@@ -600,6 +600,56 @@ construcoes_fluxo_controle: TK_SE '(' expressao ')' bloco_comandos TK_SENAO bloc
     asd_add_child($$, $3);
     asd_add_child($$, $5); 
     asd_add_child($$, $7);
+
+    // Herda o código da expressão condicional (cálculo de 'c')
+    $$->code = $3->code;
+    $3->code = NULL; 
+
+    if (!$$->code) {
+        $$->code = calloc(1, sizeof(iloc_code));
+    }
+
+    // Cria labels para o fluxo (L_true, L_false, L_end)
+    char *label_true  = new_label();  // Ex: L0
+    char *label_false = new_label();  // Ex: L1
+    char *label_end   = new_label();  // Ex: L2
+
+    // Branch Condicional: cbr r_cond -> L0, L1
+    iloc_operation *cbr_op = create_iloc_op(NULL, CBR, $3->temp_reg, NULL, NULL, label_true, label_false, NULL);
+    append_op($$->code, cbr_op);
+
+    // Label TRUE (L0: nop)
+    iloc_operation *l_true_op = create_iloc_op(label_true, NOP, NULL, NULL, NULL, NULL, NULL, NULL);
+    append_op($$->code, l_true_op);
+
+    // Código do bloco TRUE (se existir)
+    if ($5 && $5->code) {
+        concat_code($$->code, $5->code);
+        $5->code = NULL;
+    }
+
+    // Pulo incondicional para o fim (jumpI -> L2) para pular o ELSE
+    iloc_operation *jump_end = create_iloc_op(NULL, JUMPI, NULL, NULL, NULL, label_end, NULL, NULL);
+    append_op($$->code, jump_end);
+
+    // Label FALSE (L1: nop) - Início do SENAO
+    iloc_operation *l_false_op = create_iloc_op(label_false, NOP, NULL, NULL, NULL, NULL, NULL, NULL);
+    append_op($$->code, l_false_op);
+
+    // Código do bloco FALSE (se existir)
+    if ($7 && $7->code) {
+        concat_code($$->code, $7->code);
+        $7->code = NULL;
+    }
+
+    // Label END (L2: nop)
+    iloc_operation *l_end_op = create_iloc_op(label_end, NOP, NULL, NULL, NULL, NULL, NULL, NULL);
+    append_op($$->code, l_end_op);
+
+    // Libera strings dos labels (já foram copiadas para as structs ILOC)
+    free(label_true);
+    free(label_false);
+    free(label_end);
 };
 
 /* Temos apenas uma construção de repetição que é o token TK_ENQUANTO 
