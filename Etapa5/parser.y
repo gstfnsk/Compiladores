@@ -769,15 +769,9 @@ operacao_unaria: '-' operacao_unaria {
     $2->code = NULL; // Evita double free
 
     // Gera ILOC:
-    // loadI 0 => rz
-    // sub   rz, r_child => r_result    // r_result = 0 - r_child
-    char *zero_reg = new_temporary();
     char *result_reg = new_temporary();
-
     iloc_operation *rsub_op = create_iloc_op(NULL, RSUBI, child->temp_reg, "0", NULL, result_reg, NULL, NULL);
     append_op($$->code, rsub_op);
-
-    free(zero_reg);
 
     $$->temp_reg = result_reg;
 };
