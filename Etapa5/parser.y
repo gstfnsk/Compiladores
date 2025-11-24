@@ -646,68 +646,55 @@ operacao_binaria_and: operacao_binaria_igualdade { $$ = $1; };
 
 /* Precedência 5 */
 operacao_binaria_igualdade: operacao_binaria_igualdade TK_OC_EQ operacao_binaria_relacional {
-    $$ = asd_new("==");
     if ($1->type != $3->type) {
         throw_type_mismatch_error(get_line_number(), $1->label, get_label_type($1->type), $3->label, get_label_type($3->type));
         YYABORT;
     }
-    $$->type = $1->type;
-    asd_add_child($$, $1);
-    asd_add_child($$, $3);
+
+    $$ = handle_binary_op("==", CMP_EQ, $1, $3);
 };
 operacao_binaria_igualdade: operacao_binaria_igualdade TK_OC_NE operacao_binaria_relacional {
-    $$ = asd_new("!=");
     if ($1->type != $3->type) {
         throw_type_mismatch_error(get_line_number(), $1->label, get_label_type($1->type), $3->label, get_label_type($3->type));
         YYABORT;
     }
-    $$->type = $1->type;
-    asd_add_child($$, $1);
-    asd_add_child($$, $3);
 
+    $$ = handle_binary_op("!=", CMP_NE, $1, $3);
 };
 operacao_binaria_igualdade: operacao_binaria_relacional { $$ = $1; };
 
 /* Precedência 4 */
 operacao_binaria_relacional: operacao_binaria_relacional '<' operacao_binaria_soma_sub {
-    $$ = asd_new("<");
     if ($1->type != $3->type) {
         throw_type_mismatch_error(get_line_number(), $1->label, get_label_type($1->type), $3->label, get_label_type($3->type));
         YYABORT;
     }
-    $$->type = $1->type;
-    asd_add_child($$, $1);
-    asd_add_child($$, $3);
+
+    $$ = handle_binary_op("<", CMP_LT, $1, $3);
 };
 operacao_binaria_relacional: operacao_binaria_relacional '>' operacao_binaria_soma_sub {
-    $$ = asd_new(">");
     if ($1->type != $3->type) {
         throw_type_mismatch_error(get_line_number(), $1->label, get_label_type($1->type), $3->label, get_label_type($3->type));
         YYABORT;
     }
-    $$->type = $1->type;
-    asd_add_child($$, $1);
-    asd_add_child($$, $3);
+
+    $$ = handle_binary_op(">", CMP_GT, $1, $3);
 };
 operacao_binaria_relacional: operacao_binaria_relacional TK_OC_LE operacao_binaria_soma_sub {
-    $$ = asd_new("<=");
     if ($1->type != $3->type) {
         throw_type_mismatch_error(get_line_number(), $1->label, get_label_type($1->type), $3->label, get_label_type($3->type));
         YYABORT;
     }
-    $$->type = $1->type;
-    asd_add_child($$, $1);
-    asd_add_child($$, $3);
+
+    $$ = handle_binary_op("<=", CMP_LE, $1, $3);
 };
 operacao_binaria_relacional: operacao_binaria_relacional TK_OC_GE operacao_binaria_soma_sub {
-    $$ = asd_new(">=");
     if ($1->type != $3->type) {
         throw_type_mismatch_error(get_line_number(), $1->label, get_label_type($1->type), $3->label, get_label_type($3->type));
         YYABORT;
     }
-    $$->type = $1->type;
-    asd_add_child($$, $1);
-    asd_add_child($$, $3);
+
+    $$ = handle_binary_op(">=", CMP_GE, $1, $3);
 };
 operacao_binaria_relacional: operacao_binaria_soma_sub { $$ = $1; };
 
