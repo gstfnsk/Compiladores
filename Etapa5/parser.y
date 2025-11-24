@@ -624,27 +624,23 @@ expressao: operacao_binaria_or { $$ = $1; };
 
 /* Precedência 7 */
 operacao_binaria_or: operacao_binaria_or '|' operacao_binaria_and {
-    $$ = asd_new("|");
     if ($1->type != $3->type) {
         throw_type_mismatch_error(get_line_number(), $1->label, get_label_type($1->type), $3->label, get_label_type($3->type));
         YYABORT;
     }
-    $$->type = $1->type;
-    asd_add_child($$, $1);
-    asd_add_child($$, $3);
+
+    $$ = handle_binary_op("|", OR, $1, $3);
 };
 operacao_binaria_or: operacao_binaria_and { $$ = $1; };
 
 /* Precedência 6 */
 operacao_binaria_and: operacao_binaria_and '&' operacao_binaria_igualdade {
-    $$ = asd_new("&");
     if ($1->type != $3->type) {
         throw_type_mismatch_error(get_line_number(), $1->label, get_label_type($1->type), $3->label, get_label_type($3->type));
         YYABORT;
     }
-    $$->type = $1->type;
-    asd_add_child($$, $1);
-    asd_add_child($$, $3);
+    
+    $$ = handle_binary_op("&", AND, $1, $3);
 };
 operacao_binaria_and: operacao_binaria_igualdade { $$ = $1; }; 
 
