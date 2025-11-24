@@ -7,14 +7,7 @@
 #include "types.h"
 #include <stdlib.h>
 
-asd_tree_t* handle_binary_op(const char* op_label, iloc_op_code op_code, asd_tree_t* child1, asd_tree_t* child2, int line_number) {
-    if (child1->type != child2->type) {
-        throw_type_mismatch_error(line_number, child1->label, get_label_type(child1->type), child2->label, get_label_type(child2->type));
-
-        // Chama YYABORT no parser
-        return NULL; 
-    }
-
+asd_tree_t* handle_binary_op(const char* op_label, iloc_op_code op_code, asd_tree_t* child1, asd_tree_t* child2) {
     asd_tree_t* new_node = asd_new(op_label);
     new_node->type = child1->type;
     asd_add_child(new_node, child1);

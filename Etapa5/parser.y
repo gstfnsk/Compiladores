@@ -717,23 +717,48 @@ operacao_binaria_relacional: operacao_binaria_soma_sub { $$ = $1; };
 
 /* Precedência 3 */
 operacao_binaria_soma_sub: operacao_binaria_soma_sub '+' operacao_binaria_mult_div {
-    $$ = handle_binary_op("+", ADD, $1, $3, get_line_number());
+    if ($1->type != $3->type) {
+        throw_type_mismatch_error(get_line_number(), $1->label, get_label_type($1->type), $3->label, get_label_type($3->type));
+        YYABORT;
+    }
+
+    $$ = handle_binary_op("+", ADD, $1, $3);
 };
 operacao_binaria_soma_sub: operacao_binaria_soma_sub '-' operacao_binaria_mult_div {
-    $$ = handle_binary_op("-", SUB, $1, $3, get_line_number());
+    if ($1->type != $3->type) {
+        throw_type_mismatch_error(get_line_number(), $1->label, get_label_type($1->type), $3->label, get_label_type($3->type));
+        YYABORT;
+    }
+
+    $$ = handle_binary_op("-", SUB, $1, $3);
 };
 operacao_binaria_soma_sub: operacao_binaria_mult_div { $$ = $1; };
 
 /* Precedência 2 */
 operacao_binaria_mult_div: operacao_unaria { $$ = $1; };
 operacao_binaria_mult_div: operacao_binaria_mult_div '*' operacao_unaria {
-    $$ = handle_binary_op("*", MULT, $1, $3, get_line_number());
+    if ($1->type != $3->type) {
+        throw_type_mismatch_error(get_line_number(), $1->label, get_label_type($1->type), $3->label, get_label_type($3->type));
+        YYABORT;
+    }
+
+    $$ = handle_binary_op("*", MULT, $1, $3);
 };
 operacao_binaria_mult_div: operacao_binaria_mult_div '/' operacao_unaria {
-    $$ = handle_binary_op("/", DIV, $1, $3, get_line_number());
+    if ($1->type != $3->type) {
+        throw_type_mismatch_error(get_line_number(), $1->label, get_label_type($1->type), $3->label, get_label_type($3->type));
+        YYABORT;
+    }
+
+    $$ = handle_binary_op("/", DIV, $1, $3);
 };
 operacao_binaria_mult_div: operacao_binaria_mult_div '%' operacao_unaria {
-    $$ = handle_binary_op("%", NOP, $1, $3, get_line_number()); // Usa nop de placeholder para o operador %
+    if ($1->type != $3->type) {
+        throw_type_mismatch_error(get_line_number(), $1->label, get_label_type($1->type), $3->label, get_label_type($3->type));
+        YYABORT;
+    }
+
+    $$ = handle_binary_op("%", NOP, $1, $3); // Usa nop de placeholder para o operador %
 };
 
 /* Precedência 1 */
