@@ -8,8 +8,12 @@ FILES_TO_ARCHIVE="
 Makefile
 asd.c
 asd.h
+codegen.c
+codegen.h
 errors.c
 errors.h
+iloc.c
+iloc.h
 main.c
 parser.y
 scanner.l
