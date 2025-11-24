@@ -624,116 +624,124 @@ expressao: operacao_binaria_or { $$ = $1; };
 
 /* Precedência 7 */
 operacao_binaria_or: operacao_binaria_or '|' operacao_binaria_and {
-    $$ = asd_new("|");
     if ($1->type != $3->type) {
         throw_type_mismatch_error(get_line_number(), $1->label, get_label_type($1->type), $3->label, get_label_type($3->type));
         YYABORT;
     }
-    $$->type = $1->type;
-    asd_add_child($$, $1);
-    asd_add_child($$, $3);
+
+    $$ = handle_binary_op("|", OR, $1, $3);
 };
 operacao_binaria_or: operacao_binaria_and { $$ = $1; };
 
 /* Precedência 6 */
 operacao_binaria_and: operacao_binaria_and '&' operacao_binaria_igualdade {
-    $$ = asd_new("&");
     if ($1->type != $3->type) {
         throw_type_mismatch_error(get_line_number(), $1->label, get_label_type($1->type), $3->label, get_label_type($3->type));
         YYABORT;
     }
-    $$->type = $1->type;
-    asd_add_child($$, $1);
-    asd_add_child($$, $3);
+    
+    $$ = handle_binary_op("&", AND, $1, $3);
 };
 operacao_binaria_and: operacao_binaria_igualdade { $$ = $1; }; 
 
 /* Precedência 5 */
 operacao_binaria_igualdade: operacao_binaria_igualdade TK_OC_EQ operacao_binaria_relacional {
-    $$ = asd_new("==");
     if ($1->type != $3->type) {
         throw_type_mismatch_error(get_line_number(), $1->label, get_label_type($1->type), $3->label, get_label_type($3->type));
         YYABORT;
     }
-    $$->type = $1->type;
-    asd_add_child($$, $1);
-    asd_add_child($$, $3);
+
+    $$ = handle_binary_op("==", CMP_EQ, $1, $3);
 };
 operacao_binaria_igualdade: operacao_binaria_igualdade TK_OC_NE operacao_binaria_relacional {
-    $$ = asd_new("!=");
     if ($1->type != $3->type) {
         throw_type_mismatch_error(get_line_number(), $1->label, get_label_type($1->type), $3->label, get_label_type($3->type));
         YYABORT;
     }
-    $$->type = $1->type;
-    asd_add_child($$, $1);
-    asd_add_child($$, $3);
 
+    $$ = handle_binary_op("!=", CMP_NE, $1, $3);
 };
 operacao_binaria_igualdade: operacao_binaria_relacional { $$ = $1; };
 
 /* Precedência 4 */
 operacao_binaria_relacional: operacao_binaria_relacional '<' operacao_binaria_soma_sub {
-    $$ = asd_new("<");
     if ($1->type != $3->type) {
         throw_type_mismatch_error(get_line_number(), $1->label, get_label_type($1->type), $3->label, get_label_type($3->type));
         YYABORT;
     }
-    $$->type = $1->type;
-    asd_add_child($$, $1);
-    asd_add_child($$, $3);
+
+    $$ = handle_binary_op("<", CMP_LT, $1, $3);
 };
 operacao_binaria_relacional: operacao_binaria_relacional '>' operacao_binaria_soma_sub {
-    $$ = asd_new(">");
     if ($1->type != $3->type) {
         throw_type_mismatch_error(get_line_number(), $1->label, get_label_type($1->type), $3->label, get_label_type($3->type));
         YYABORT;
     }
-    $$->type = $1->type;
-    asd_add_child($$, $1);
-    asd_add_child($$, $3);
+
+    $$ = handle_binary_op(">", CMP_GT, $1, $3);
 };
 operacao_binaria_relacional: operacao_binaria_relacional TK_OC_LE operacao_binaria_soma_sub {
-    $$ = asd_new("<=");
     if ($1->type != $3->type) {
         throw_type_mismatch_error(get_line_number(), $1->label, get_label_type($1->type), $3->label, get_label_type($3->type));
         YYABORT;
     }
-    $$->type = $1->type;
-    asd_add_child($$, $1);
-    asd_add_child($$, $3);
+
+    $$ = handle_binary_op("<=", CMP_LE, $1, $3);
 };
 operacao_binaria_relacional: operacao_binaria_relacional TK_OC_GE operacao_binaria_soma_sub {
-    $$ = asd_new(">=");
     if ($1->type != $3->type) {
         throw_type_mismatch_error(get_line_number(), $1->label, get_label_type($1->type), $3->label, get_label_type($3->type));
         YYABORT;
     }
-    $$->type = $1->type;
-    asd_add_child($$, $1);
-    asd_add_child($$, $3);
+
+    $$ = handle_binary_op(">=", CMP_GE, $1, $3);
 };
 operacao_binaria_relacional: operacao_binaria_soma_sub { $$ = $1; };
 
 /* Precedência 3 */
 operacao_binaria_soma_sub: operacao_binaria_soma_sub '+' operacao_binaria_mult_div {
-    $$ = handle_binary_op("+", ADD, $1, $3, get_line_number());
+    if ($1->type != $3->type) {
+        throw_type_mismatch_error(get_line_number(), $1->label, get_label_type($1->type), $3->label, get_label_type($3->type));
+        YYABORT;
+    }
+
+    $$ = handle_binary_op("+", ADD, $1, $3);
 };
 operacao_binaria_soma_sub: operacao_binaria_soma_sub '-' operacao_binaria_mult_div {
-    $$ = handle_binary_op("-", SUB, $1, $3, get_line_number());
+    if ($1->type != $3->type) {
+        throw_type_mismatch_error(get_line_number(), $1->label, get_label_type($1->type), $3->label, get_label_type($3->type));
+        YYABORT;
+    }
+
+    $$ = handle_binary_op("-", SUB, $1, $3);
 };
 operacao_binaria_soma_sub: operacao_binaria_mult_div { $$ = $1; };
 
 /* Precedência 2 */
 operacao_binaria_mult_div: operacao_unaria { $$ = $1; };
 operacao_binaria_mult_div: operacao_binaria_mult_div '*' operacao_unaria {
-    $$ = handle_binary_op("*", MULT, $1, $3, get_line_number());
+    if ($1->type != $3->type) {
+        throw_type_mismatch_error(get_line_number(), $1->label, get_label_type($1->type), $3->label, get_label_type($3->type));
+        YYABORT;
+    }
+
+    $$ = handle_binary_op("*", MULT, $1, $3);
 };
 operacao_binaria_mult_div: operacao_binaria_mult_div '/' operacao_unaria {
-    $$ = handle_binary_op("/", DIV, $1, $3, get_line_number());
+    if ($1->type != $3->type) {
+        throw_type_mismatch_error(get_line_number(), $1->label, get_label_type($1->type), $3->label, get_label_type($3->type));
+        YYABORT;
+    }
+
+    $$ = handle_binary_op("/", DIV, $1, $3);
 };
 operacao_binaria_mult_div: operacao_binaria_mult_div '%' operacao_unaria {
-    $$ = handle_binary_op("%", NOP, $1, $3, get_line_number()); // Usa nop de placeholder para o operador %
+    if ($1->type != $3->type) {
+        throw_type_mismatch_error(get_line_number(), $1->label, get_label_type($1->type), $3->label, get_label_type($3->type));
+        YYABORT;
+    }
+
+    $$ = handle_binary_op("%", NOP, $1, $3); // Usa nop de placeholder para o operador %
 };
 
 /* Precedência 1 */
@@ -761,15 +769,9 @@ operacao_unaria: '-' operacao_unaria {
     $2->code = NULL; // Evita double free
 
     // Gera ILOC:
-    // loadI 0 => rz
-    // sub   rz, r_child => r_result    // r_result = 0 - r_child
-    char *zero_reg = new_temporary();
     char *result_reg = new_temporary();
-
     iloc_operation *rsub_op = create_iloc_op(NULL, RSUBI, child->temp_reg, "0", NULL, result_reg, NULL, NULL);
     append_op($$->code, rsub_op);
-
-    free(zero_reg);
 
     $$->temp_reg = result_reg;
 };
