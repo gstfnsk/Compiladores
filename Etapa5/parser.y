@@ -465,6 +465,8 @@ comando_atribuicao: TK_ID TK_ATRIB expressao {
     char offset_str[16];
     sprintf(offset_str, "%d", s->symbol.offset * 4);
     const char *base_reg = get_var_base_register($1->value);
+
+    // STOREAI r_source => r_base, offset
     iloc_operation* store_op = create_iloc_op(NULL, STOREAI, $3->temp_reg, NULL, NULL, base_reg, offset_str, NULL);
     append_op($$->code, store_op);
 
