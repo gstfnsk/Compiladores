@@ -319,55 +319,6 @@ declaracao_variavel: TK_VAR TK_ID TK_ATRIB tipo TK_COM TK_LI_DECIMAL {
 };
 
 declaracao_variavel: TK_VAR TK_ID TK_ATRIB tipo TK_COM TK_LI_INTEIRO {
-	// $$ = asd_new("com");
-    // $$->type = INT;
-    // if ($2) {
-    //     SymbolNode *s_exists = find_symbol($2->value);
-    //     if (s_exists && s_exists->symbol.nature == IDENTIFICADOR) {
-    //         throw_already_declared_error($2->line_number, $2->value);
-    //         YYABORT;
-    //     }
-
-    //     if ($4 != INT) {
-    //         throw_type_mismatch_error($2->line_number, $2->value, "INT", $6->value, get_label_type($6->type));
-    //         YYABORT;
-    //     }
-
-    //     Symbol var_symbol = make_var_symbol($2->value, INT);
-    //     SymbolNode *new_node = insert_symbol(var_symbol);
-
-    //     asd_tree_t *literal_node = asd_new($2->value);
-    //     asd_add_child($$, literal_node);
-
-    //     // Geração de código ILOC para inicialização da variável
-    //     $$->code = calloc(1, sizeof(iloc_code));
-    //     char *temp_reg = new_temporary();
-        
-    //     // loadI: value -> temp_reg
-    //     iloc_operation* load_op = create_iloc_op(NULL, LOADI, $6->value, NULL, NULL, temp_reg, NULL, NULL);
-    //     append_op($$->code, load_op);
-
-    //     // Calcula o offset da variável na stack
-    //     char offset_str[16];
-    //     sprintf(offset_str, "%d", new_node->symbol.offset * 4);
-
-    //     // storeAI: temp_reg -> rfp + offset
-    //     iloc_operation* store_op = create_iloc_op(NULL, STOREAI, temp_reg, NULL, NULL, "rfp", offset_str, NULL);
-    //     append_op($$->code, store_op);
-        
-    //     free(temp_reg); 
-    //     free($2->value);
-    //     free($2);
-    // }
-    // if ($6) {
-    //     asd_tree_t *literal_node = asd_new($6->value);
-    //     literal_node->type = INT; // Define o tipo do literal como INT
-    //     asd_add_child($$, literal_node);
-
-    //     // O valor de $6 foi copiado para o nó, podemos liberar a memória.
-    //     free($6->value);
-    //     free($6);
-    // }
     $$ = asd_new("com");
     $$->type = INT;
 
@@ -610,10 +561,10 @@ comando_retorno: TK_RETORNA expressao TK_ATRIB tipo {
 
     asd_add_child($$, $2);
 
-    $$->code = $2->code;         // Herda o código da expressão (ex: loadI 1 => r0)
-    $$->temp_reg = $2->temp_reg; // Herda o registrador temporário da expressão
-    $2->code = NULL;             // Evita double free
-    $2->temp_reg = NULL;         // Evita double free
+    $$->code = NULL;
+    $$->temp_reg = NULL;
+
+    asd_free($2);
 
     type_t current_return_type = get_current_return_type();
     if (current_return_type != $4) {
@@ -798,16 +749,51 @@ operacao_binaria_mult_div: operacao_binaria_mult_div '%' operacao_unaria {
         YYABORT;
     }
 
+    // $$ = asd_new("%");
+    // $$->type = $1->type;
+    // asd_add_child($$, $1);
+    // asd_add_child($$, $3);
+
+    // // Apenas para evitar problemas com memory leaks e crashes:
+    // $$->code = concat_code($1->code, $3->code);
+    // $1->code = NULL;
+    // $3->code = NULL;
+    // $$->temp_reg = new_temporary();
+
+    // Nodo da AST para '%'
     $$ = asd_new("%");
     $$->type = $1->type;
-    asd_add_child($$, $1);
-    asd_add_child($$, $3);
 
-    // Apenas para evitar problemas com memory leaks e crashes:
-    $$->code = concat_code($1->code, $3->code);
-    $1->code = NULL;
-    $3->code = NULL;
-    $$->temp_reg = new_temporary();
+    // Cria lista de código vazia
+    $$->code = calloc(1, sizeof(iloc_code));
+    
+    // Concatena código da esquerda
+    if ($1->code) {
+        concat_code($$->code, $1->code);
+        $1->code = NULL;
+    }
+    // Concatena código da direita
+    if ($3->code) {
+        concat_code($$->code, $3->code);
+        $3->code = NULL;
+    }
+
+    // t_div  = a / b
+    char *t_div = new_temporary();
+    iloc_operation *op_div = create_iloc_op(NULL, DIV, $1->temp_reg, $3->temp_reg, NULL, t_div, NULL, NULL);
+    append_op($$->code, op_div);
+
+    // t_mul  = t_div * b
+    char *t_mul = new_temporary();
+    iloc_operation *op_mul = create_iloc_op(NULL, MULT, t_div, $3->temp_reg, NULL, t_mul, NULL, NULL);
+    append_op($$->code, op_mul);
+
+    // t_res = a - t_mul   (a % b)
+    char *t_res = new_temporary();
+    iloc_operation *op_sub = create_iloc_op(NULL, SUB, $1->temp_reg, t_mul, NULL, t_res, NULL, NULL);
+    append_op($$->code, op_sub);
+
+    $$->temp_reg = t_res;
 };
 
 /* Precedência 1 */
