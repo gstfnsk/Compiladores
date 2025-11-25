@@ -14,10 +14,9 @@ asd_tree_t* handle_binary_op(const char* op_label, iloc_op_code op_code, asd_tre
     asd_add_child(new_node, child2);
 
     // Concatena o código dos filhos.
-    // A função concat_code anexa o code2 ao code1 e libera a estrutura de code2.
     // O nó atual (new_node) agora é o proprietário do código combinado.
-    new_node->code = child1->code;
-    concat_code(new_node->code, child2->code);
+    new_node->code = concat_code(child1->code, child2->code);
+    child1->code = child2->code = NULL;
 
     // Os filhos não são mais proprietários de seus códigos, para evitar dupla liberação.
     child1->code = NULL;
