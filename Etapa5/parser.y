@@ -785,9 +785,22 @@ operacao_unaria: '-' operacao_unaria {
     $$->temp_reg = result_reg;
 };
 operacao_unaria: '!' operacao_unaria {
+    asd_tree_t *child = $2;
+
     $$ = asd_new("!");
     $$->type = $2->type;
-    asd_add_child($$, $2);
+    asd_add_child($$, child);
+
+    // Começa do código já gerado para o filho
+    $$->code = child->code;
+    child->code = NULL;      // Evita double free
+
+    // result = (child == 0) ? 1 : 0
+    char *result_reg = new_temporary();
+    iloc_operation *cmp_zero = create_iloc_op(NULL, CMP_EQ, child->temp_reg, "0", NULL, result_reg, NULL, NULL);
+    append_op($$->code, cmp_zero);
+
+    $$->temp_reg = result_reg;
 };
 
 /* Precedência 0 */
