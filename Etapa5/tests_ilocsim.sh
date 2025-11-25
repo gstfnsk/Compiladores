@@ -1,5 +1,22 @@
 #!/bin/bash
 
+# --- Options ---
+IGNORE_MY_HEADER=0
+
+# Parse options
+while getopts ":x" opt; do
+    case $opt in
+        x)
+            IGNORE_MY_HEADER=1
+            ;;
+        \?)
+            echo "Usage: $0 [-x]"
+            echo "  -x  Ignore first 3 lines of *_my_sim.txt when diffing"
+            exit 1
+            ;;
+    esac
+done
+
 # --- Configuration ---
 EXECUTABLE="./etapa5"
 SIMULATOR="python3 ilocsim.py"
@@ -75,12 +92,12 @@ for test_file in "$TEST_DIR"/*; do
         
         # STEP 2: Run simulator on Reference ILOC
         if [ -s "$reference_iloc" ]; then
-             $SIMULATOR -m -x "$reference_iloc" > "$reference_sim_out" 2>&1
+             $SIMULATOR -m -s -x "$reference_iloc" > "$reference_sim_out" 2>&1
         fi
 
         # STEP 3: Run simulator on My ILOC output
         if [ -s "$my_iloc" ]; then
-             $SIMULATOR -m -x "$my_iloc" > "$my_sim_out" 2>&1
+             $SIMULATOR -m -s -x "$my_iloc" > "$my_sim_out" 2>&1
         fi
 
         # STEP 4: Compare results
@@ -109,19 +126,38 @@ for test_file in "$TEST_DIR"/*; do
             
         else
             # Both created -> Compare content
-            if diff -q "$reference_sim_out" "$my_sim_out" >/dev/null; then
-                echo -e "${GREEN}PASSED${NC}"
-                ((passed_tests++))
+            if [ "$IGNORE_MY_HEADER" -eq 1 ]; then
+                # Ignore first 3 lines of my_sim_out
+                if diff -q "$reference_sim_out" <(sed '1,3d' "$my_sim_out") >/dev/null; then
+                    echo -e "${GREEN}PASSED${NC}"
+                    ((passed_tests++))
+                else
+                    echo -e "${RED}FAILED${NC}"
+                    echo -e "  ${YELLOW}-> Simulation content differs (with -x header-ignore).${NC}"
+                    echo -e "  Debug Files:"
+                    echo -e "    1. Input Source:   ${CYAN}$test_file${NC}"
+                    echo -e "    2. Ref ILOC:       ${CYAN}$reference_iloc${NC}"
+                    echo -e "    3. My ILOC:        ${CYAN}$my_iloc${NC}"
+                    echo -e "    4. My Sim Output:  ${CYAN}$my_sim_out${NC}"
+                    echo -e "    5. Ref Sim Output: ${CYAN}$reference_sim_out${NC}"
+                    ((failed_tests++))
+                fi
             else
-                echo -e "${RED}FAILED${NC}"
-                echo -e "  ${YELLOW}-> Simulation content differs.${NC}"
-                echo -e "  Debug Files:"
-                echo -e "    1. Input Source:   ${CYAN}$test_file${NC}"
-                echo -e "    2. Ref ILOC:       ${CYAN}$reference_iloc${NC}"
-                echo -e "    3. My ILOC:        ${CYAN}$my_iloc${NC}"
-                echo -e "    4. My Sim Output:  ${CYAN}$my_sim_out${NC}"
-                echo -e "    5. Ref Sim Output: ${CYAN}$reference_sim_out${NC}"
-                ((failed_tests++))
+                # Normal diff
+                if diff -q "$reference_sim_out" "$my_sim_out" >/dev/null; then
+                    echo -e "${GREEN}PASSED${NC}"
+                    ((passed_tests++))
+                else
+                    echo -e "${RED}FAILED${NC}"
+                    echo -e "  ${YELLOW}-> Simulation content differs.${NC}"
+                    echo -e "  Debug Files:"
+                    echo -e "    1. Input Source:   ${CYAN}$test_file${NC}"
+                    echo -e "    2. Ref ILOC:       ${CYAN}$reference_iloc${NC}"
+                    echo -e "    3. My ILOC:        ${CYAN}$my_iloc${NC}"
+                    echo -e "    4. My Sim Output:  ${CYAN}$my_sim_out${NC}"
+                    echo -e "    5. Ref Sim Output: ${CYAN}$reference_sim_out${NC}"
+                    ((failed_tests++))
+                fi
             fi
         fi
     fi

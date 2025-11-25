@@ -741,7 +741,16 @@ operacao_binaria_mult_div: operacao_binaria_mult_div '%' operacao_unaria {
         YYABORT;
     }
 
-    $$ = handle_binary_op("%", NOP, $1, $3); // Usa nop de placeholder para o operador %
+    $$ = asd_new("%");
+    $$->type = $1->type;
+    asd_add_child($$, $1);
+    asd_add_child($$, $3);
+
+    // Apenas para evitar problemas com memory leaks e crashes:
+    $$->code = concat_code($1->code, $3->code);
+    $1->code = NULL;
+    $3->code = NULL;
+    $$->temp_reg = new_temporary();
 };
 
 /* Precedência 1 */
@@ -776,9 +785,22 @@ operacao_unaria: '-' operacao_unaria {
     $$->temp_reg = result_reg;
 };
 operacao_unaria: '!' operacao_unaria {
+    asd_tree_t *child = $2;
+
     $$ = asd_new("!");
     $$->type = $2->type;
-    asd_add_child($$, $2);
+    asd_add_child($$, child);
+
+    // Começa do código já gerado para o filho
+    $$->code = child->code;
+    child->code = NULL;      // Evita double free
+
+    // result = (child == 0) ? 1 : 0
+    char *result_reg = new_temporary();
+    iloc_operation *cmp_zero = create_iloc_op(NULL, CMP_EQ, child->temp_reg, "0", NULL, result_reg, NULL, NULL);
+    append_op($$->code, cmp_zero);
+
+    $$->temp_reg = result_reg;
 };
 
 /* Precedência 0 */
