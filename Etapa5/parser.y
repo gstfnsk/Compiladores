@@ -741,7 +741,16 @@ operacao_binaria_mult_div: operacao_binaria_mult_div '%' operacao_unaria {
         YYABORT;
     }
 
-    $$ = handle_binary_op("%", NOP, $1, $3); // Usa nop de placeholder para o operador %
+    $$ = asd_new("%");
+    $$->type = $1->type;
+    asd_add_child($$, $1);
+    asd_add_child($$, $3);
+
+    // Apenas para evitar problemas com memory leaks e crashes:
+    $$->code = concat_code($1->code, $3->code);
+    $1->code = NULL;
+    $3->code = NULL;
+    $$->temp_reg = new_temporary();
 };
 
 /* Precedência 1 */
