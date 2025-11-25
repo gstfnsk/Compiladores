@@ -39,17 +39,11 @@ const char* opcode_to_string[] = {
     "cbr", "jumpI", "jump"
 };
 
-int is_control_flow_op(iloc_op_code opcode) {
+int is_single_arrow_op(iloc_op_code opcode) {
     switch (opcode) {
         case CBR:
         case JUMPI:
         case JUMP:
-        case CMP_LT:
-        case CMP_LE:
-        case CMP_EQ:
-        case CMP_GE:
-        case CMP_GT:
-        case CMP_NE:
             return 1;
         default:
             return 0;
@@ -128,7 +122,7 @@ void print_iloc_code(iloc_code* code) {
         }
 
         if (op->dest[0]) {
-            printf(is_control_flow_op(op->opcode) ? " -> " : " => ");
+            printf(is_single_arrow_op(op->opcode) ? " -> " : " => ");
             printf("%s", op->dest[0]);
             if (op->dest[1]) {
                 printf(", %s", op->dest[1]);
