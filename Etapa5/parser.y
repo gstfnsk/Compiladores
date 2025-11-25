@@ -319,39 +319,94 @@ declaracao_variavel: TK_VAR TK_ID TK_ATRIB tipo TK_COM TK_LI_DECIMAL {
 };
 
 declaracao_variavel: TK_VAR TK_ID TK_ATRIB tipo TK_COM TK_LI_INTEIRO {
-	$$ = asd_new("com");
+	// $$ = asd_new("com");
+    // $$->type = INT;
+    // if ($2) {
+    //     SymbolNode *s_exists = find_symbol($2->value);
+    //     if (s_exists && s_exists->symbol.nature == IDENTIFICADOR) {
+    //         throw_already_declared_error($2->line_number, $2->value);
+    //         YYABORT;
+    //     }
+
+    //     if ($4 != INT) {
+    //         throw_type_mismatch_error($2->line_number, $2->value, "INT", $6->value, get_label_type($6->type));
+    //         YYABORT;
+    //     }
+
+    //     Symbol var_symbol = make_var_symbol($2->value, INT);
+    //     SymbolNode *new_node = insert_symbol(var_symbol);
+
+    //     asd_tree_t *literal_node = asd_new($2->value);
+    //     asd_add_child($$, literal_node);
+
+    //     // Geração de código ILOC para inicialização da variável
+    //     $$->code = calloc(1, sizeof(iloc_code));
+    //     char *temp_reg = new_temporary();
+        
+    //     // loadI: value -> temp_reg
+    //     iloc_operation* load_op = create_iloc_op(NULL, LOADI, $6->value, NULL, NULL, temp_reg, NULL, NULL);
+    //     append_op($$->code, load_op);
+
+    //     // Calcula o offset da variável na stack
+    //     char offset_str[16];
+    //     sprintf(offset_str, "%d", new_node->symbol.offset * 4);
+
+    //     // storeAI: temp_reg -> rfp + offset
+    //     iloc_operation* store_op = create_iloc_op(NULL, STOREAI, temp_reg, NULL, NULL, "rfp", offset_str, NULL);
+    //     append_op($$->code, store_op);
+        
+    //     free(temp_reg); 
+    //     free($2->value);
+    //     free($2);
+    // }
+    // if ($6) {
+    //     asd_tree_t *literal_node = asd_new($6->value);
+    //     literal_node->type = INT; // Define o tipo do literal como INT
+    //     asd_add_child($$, literal_node);
+
+    //     // O valor de $6 foi copiado para o nó, podemos liberar a memória.
+    //     free($6->value);
+    //     free($6);
+    // }
+    $$ = asd_new("com");
     $$->type = INT;
-    if ($2) {
-        SymbolNode *s_exists = find_symbol($2->value);
-        if (s_exists && s_exists->symbol.nature == IDENTIFICADOR) {
-            throw_already_declared_error($2->line_number, $2->value);
-            YYABORT;
-        }
 
-        if ($4 != INT) {
-            throw_type_mismatch_error($2->line_number, $2->value, "INT", $6->value, get_label_type($6->type));
-            YYABORT;
-        }
-
-        Symbol var_symbol = make_var_symbol($2->value, INT);
-        insert_symbol(var_symbol);
-
-        asd_tree_t *literal_node = asd_new($2->value);
-        asd_add_child($$, literal_node);
-
-        // O valor de $2 foi copiado para o nó, podemos liberar a memória.
-        free($2->value);
-        free($2);
+    SymbolNode *s_exists = find_symbol($2->value);
+    if (s_exists && s_exists->symbol.nature == IDENTIFICADOR) {
+        throw_already_declared_error($2->line_number, $2->value);
+        YYABORT;
     }
-    if ($6) {
-        asd_tree_t *literal_node = asd_new($6->value);
-        literal_node->type = INT; // Define o tipo do literal como INT
-        asd_add_child($$, literal_node);
 
-        // O valor de $6 foi copiado para o nó, podemos liberar a memória.
-        free($6->value);
-        free($6);
+    if ($4 != INT) {
+        throw_type_mismatch_error($2->line_number, $2->value, "INT", $6->value, get_label_type($6->type));
+        YYABORT;
     }
+
+    Symbol var_symbol = make_var_symbol($2->value, INT);
+    insert_symbol(var_symbol);
+
+    $$ = asd_new("com");
+    $$->type = INT;
+
+    // loadI literal -> temp
+    $$->code = calloc(1, sizeof(iloc_code));
+    char *temp = new_temporary();
+    iloc_operation *load_op = create_iloc_op(NULL, LOADI, $6->value, NULL, NULL, temp, NULL, NULL);
+    append_op($$->code, load_op);
+
+    // storeAI temp => base, offset
+    char offset_str[16];
+    sprintf(offset_str, "%d", var_symbol.offset * 4);
+    const char *base_reg = get_var_base_register($2->value);
+    iloc_operation *store_op = create_iloc_op(NULL, STOREAI, temp, NULL, NULL, base_reg, offset_str, NULL);
+    append_op($$->code, store_op);
+
+    $$->temp_reg = temp;
+
+    free($2->value);
+    free($2);
+    free($6->value);
+    free($6);
 };
 declaracao_variavel: TK_VAR TK_ID TK_ATRIB tipo {
     SymbolNode *s_exists = find_symbol($2->value);
