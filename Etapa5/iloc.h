@@ -69,7 +69,4 @@ void print_iloc_code(iloc_code* code);
 // Libera a memória de uma lista de código ILOC
 void free_iloc_code(iloc_code* code);
 
-// Adiciona as operações finais (como NOP e HALT) ao código ILOC principal.
-void finalize_code_generation(struct asd_tree *main_node);
-
 #endif //_ILOC_H_
