@@ -797,9 +797,14 @@ operacao_unaria: '!' operacao_unaria {
     $$->code = child->code;
     child->code = NULL;      // Evita double free
 
+    // Cria registrador com valor 0
+    char *reg_zero = new_temporary();
+    iloc_operation *load0 = create_iloc_op(NULL, LOADI, "0", NULL, NULL, reg_zero, NULL, NULL);
+    append_op($$->code, load0);
+
     // result = (child == 0) ? 1 : 0
     char *result_reg = new_temporary();
-    iloc_operation *cmp_zero = create_iloc_op(NULL, CMP_EQ, child->temp_reg, "0", NULL, result_reg, NULL, NULL);
+    iloc_operation *cmp_zero = create_iloc_op(NULL, CMP_EQ, child->temp_reg, reg_zero, NULL, result_reg, NULL, NULL);
     append_op($$->code, cmp_zero);
 
     $$->temp_reg = result_reg;
